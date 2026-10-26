@@ -13,7 +13,7 @@
 ---
 --- **So it is the office route, one group over.** An office document becomes a
 --- picture by way of a PDF page; a video becomes one by way of a frame.
---- [media.nvim](https://github.com/StefanBartl/media.nvim) produces it —
+--- [media.nvim](https://github.com/WKDSteve/media.nvim) produces it —
 --- `media.frame` seeks with ffmpeg, scales, and caches the PNG on disk keyed by
 --- the source file's mtime — and from there this is an image hover: the same
 --- canvas geometry, the same draw, the same keys.

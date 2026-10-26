@@ -91,7 +91,7 @@ local function check_lib()
   local ok = pcall(require, "lib.nvim.notify")
   if not ok then
     health.error("lib.nvim: not found", {
-      "hover.nvim requires it -- add StefanBartl/lib.nvim to `dependencies`.",
+      "hover.nvim requires it -- add WKDSteve/lib.nvim to `dependencies`.",
     })
     return false
   end

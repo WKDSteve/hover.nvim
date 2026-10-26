@@ -1,7 +1,7 @@
 # TESTS/ — what is covered, and what is not
 
 `TESTS/` is a busted-style suite (`describe`/`it`/`before_each`/`after_each`)
-run by [testing.nvim](https://github.com/StefanBartl/testing.nvim); the
+run by [testing.nvim](https://github.com/WKDSteve/testing.nvim); the
 project settings are in [`.testing.lua`](../.testing.lua). Every spec file
 runs in a child editor of its own (`isolated = "file"`).
 

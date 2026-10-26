@@ -36,7 +36,7 @@ the reason is worth stating precisely rather than hedging:
 
 So the default is a still, and it stays a still until asked otherwise. `gf`
 over the hover opens the file in whatever plays video on that machine, and
-[media.nvim](https://github.com/StefanBartl/media.nvim)'s `:Media play` does
+[media.nvim](https://github.com/WKDSteve/media.nvim)'s `:Media play` does
 the same from anywhere. The transport key (below) is the third option, and by
 default (`video.playback = "window"`) it is the most direct one of all: a real
 mpv window, video and sound, decoded and drawn by mpv itself rather than by
@@ -339,7 +339,7 @@ picture does not run on its own clock and hope the sound stays close — the
 timer asks mpv *where it is* once per tick and paints whatever frame belongs
 to that answer, so a late tick just jumps to wherever the sound has gotten
 to rather than falling further behind it. See
-[`media.core.audio`](https://github.com/StefanBartl/media.nvim)'s module
+[`media.core.audio`](https://github.com/WKDSteve/media.nvim)'s module
 header for the design and why it had to be a real player rather than a
 decoder.
 

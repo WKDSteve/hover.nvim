@@ -165,7 +165,7 @@ end
 --- Hand `path` to whatever plays it without mpv: a known classic player when
 --- alignment is wanted and one is found (see the module doc), else a
 --- configured `media.player`, else the system's own registered handler
---- ([`media.play`](https://github.com/StefanBartl/media.nvim)). A second call
+--- ([`media.play`](https://github.com/WKDSteve/media.nvim)). A second call
 --- for the same path this float is still open for is a no-op -- see the
 --- module doc for why nothing here can close the first one before trying
 --- again the way `preview.window` does.

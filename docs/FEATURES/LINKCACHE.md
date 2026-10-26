@@ -163,4 +163,4 @@ including that a stale hit sends exactly one request and that a `304` only
 moves the clock. Not covered: a real server's `ETag` behaviour, and two Neovim
 instances writing the same entry. The second heals itself (a half-written file
 reads as a miss), but the temp-file name it goes through is shared, which is a
-[lib.nvim](https://github.com/StefanBartl/lib.nvim) matter.
+[lib.nvim](https://github.com/WKDSteve/lib.nvim) matter.

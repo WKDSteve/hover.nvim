@@ -114,7 +114,7 @@ borrow condition is in [BINDINGS.md](BINDINGS.md).
 | --- | --- | --- |
 | `keymaps.show` | `false` | Owned, kept. A key for `:Hover show`. No key is claimed unless asked for. |
 | `dismiss_keys` | `{ "q", "<Esc>" }` | **every** hover — anything can be waved away, a picture included |
-| `open_keys` | `{ "gf" }` | Open what the float is showing — through [open.nvim](https://github.com/StefanBartl/open.nvim) when installed, else `vim.ui.open` |
+| `open_keys` | `{ "gf" }` | Open what the float is showing — through [open.nvim](https://github.com/WKDSteve/open.nvim) when installed, else `vim.ui.open` |
 | `copy_keys.copy` | `{ "Y" }` | **every** hover: copy what the float shows — its lines into the unnamed register and the clipboard, or the picture on screen (the zoomed crop, the PDF page) as a file whose path goes there. `Y` already means yank, the float cannot be entered to yank from it, and `y$` on the line underneath is back when the float closes. See `:Hover copy` |
 | `zen_keys.toggle` | `{ "F" }` | **any** hover with a target. `F` is find-character-backwards: on its own it waits for a second character and completes nothing, so the borrow displaces no finished operation. `z` was the mnemonic and cannot be taken — it is a prefix, and a swallowed `zz` does not announce itself |
 | `scroll_keys.down` | `{ "<M-PageDown>", "<C-Down>" }` | scrollable hovers only. Two pairs, because a key that is not on the keyboard cannot be pressed |
@@ -326,7 +326,7 @@ The state also lives in `vim.g.hover_disable`, which is where you say it from a 
 spec before anything loads — one setting rather than two that can disagree:
 
 ```lua
-{ "StefanBartl/hover.nvim", init = function() vim.g.hover_disable = true end }
+{ "WKDSteve/hover.nvim", init = function() vim.g.hover_disable = true end }
 ```
 
 That outranks anything a plugin configures: a host enabling its hover cannot override you

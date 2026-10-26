@@ -37,7 +37,7 @@ hits or misses.
 
 Neovim 0.10 or newer.
 
-StefanBartl/lib.nvim is a HARD dependency -- required with no fallback. The
+WKDSteve/lib.nvim is a HARD dependency -- required with no fallback. The
 debounce, the notifier, the LRU cache, the autocmd helpers and the `:Hover`
 command composer all come from it.
 

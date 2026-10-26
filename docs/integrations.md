@@ -85,19 +85,19 @@ including `on_request` for an answer that costs a process start.
 
 | Plugin | Door | Contributes | Without it |
 | --- | --- | --- | --- |
-| [markdown.nvim](https://github.com/StefanBartl/markdown.nvim) | registry | link / `<figure>` scanning; `#heading` section previews | only bare paths start a hover; `file.md#frag` shows the file's head, not that section |
-| [gopath.nvim](https://github.com/StefanBartl/gopath.nvim) | named | resolving truncated paths and `:line:col` suffixes | ordinary relative and absolute paths still resolve; truncated ones do not |
-| [open.nvim](https://github.com/StefanBartl/open.nvim) | named | routing `gf` from the float to the right destination -- a browser for a URL, the configured file manager for a path | `vim.ui.open` opens it instead, letting the OS decide |
-| [images.nvim](https://github.com/StefanBartl/images.nvim) | named | drawing the picture into the float (OSC 1337) | an image target shows format, dimensions and size as text |
-| [pdfport.nvim](https://github.com/StefanBartl/pdfport.nvim) | named | rasterizing a PDF page to PNG, and a *window* of one at a higher DPI for the zoom; converting an office document to a PDF (opt-in) | a PDF shows its size and why it could not be rendered; a `.docx` shows what it is and how big; `:Hover zoom` says a page cannot be magnified |
-| [media.nvim](https://github.com/StefanBartl/media.nvim) | named | lifting a still (or a played run, or sound for it) out of a video with ffmpeg/mpv, and describing the file with ffprobe | a `.mp4` shows what it is and how big, and says which half is missing |
-| [reposcope.nvim](https://github.com/StefanBartl/reposcope.nvim) | registry | `owner/repo` under the cursor, as the path of its cached README | no repository hover |
-| [migrate.nvim](https://github.com/StefanBartl/migrate.nvim) | registry | a *position* preview: this line uses a deprecated API, and what replaces it | no deprecation notice in the float |
-| [docmap.nvim](https://github.com/StefanBartl/docmap.nvim) | registry | a *position* preview: what the dotted module under the cursor is, out of the generated map | no module summary |
-| [spotlight.nvim](https://github.com/StefanBartl/spotlight.nvim) | registry | a *position* preview: how often a spotlighted token occurs in this buffer | no occurrence count |
-| [insights.nvim](https://github.com/StefanBartl/insights.nvim) | registry | a *position* preview: which files import the module under the cursor, out of its own remembered scan | no importer list in the float |
-| [sandbox.nvim](https://github.com/StefanBartl/sandbox.nvim) | registry | a *position* preview, **request-only**: whether the container image under the cursor is pulled, how big it is, and what runs from it | no image hover |
-| [language.nvim](https://github.com/StefanBartl/language.nvim) | registry | a *position* preview, **request-only**: the word under the cursor, translated | no translation in the float; `:Translate <lang> cword` still answers |
+| [markdown.nvim](https://github.com/WKDSteve/markdown.nvim) | registry | link / `<figure>` scanning; `#heading` section previews | only bare paths start a hover; `file.md#frag` shows the file's head, not that section |
+| [gopath.nvim](https://github.com/WKDSteve/gopath.nvim) | named | resolving truncated paths and `:line:col` suffixes | ordinary relative and absolute paths still resolve; truncated ones do not |
+| [open.nvim](https://github.com/WKDSteve/open.nvim) | named | routing `gf` from the float to the right destination -- a browser for a URL, the configured file manager for a path | `vim.ui.open` opens it instead, letting the OS decide |
+| [images.nvim](https://github.com/WKDSteve/images.nvim) | named | drawing the picture into the float (OSC 1337) | an image target shows format, dimensions and size as text |
+| [pdfport.nvim](https://github.com/WKDSteve/pdfport.nvim) | named | rasterizing a PDF page to PNG, and a *window* of one at a higher DPI for the zoom; converting an office document to a PDF (opt-in) | a PDF shows its size and why it could not be rendered; a `.docx` shows what it is and how big; `:Hover zoom` says a page cannot be magnified |
+| [media.nvim](https://github.com/WKDSteve/media.nvim) | named | lifting a still (or a played run, or sound for it) out of a video with ffmpeg/mpv, and describing the file with ffprobe | a `.mp4` shows what it is and how big, and says which half is missing |
+| [reposcope.nvim](https://github.com/WKDSteve/reposcope.nvim) | registry | `owner/repo` under the cursor, as the path of its cached README | no repository hover |
+| [migrate.nvim](https://github.com/WKDSteve/migrate.nvim) | registry | a *position* preview: this line uses a deprecated API, and what replaces it | no deprecation notice in the float |
+| [docmap.nvim](https://github.com/WKDSteve/docmap.nvim) | registry | a *position* preview: what the dotted module under the cursor is, out of the generated map | no module summary |
+| [spotlight.nvim](https://github.com/WKDSteve/spotlight.nvim) | registry | a *position* preview: how often a spotlighted token occurs in this buffer | no occurrence count |
+| [insights.nvim](https://github.com/WKDSteve/insights.nvim) | registry | a *position* preview: which files import the module under the cursor, out of its own remembered scan | no importer list in the float |
+| [sandbox.nvim](https://github.com/WKDSteve/sandbox.nvim) | registry | a *position* preview, **request-only**: whether the container image under the cursor is pulled, how big it is, and what runs from it | no image hover |
+| [language.nvim](https://github.com/WKDSteve/language.nvim) | registry | a *position* preview, **request-only**: the word under the cursor, translated | no translation in the float; `:Translate <lang> cword` still answers |
 
 All of them are optional and **none is required**. With none installed the
 hover still gives file heads, directory listings, image and PDF metadata, a
@@ -367,14 +367,14 @@ Each is documented on its own side, because that is where the code is:
 
 | Plugin | Kind | What it contributes | Its own write-up |
 | --- | --- | --- | --- |
-| markdown.nvim | source + preview | link and `<figure>` scanning; `#heading` sections | [docs/hover.md](https://github.com/StefanBartl/markdown.nvim/blob/main/docs/hover.md) |
-| reposcope.nvim | source | `owner/repo` → the path of its cached README | [docs/hover.md](https://github.com/StefanBartl/reposcope.nvim/blob/main/docs/hover.md) |
-| migrate.nvim | position | this line uses a deprecated API, and what replaces it | [docs/hover.md](https://github.com/StefanBartl/migrate.nvim/blob/main/docs/hover.md) |
-| docmap.nvim | position | what the dotted module under the cursor is | [docs/hover.md](https://github.com/StefanBartl/docmap.nvim/blob/main/docs/hover.md) |
-| spotlight.nvim | position | how often a spotlighted token occurs in this buffer | [docs/hover.md](https://github.com/StefanBartl/spotlight.nvim/blob/main/docs/hover.md) |
-| insights.nvim | position | which files import the module under the cursor | [docs/hover.md](https://github.com/StefanBartl/insights.nvim/blob/main/docs/hover.md) |
-| sandbox.nvim | position (`on_request`) | is this container image pulled, how big, what runs from it | [docs/FEATURES/HOVER.md](https://github.com/StefanBartl/sandbox.nvim/blob/main/docs/FEATURES/HOVER.md) |
-| language.nvim | position (`on_request`) | the word under the cursor, translated | [docs/FEATURES/HOVER.md](https://github.com/StefanBartl/language.nvim/blob/main/docs/FEATURES/HOVER.md) |
+| markdown.nvim | source + preview | link and `<figure>` scanning; `#heading` sections | [docs/hover.md](https://github.com/WKDSteve/markdown.nvim/blob/main/docs/hover.md) |
+| reposcope.nvim | source | `owner/repo` → the path of its cached README | [docs/hover.md](https://github.com/WKDSteve/reposcope.nvim/blob/main/docs/hover.md) |
+| migrate.nvim | position | this line uses a deprecated API, and what replaces it | [docs/hover.md](https://github.com/WKDSteve/migrate.nvim/blob/main/docs/hover.md) |
+| docmap.nvim | position | what the dotted module under the cursor is | [docs/hover.md](https://github.com/WKDSteve/docmap.nvim/blob/main/docs/hover.md) |
+| spotlight.nvim | position | how often a spotlighted token occurs in this buffer | [docs/hover.md](https://github.com/WKDSteve/spotlight.nvim/blob/main/docs/hover.md) |
+| insights.nvim | position | which files import the module under the cursor | [docs/hover.md](https://github.com/WKDSteve/insights.nvim/blob/main/docs/hover.md) |
+| sandbox.nvim | position (`on_request`) | is this container image pulled, how big, what runs from it | [docs/FEATURES/HOVER.md](https://github.com/WKDSteve/sandbox.nvim/blob/main/docs/FEATURES/HOVER.md) |
+| language.nvim | position (`on_request`) | the word under the cursor, translated | [docs/FEATURES/HOVER.md](https://github.com/WKDSteve/language.nvim/blob/main/docs/FEATURES/HOVER.md) |
 
 Six of those eight are **position** previews, and that is not a coincidence:
 until the kind existed, "no target" meant "no hover", and a fact *about* a

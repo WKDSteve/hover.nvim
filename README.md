@@ -19,10 +19,10 @@
 [![Lua](https://img.shields.io/badge/Lua-5.1%2FLuaJIT-2C2D72?logo=lua&logoColor=white)](https://www.lua.org)
 ![Status](https://img.shields.io/badge/status-beta-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
-[![CI](https://github.com/StefanBartl/hover.nvim/actions/workflows/ci.yml/badge.svg)](https://github.com/StefanBartl/hover.nvim/actions/workflows/ci.yml)
-[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://stefanbartl.github.io/wkd/p/hover/)
+[![CI](https://github.com/WKDSteve/hover.nvim/actions/workflows/ci.yml/badge.svg)](https://github.com/WKDSteve/hover.nvim/actions/workflows/ci.yml)
+[![wkd](https://img.shields.io/badge/wkd-family-c6ff3d)](https://wkdsteve.github.io/wkd/p/hover/)
 
-> Part of the [wkd](https://stefanbartl.github.io/wkd/) family — see this plugin's [page](https://stefanbartl.github.io/wkd/p/hover/) on the site.
+> Part of the [wkd](https://wkdsteve.github.io/wkd/) family — see this plugin's [page](https://wkdsteve.github.io/wkd/p/hover/) on the site.
 
 Rest the cursor on something that points at a file — a markdown link, or a path
 written as plain text — and a small float shows what it points at.
@@ -34,28 +34,28 @@ written as plain text — and a small float shows what it points at.
 > not there — nothing is reported and nothing fails. See
 > [docs/NAME-COLLISION.md](docs/NAME-COLLISION.md).
 >
-> **[markdown.nvim](https://github.com/StefanBartl/markdown.nvim)** — the single biggest
+> **[markdown.nvim](https://github.com/WKDSteve/markdown.nvim)** — the single biggest
 > upgrade this plugin can receive. Without it only bare paths start a hover; with it
 > `[text](target)`, an `<img src>`, and `file.md#heading` opening on *that section*.
 >
-> **[images.nvim](https://github.com/StefanBartl/images.nvim)** — turns "1920×1080, 340 KB"
+> **[images.nvim](https://github.com/WKDSteve/images.nvim)** — turns "1920×1080, 340 KB"
 > into the actual picture, and is what makes a rasterized PDF page visible at all.
 >
-> **[pdfport.nvim](https://github.com/StefanBartl/pdfport.nvim)** — page 1 of a PDF as an
+> **[pdfport.nvim](https://github.com/WKDSteve/pdfport.nvim)** — page 1 of a PDF as an
 > image, every further page scrollable, and `.docx`/`.xlsx`/`.pptx` too once
 > `:Hover office on`.
 >
-> **[media.nvim](https://github.com/StefanBartl/media.nvim)** — a `.mp4` shown as a frame
+> **[media.nvim](https://github.com/WKDSteve/media.nvim)** — a `.mp4` shown as a frame
 > out of itself rather than as a size in bytes, and `<CR>` plays it, video and sound, in a
 > real mpv window or whatever this machine already opens a video with.
 >
-> **[gopath.nvim](https://github.com/StefanBartl/gopath.nvim)** — the same reference,
+> **[gopath.nvim](https://github.com/WKDSteve/gopath.nvim)** — the same reference,
 > followed rather than previewed. hover calls its `resolve_at_cursor()` through a `pcall`,
 > so neither depends on the other.
 >
 > All of the above are soft: [docs/integrations.md](docs/integrations.md) is who reaches
 > whom, and what degrades when each one is absent.
-> [lib.nvim](https://github.com/StefanBartl/lib.nvim) is the one **hard** dependency.
+> [lib.nvim](https://github.com/WKDSteve/lib.nvim) is the one **hard** dependency.
 
 ---
 
@@ -82,7 +82,7 @@ each page answers.
 - [Why it does it that way](docs/FEATURES/README.md) — one page per decision, with the measurement behind each.
 - [Health check](docs/health.md) — what `:checkhealth hover` reports, section by section.
 - [Contributing](docs/CONTRIBUTING.md)
-- [Feedback](https://github.com/StefanBartl/hover.nvim/issues)
+- [Feedback](https://github.com/WKDSteve/hover.nvim/issues)
 
 `:help hover` is the same reference inside the editor.
 

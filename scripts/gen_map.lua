@@ -69,7 +69,7 @@ local opts = require("docmap.config").build(root, {
   source = "lua/hover",
   title = "hover.nvim",
   out_dir = "docs/map",
-  repo_url = "https://github.com/StefanBartl/hover.nvim",
+  repo_url = "https://github.com/WKDSteve/hover.nvim",
   branch = "main",
 
   -- Three invariants that would otherwise rot in silence. Each is stated as a

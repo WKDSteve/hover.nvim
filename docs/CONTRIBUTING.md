@@ -1,7 +1,7 @@
 # Contributing to hover.nvim
 
 Thank you for your interest! Bugs, ideas and questions are welcome in the
-[issue tracker](https://github.com/StefanBartl/hover.nvim/issues); pull requests
+[issue tracker](https://github.com/WKDSteve/hover.nvim/issues); pull requests
 very welcome.
 
 **Before changing anything, read [`architecture.md`](architecture.md)** — it
@@ -79,7 +79,7 @@ broken.
 ## Tests
 
 `TESTS/` is a busted-style suite run by
-[testing.nvim](https://github.com/StefanBartl/testing.nvim) (`bash scripts/test.sh`);
+[testing.nvim](https://github.com/WKDSteve/testing.nvim) (`bash scripts/test.sh`);
 it needs `lib.nvim` and `ui.nvim` next to this repo (or in `.deps/`), no other plugin.
 [GitHub Actions](../.github/workflows/ci.yml) runs it on every push and PR to
 `main`.

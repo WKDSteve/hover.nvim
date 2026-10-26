@@ -8,17 +8,17 @@
 > from inside. [NAME-COLLISION.md](NAME-COLLISION.md) is the whole story; it is short.
 
 - Neovim >= 0.10
-- [lib.nvim](https://github.com/StefanBartl/lib.nvim) — **required**, with no fallback.
+- [lib.nvim](https://github.com/WKDSteve/lib.nvim) — **required**, with no fallback.
   The `:Hover` command composer, the debounce behind `delay_ms`, the notifier, the LRU
   under the preview cache and the autocmd helpers all come from it.
 - No external tools. Everything hover.nvim does on its own is Neovim and the filesystem;
   the things that shell out — rasterizing a PDF page, converting an office document —
-  belong to [pdfport.nvim](https://github.com/StefanBartl/pdfport.nvim) and are optional.
+  belong to [pdfport.nvim](https://github.com/WKDSteve/pdfport.nvim) and are optional.
 
 Four optional contributors, none required, each upgrading exactly one row of what the
 float can show: markdown.nvim, images.nvim, pdfport.nvim, gopath.nvim. What each brings
 and what its absence costs is in [integrations.md](integrations.md).
-[ui.nvim](https://github.com/StefanBartl/ui.nvim) is optional too — it backs `:Hover
+[ui.nvim](https://github.com/WKDSteve/ui.nvim) is optional too — it backs `:Hover
 dashboard`'s board, the dwell tooltip and the `?` key panel; without it `:Hover dashboard`
 falls back to the plain message it used before that module existed.
 
@@ -61,10 +61,10 @@ until `enable()` is called.
 
 ```lua
 {
-  "StefanBartl/hover.nvim",
+  "WKDSteve/hover.nvim",
   lazy = false,
   priority = 900,
-  dependencies = { "StefanBartl/lib.nvim" },
+  dependencies = { "WKDSteve/lib.nvim" },
   config = function()
     require("hover").enable()
   end,
@@ -82,10 +82,10 @@ it stands:
 
 ```lua
 {
-  "StefanBartl/hover.nvim",
+  "WKDSteve/hover.nvim",
   lazy = false,
   priority = 900,
-  dependencies = { "StefanBartl/lib.nvim" },
+  dependencies = { "WKDSteve/lib.nvim" },
   config = function()
     require("hover").enable({
       mode = "manual",
@@ -99,8 +99,8 @@ it stands:
 
 ```lua
 use({
-  "StefanBartl/hover.nvim",
-  requires = { "StefanBartl/lib.nvim" },
+  "WKDSteve/hover.nvim",
+  requires = { "WKDSteve/lib.nvim" },
   config = function()
     require("hover").enable()
   end,
@@ -113,8 +113,8 @@ lazy-loading options are exactly the thing rule 2 is about.
 ## vim-plug
 
 ```vim
-Plug 'StefanBartl/lib.nvim'
-Plug 'StefanBartl/hover.nvim'
+Plug 'WKDSteve/lib.nvim'
+Plug 'WKDSteve/hover.nvim'
 ```
 
 ```vim
@@ -130,8 +130,8 @@ unconditionally.
 ```lua
 local add = MiniDeps.add
 
-add({ source = "StefanBartl/lib.nvim" })
-add({ source = "StefanBartl/hover.nvim" })
+add({ source = "WKDSteve/lib.nvim" })
+add({ source = "WKDSteve/hover.nvim" })
 
 require("hover").enable()
 ```
@@ -146,7 +146,7 @@ Point the spec at the directory instead of the repository; nothing else changes.
 
 ```lua
 { dir = "/path/to/hover.nvim", lazy = false, priority = 900,
-  dependencies = { "StefanBartl/lib.nvim" },
+  dependencies = { "WKDSteve/lib.nvim" },
   config = function() require("hover").enable() end }
 ```
 
@@ -209,7 +209,7 @@ plugin manager before anything on this page.
 ## Turning it off
 
 ```lua
-{ "StefanBartl/hover.nvim", init = function() vim.g.hover_disable = true end }
+{ "WKDSteve/hover.nvim", init = function() vim.g.hover_disable = true end }
 ```
 
 `vim.g.hover_disable` forces `mode = "off"` and outranks anything a plugin configures, so
