@@ -23,7 +23,8 @@ rather than failing.
 
 The guards of testing.nvim are on (`guards` in `.testing.lua`): a spec that
 writes outside the temp directory, starts a process other than `git`,
-`magick`, `vlc` or `nvim` (the child editor of a test sheet), blocks on a prompt or swallows a scheduled error fails.
+`magick`, `vlc` or `nvim` (the child editor of a test sheet), blocks on a
+prompt or swallows a scheduled error fails.
 The state guard is off (every file has its own editor).
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `stylua

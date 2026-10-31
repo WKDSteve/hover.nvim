@@ -37,7 +37,7 @@ return {
     -- loads (css*, lua*, Kit*, ImagesBlock_*) are the runtime's. Measured: 130 warnings of that
     -- kind and nothing else, so the guard is off rather than allowlisted case by case.
     state = "off",
-    -- Processes are watched; the three below are the legitimate ones (see guard_allow).
+    -- Processes are watched; the ones below are the legitimate ones (see guard_allow).
     process_net = "error",
   },
   guard_allow = {

@@ -2,7 +2,8 @@
 -- (task hover.nvim/copy-live-check, points "Text-Hover, `Y`" and "nach `<C-Down>`").
 -- Automated: a text hover over a file, `Y` puts the lines on screen (without the title) linewise
 -- into the unnamed register; after `<C-Down>` `Y` takes the scrolled lines; `:Hover copy` does the
--- same as `Y`. lib.nvim's clipboard call is stubbed in the child and records what it was handed:
+-- same as `Y`; the copy pastes into another buffer as whole lines; once the hover is closed `Y`
+-- is `y$` again. lib.nvim's clipboard call is stubbed in the child and records what it was handed:
 -- the real system clipboard, pasting into another program and the picture crop stay by hand.
 return {
   id = "hover.copy-register",
@@ -21,8 +22,14 @@ return {
         _G.clipped[#_G.clipped + 1] = text
         return true
       end
+      _G.target_lines = function(from, to)
+        local out = {}
+        for i = from, to do out[#out + 1] = ("line %02d of the target"):format(i) end
+        return table.concat(out, "\n") .. "\n"
+      end
+      _G.y_before = vim.fn.maparg("Y", "n", false, true)
       require("hover").setup({})]],
-      note = "hover.nvim with its defaults; the system clipboard stubbed",
+      note = "hover.nvim with its defaults; the system clipboard stubbed; Y as it was before",
     },
     {
       lua = [[local root = vim.fn.tempname()
@@ -47,8 +54,8 @@ return {
     { screen = "text-hover" },
     { keys = "Y", note = "copy what the hover shows" },
     {
-      expect = [[vim.fn.getreg('"'):find("^line 01 of the target\nline 02 of the target\n") ~= nil]],
-      note = "the register starts with the first lines of the file",
+      expect = [[vim.fn.getreg('"') == _G.target_lines(1, 20)]],
+      note = "the register holds exactly the lines on screen: 1 to 20, no more, no less",
     },
     { expect = [[vim.fn.getregtype('"') == "V"]], note = "linewise" },
     {
@@ -63,9 +70,8 @@ return {
     { settle = 300 },
     { keys = "Y", note = "copy again" },
     {
-      expect = [[vim.fn.getreg('"'):find("^line 21 of the target\n") ~= nil
-        and vim.fn.getreg('"'):find("line 01 of", 1, true) == nil]],
-      note = "the register holds the scrolled lines (a page further: 21 on), not the first ones",
+      expect = [[vim.fn.getreg('"') == _G.target_lines(21, 40)]],
+      note = "the register holds exactly the scrolled lines (a page further: 21 to 40)",
     },
     { lua = [[_G.after_scroll = vim.fn.getreg('"')]] },
     { lua = [[vim.fn.setreg('"', "")]] },
@@ -80,8 +86,25 @@ return {
       note = "the float is gone",
     },
     {
-      expect = [[vim.fn.maparg("Y", "n", false, true).desc ~= "hover: copy what this hover shows"]],
-      note = "Y is handed back",
+      expect = [[vim.fn.maparg("Y", "n", false, true).rhs == _G.y_before.rhs
+        and vim.fn.maparg("Y", "n") == "y$"]],
+      note = "Y is handed back: the mapping it displaced (the default y$) is restored",
+    },
+    {
+      lua = [[vim.cmd.enew(); vim.api.nvim_buf_set_lines(0, 0, -1, false, { "x" })]],
+      note = "another buffer",
+    },
+    { keys = "p", note = "paste what :Hover copy put in the register" },
+    {
+      expect = [[table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n") .. "\n"
+        == "x\n" .. _G.target_lines(21, 40)]],
+      note = "the copy pastes as whole lines below the cursor line, not into the middle of it",
+    },
+    { lua = [[vim.api.nvim_win_set_cursor(0, { 1, 0 })]] },
+    { keys = "Y", note = "Y with no hover up" },
+    {
+      expect = [[vim.fn.getreg('"') == "x" and vim.fn.getregtype('"') == "v"]],
+      note = "Y is y$ again",
     },
   },
   judge = {
