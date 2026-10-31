@@ -48,6 +48,8 @@ return {
       "magick",
       -- external_spec.lua: the argv handed to the player is asserted (the spec stubs vim.system, vlc is never needed).
       "vlc",
+      -- sheets_spec.lua: every test sheet (TESTS/sheets/) runs in a child editor.
+      "nvim",
     },
   },
   -- The runner counts which commands, keymaps and autocommands the specs exercise (docs/SURFACE.md of testing.nvim);

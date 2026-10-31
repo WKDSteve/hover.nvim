@@ -23,7 +23,7 @@ rather than failing.
 
 The guards of testing.nvim are on (`guards` in `.testing.lua`): a spec that
 writes outside the temp directory, starts a process other than `git`,
-`magick` or `vlc`, blocks on a prompt or swallows a scheduled error fails.
+`magick`, `vlc` or `nvim` (the child editor of a test sheet), blocks on a prompt or swallows a scheduled error fails.
 The state guard is off (every file has its own editor).
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `stylua
@@ -35,6 +35,18 @@ no spec run opens lib.nvim's declared-tools popup — see the comment there.
 A spec must not depend on which float happens to be on screen anyway, but
 that popup in particular arrives on a later tick, only where a declared tool
 is missing, and only in the first spec file of a run.
+
+## Test sheets
+
+`TESTS/sheets/*.sheet.lua` are live checks written down as data (testing.nvim's
+`docs/SHEETS.md`). `TESTS/sheets_spec.lua` runs each one as the case
+`sheet:<id>` in a child editor and compares its screen snapshots under
+`TESTS/__snapshots__/sheets/`. `testing sheets report . --from ir.json` lists
+what is left for a person (`judge` and `manual`).
+
+| Sheet | Live-check task | Automated | Left by hand |
+|---|---|---|---|
+| `hover-copy-register` | `hover.nvim/copy-live-check` | `Y` and `:Hover copy` on a text hover: register text (no title), linewise, after `<C-Down>` the scrolled lines; the clipboard call is stubbed | the real system clipboard, pasting into another program, the crop of a zoomed picture / PDF page / page screenshot |
 
 ## Coverage map
 
