@@ -439,15 +439,18 @@ end)
 describe("the target types against each other", function()
   it("previews every type a target can declare, and no type it cannot", function()
     -- The third copy of the same list, and the one that decides what a reader
-    -- actually sees: the `if target.type == …` chain in `build`. Bounded to
-    -- that function, because `target.type` is compared elsewhere for other
-    -- questions -- whether a URL may be fetched, whether a preview scrolls by
-    -- page -- and those are not dispatch.
-    local chain = read("lua/hover/init.lua"):match("\nlocal function build%(.-\nend\n")
-    assert.is_truthy(chain, "the preview dispatch is no longer a top-level `build` function")
+    -- actually sees: the `BUILDERS.<type> = …` table `build` dispatches on.
+    -- Bounded to those assignments, because `target.type` is compared elsewhere
+    -- for other questions -- whether a URL may be fetched, whether a preview
+    -- scrolls by page -- and those are not dispatch.
+    local source = read("lua/hover/init.lua")
+    assert.is_truthy(
+      source:find("\nlocal BUILDERS = {}", 1, true),
+      "the preview dispatch is no longer the top-level `BUILDERS` table"
+    )
 
     local dispatched = {}
-    for name in chain:gmatch('target%.type == "(%a+)"') do
+    for name in source:gmatch("\nBUILDERS%.(%a+) = ") do
       dispatched[name] = true
     end
 

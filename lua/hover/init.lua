@@ -621,6 +621,115 @@ local function build_async(run, emit)
   end, config.placeholder_grace_ms())
 end
 
+---@alias Hover.Builder fun(target: Hover.Target, bufnr: integer, opts: Hover.PreviewOpts, emit: fun(content: Hover.Content|nil))
+
+---@internal
+--- The built-in previewer per target type. A type with no entry has nothing to show.
+---@type table<string, Hover.Builder>
+local BUILDERS = {}
+
+-- No plugin claimed in-page anchors: nothing here can resolve a heading,
+-- so there is nothing honest to show.
+BUILDERS.anchor = function(_, _, _, emit)
+  emit(nil)
+end
+
+BUILDERS.missing = function(target, _, _, emit)
+  emit(require("hover.preview.text").missing(target))
+end
+
+BUILDERS.directory = function(target, _, opts, emit)
+  emit(require("hover.preview.text").directory(target, opts))
+end
+
+-- A `markdown` target with an unclaimed `#anchor` falls through to the
+-- plain file preview: the file still exists, only the fragment could not
+-- be resolved, and its first lines beat an error.
+BUILDERS.file = function(target, _, opts, emit)
+  emit(require("hover.preview.text").file(target, opts))
+end
+BUILDERS.markdown = BUILDERS.file
+
+BUILDERS.image = function(target, _, opts, emit)
+  local media = require("hover.preview.media")
+  if (opts.zoom or 0) > 0 then
+    -- A magnified detail is a `magick` run and a file on disk, so it takes
+    -- the route a PDF page takes -- and measured, it is the faster of the
+    -- two: ~258 ms against ~1150 ms for one rasterized page.
+    build_async(function(on_result)
+      return media.zoomed(target.path, opts, on_result)
+    end, emit)
+  else
+    emit(media.image(target, opts))
+  end
+end
+
+BUILDERS.pdf = function(target, _, opts, emit)
+  build_async(function(on_result)
+    return require("hover.preview.media").pdf(target, opts, on_result)
+  end, emit)
+end
+
+-- Same shape as the PDF branch, and for a stronger reason: a LibreOffice
+-- start is seconds, so the "converting..." placeholder is one the reader
+-- will actually see. When the conversion is off, `preview` answers with
+-- a badge synchronously and nothing is deferred at all.
+BUILDERS.office = function(target, _, opts, emit)
+  build_async(function(on_result)
+    return require("hover.preview.office").preview(target, opts, on_result)
+  end, emit)
+end
+
+-- Same shape as the office branch, and a cheaper one: a frame is a
+-- keyframe seek rather than a LibreOffice start, so this needs no opt-in
+-- switch of its own. What it does share is the deferral -- the first still
+-- of a file is a process, and the reader should not wait on it in the
+-- foreground.
+BUILDERS.video = function(target, _, opts, emit)
+  build_async(function(on_result)
+    return require("hover.preview.video").preview(target, opts, on_result)
+  end, emit)
+end
+
+BUILDERS.git = function(target, bufnr, opts, emit)
+  build_async(function(on_result)
+    return require("hover.preview.git").preview(target, opts, on_result, bufnr)
+  end, emit)
+end
+
+BUILDERS.url = function(target, _, opts, emit)
+  local url = require("hover.preview.url")
+  -- **Two gates, and the second one is what `auto_hover` could not say.**
+  -- `shot_enabled` is "may a link be rendered at all"; `shot_eager` is "may
+  -- the *trigger* do it". Without the second, a document made of links is a
+  -- browser start per link while scrolling -- and `auto_hover.url` cannot
+  -- express the difference, because the text preview and the screenshot are
+  -- the same target type. `requested` carries "this was asked for" down
+  -- from `show`, which is the only other thing that opens the gate.
+  if opts.shot_enabled and (opts.shot_eager or opts.requested) then
+    build_async(function(on_result)
+      return require("hover.preview.shot").preview(target, opts, on_result)
+    end, emit)
+  elseif opts.url_fetch then
+    build_async(function(on_result)
+      url.fetch(target, opts, function(content)
+        -- curl's exit lands in a fast event context, where opening a
+        -- window is not allowed.
+        vim.schedule(function()
+          on_result(content)
+        end)
+      end)
+      -- The parsed URL, held back for the grace period: a response that
+      -- beats it shows the status line and nothing else, and one that does
+      -- not still leaves something on screen instead of a wait that looks
+      -- like the hover simply failing.
+      return vim.tbl_extend("force", url.offline(target), { pending = true })
+    end, emit)
+  else
+    emit(url.offline(target))
+  end
+end
+
 ---@internal
 --- Build the content for `target`, then hand it to `emit`. Synchronous
 --- previewers call `emit` immediately; async ones later.
@@ -630,8 +739,6 @@ end
 ---@param emit fun(content: Hover.Content|nil)
 ---@return nil
 local function build(target, bufnr, opts, emit)
-  local text = require("hover.preview.text")
-
   -- A registered preview claims its type outright. This is how anything
   -- needing knowledge this plugin does not have gets in: markdown.nvim
   -- registers `anchor` (and `markdown` targets carrying one), because
@@ -649,87 +756,9 @@ local function build(target, bufnr, opts, emit)
     end
   end
 
-  if target.type == "anchor" then
-    -- No plugin claimed in-page anchors: nothing here can resolve a heading,
-    -- so there is nothing honest to show.
-    emit(nil)
-  elseif target.type == "missing" then
-    emit(text.missing(target))
-  elseif target.type == "directory" then
-    emit(text.directory(target, opts))
-  elseif target.type == "markdown" or target.type == "file" then
-    -- A `markdown` target with an unclaimed `#anchor` falls through to the
-    -- plain file preview: the file still exists, only the fragment could not
-    -- be resolved, and its first lines beat an error.
-    emit(text.file(target, opts))
-  elseif target.type == "image" then
-    local media = require("hover.preview.media")
-    if (opts.zoom or 0) > 0 then
-      -- A magnified detail is a `magick` run and a file on disk, so it takes
-      -- the route a PDF page takes -- and measured, it is the faster of the
-      -- two: ~258 ms against ~1150 ms for one rasterized page.
-      build_async(function(on_result)
-        return media.zoomed(target.path, opts, on_result)
-      end, emit)
-    else
-      emit(media.image(target, opts))
-    end
-  elseif target.type == "pdf" then
-    build_async(function(on_result)
-      return require("hover.preview.media").pdf(target, opts, on_result)
-    end, emit)
-  elseif target.type == "office" then
-    -- Same shape as the PDF branch, and for a stronger reason: a LibreOffice
-    -- start is seconds, so the "converting..." placeholder is one the reader
-    -- will actually see. When the conversion is off, `preview` answers with
-    -- a badge synchronously and nothing is deferred at all.
-    build_async(function(on_result)
-      return require("hover.preview.office").preview(target, opts, on_result)
-    end, emit)
-  elseif target.type == "video" then
-    -- Same shape as the office branch, and a cheaper one: a frame is a
-    -- keyframe seek rather than a LibreOffice start, so this needs no opt-in
-    -- switch of its own. What it does share is the deferral -- the first still
-    -- of a file is a process, and the reader should not wait on it in the
-    -- foreground.
-    build_async(function(on_result)
-      return require("hover.preview.video").preview(target, opts, on_result)
-    end, emit)
-  elseif target.type == "git" then
-    build_async(function(on_result)
-      return require("hover.preview.git").preview(target, opts, on_result, bufnr)
-    end, emit)
-  elseif target.type == "url" then
-    local url = require("hover.preview.url")
-    -- **Two gates, and the second one is what `auto_hover` could not say.**
-    -- `shot_enabled` is "may a link be rendered at all"; `shot_eager` is "may
-    -- the *trigger* do it". Without the second, a document made of links is a
-    -- browser start per link while scrolling -- and `auto_hover.url` cannot
-    -- express the difference, because the text preview and the screenshot are
-    -- the same target type. `requested` carries "this was asked for" down
-    -- from `show`, which is the only other thing that opens the gate.
-    if opts.shot_enabled and (opts.shot_eager or opts.requested) then
-      build_async(function(on_result)
-        return require("hover.preview.shot").preview(target, opts, on_result)
-      end, emit)
-    elseif opts.url_fetch then
-      build_async(function(on_result)
-        url.fetch(target, opts, function(content)
-          -- curl's exit lands in a fast event context, where opening a
-          -- window is not allowed.
-          vim.schedule(function()
-            on_result(content)
-          end)
-        end)
-        -- The parsed URL, held back for the grace period: a response that
-        -- beats it shows the status line and nothing else, and one that does
-        -- not still leaves something on screen instead of a wait that looks
-        -- like the hover simply failing.
-        return vim.tbl_extend("force", url.offline(target), { pending = true })
-      end, emit)
-    else
-      emit(url.offline(target))
-    end
+  local builder = BUILDERS[target.type]
+  if builder then
+    builder(target, bufnr, opts, emit)
   else
     emit(nil)
   end
