@@ -709,20 +709,16 @@ local DWELL_MS = 3000
 
 ---@internal
 --- The dwell tooltip's live state: one timer, one float, at most.
----@type { timer: uv.uv_timer_t|nil, surf: Ui.Kit.Surface|nil, row: integer|nil }
-local dwell = { timer = nil, surf = nil, row = nil }
+---@type { wait: Lib.Debounce.Handle|nil, surf: Ui.Kit.Surface|nil, row: integer|nil }
+local dwell = { wait = nil, surf = nil, row = nil }
 
 ---@internal
 --- Close the tooltip and stop the countdown. Idempotent, because it is called
 --- from a cursor move, a window close and a toggle, and any of the three can
 --- happen with nothing open.
 local function dwell_clear()
-  if dwell.timer then
-    pcall(function()
-      dwell.timer:stop()
-      dwell.timer:close()
-    end)
-    dwell.timer = nil
+  if dwell.wait then
+    dwell.wait.cancel()
   end
   if dwell.surf then
     pcall(function()
@@ -805,24 +801,21 @@ local function dwell_restart(state)
   if not row or not row.desc then
     return
   end
-  local timer = vim.uv.new_timer()
-  dwell.timer = timer
-  timer:start(
-    DWELL_MS,
-    0,
-    vim.schedule_wrap(function()
+  if not dwell.wait then
+    dwell.wait = require("lib.nvim.debounce").new(function(board)
       -- The board may be gone, or the cursor moved on between the timer
       -- firing and this running.
-      if not vim.api.nvim_buf_is_valid(state.bufnr) then
+      if not vim.api.nvim_buf_is_valid(board.bufnr) then
         dwell_clear()
         return
       end
-      if vim.api.nvim_get_current_buf() ~= state.bufnr then
+      if vim.api.nvim_get_current_buf() ~= board.bufnr then
         return
       end
-      dwell_show(state)
-    end)
-  )
+      dwell_show(board)
+    end, DWELL_MS)
+  end
+  dwell.wait.call(state)
 end
 
 --- Open the board.
