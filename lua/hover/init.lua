@@ -913,6 +913,7 @@ local function present(content)
   -- placeholder is a sentence about a picture that is not there yet.
   if _open then
     _open.image_path = content.image_path
+    _open.tail_marker = content.tail_marker
     _open.copy_refused = (content.playback or content.play_window)
         and "a playing video has nothing to copy -- stop it first"
       or content.pending and "still rendering -- copy once it is on screen"
@@ -1843,6 +1844,7 @@ function M.copy()
   return require("hover.copy").take({
     image_path = _open.image_path,
     refused = _open.copy_refused,
+    tail_marker = _open.tail_marker,
     lines = lines,
     hint = target and (target.url or target.path or target.raw) or nil,
   })

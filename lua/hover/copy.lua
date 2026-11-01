@@ -66,20 +66,27 @@ local function sweep()
 end
 
 --- The float's lines as one text, without the blank lines a preview pads its
---- end with, and without the marker a truncated preview ends on (`…`, or
---- `… (N entries)` under a directory): those say "there is more", they are
---- not part of what is there.
+--- end with, and -- when `tail_marker` says the preview ended on one -- without
+--- the marker of a truncated preview (`…`, or `… (N entries)` under a
+--- directory): that says "there is more", it is not part of what is there.
+--- Without `tail_marker` a last line `…` is the text's own and is kept.
 ---@param lines string[]
+---@param tail_marker? boolean The last non-blank line is the preview's truncation marker.
 ---@return string text
 ---@return integer count Lines in `text`.
-function M.text(lines)
+function M.text(lines, tail_marker)
   local last = #lines
-  while last > 0 do
-    local line = vim.trim(lines[last])
-    if line == "" or line == "…" or line:sub(1, #"… (") == "… (" then
+  local function trim_blank()
+    while last > 0 and vim.trim(lines[last]) == "" do
       last = last - 1
-    else
-      break
+    end
+  end
+  trim_blank()
+  if tail_marker and last > 0 then
+    local line = vim.trim(lines[last])
+    if line == "…" or line:sub(1, #"… (") == "… (" then
+      last = last - 1
+      trim_blank()
     end
   end
   local out = {}
@@ -104,11 +111,20 @@ local function name_for(source, hint, stamp)
   local base = ""
   if type(hint) == "string" and hint ~= "" then
     local h = hint
+    local host_only = false
     if h:match("^%a[%w+.-]*://") then
       h = h:gsub("^(%a[%w+.-]*://)[^/@]*@", "%1"):gsub("[?#].*$", "")
+      -- No path after the host: what follows `://` is a host, whose last
+      -- dot-part is a TLD and no file extension.
+      host_only = h:gsub("^%a[%w+.-]*://", ""):gsub("/+$", ""):find("/", 1, true) == nil
     end
     base = h:gsub("[/]+$", ""):match("([^/]+)$") or ""
-    base = base:gsub("%.%w+$", ""):gsub("[^%w%-_.]", "_"):sub(1, 60)
+    if host_only then
+      base = h:gsub("^%a[%w+.-]*://", ""):gsub("/+$", "")
+    else
+      base = base:gsub("%.%w+$", "")
+    end
+    base = base:gsub("[^%w%-_.]", "_"):sub(1, 60)
   end
   if base == "" then
     base = "hover"
@@ -182,7 +198,7 @@ end
 --- `refused` is the hover's own reason it has nothing to take -- a video
 --- playing (the buffer holds block characters, the picture is in extmarks),
 --- a placeholder still rendering -- and is said instead of copying.
----@param view { image_path?: string, lines?: string[], hint?: string, refused?: string }
+---@param view { image_path?: string, lines?: string[], hint?: string, refused?: string, tail_marker?: boolean }
 ---@return boolean ok
 ---@return string message
 function M.take(view)
@@ -201,7 +217,7 @@ function M.take(view)
         clip and "the register and the clipboard" or "the unnamed register"
       )
   end
-  local text, count = M.text(view.lines or {})
+  local text, count = M.text(view.lines or {}, view.tail_marker)
   if count == 0 then
     return false, "nothing to copy in this hover"
   end

@@ -55,9 +55,18 @@ describe("hover.copy", function()
   end)
 
   it("drops the marker a truncated preview ends on", function()
-    assert.same({ "a", 1 }, { copy.text({ "a", "…" }) })
-    assert.same({ "a", 1 }, { copy.text({ "a", "… (12 entries)", "" }) })
-    assert.same({ "a …", 1 }, { copy.text({ "a …" }) })
+    assert.same({ "a", 1 }, { copy.text({ "a", "…" }, true) })
+    assert.same({ "a", 1 }, { copy.text({ "a", "… (12 entries)", "" }, true) })
+    assert.same({ "a …", 1 }, { copy.text({ "a …" }, true) })
+  end)
+
+  it("keeps a real last line of … when the preview was not truncated", function()
+    assert.same({ "a\n…", 2 }, { copy.text({ "a", "…" }) })
+    assert.same({ "a\n… (the end)", 2 }, { copy.text({ "a", "… (the end)", "" }) })
+  end)
+
+  it("drops only the one marker, not the real … line above it", function()
+    assert.same({ "a\n…", 2 }, { copy.text({ "a", "…", "…" }, true) })
   end)
 
   it("refuses with the hover's own reason", function()
@@ -108,6 +117,16 @@ describe("hover.copy", function()
     assert.is_truthy(err:find("could not make", 1, true), err)
     vim.fn.delete(source)
     vim.fn.delete(blocker)
+  end)
+
+  it("names the copy of a URL without a path after its host", function()
+    local source = vim.fn.tempname() .. ".png"
+    vim.fn.writefile({ "x" }, source, "b")
+    local path = copy.picture(source, "https://example.com")
+    assert.is_truthy(vim.fs.basename(path):match("^example%.com%-%d+%-%d+%.png$"), path)
+    local slash = copy.picture(source, "https://example.com/?q=1")
+    assert.is_truthy(vim.fs.basename(slash):match("^example%.com%-%d+%-%d+"), slash)
+    vim.fn.delete(source)
   end)
 
   it("copies the picture on screen into a file of its own, named after the target", function()

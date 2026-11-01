@@ -261,6 +261,7 @@ function M.file(target, opts)
     -- whether scrolling down is offered at all — a file that fits needs no
     -- keys bound and should leave them to whatever else uses them.
     scroll = { offset = offset, step = limit, more = truncated },
+    tail_marker = truncated or nil,
   }
 end
 
@@ -308,6 +309,7 @@ function M.directory(target, opts)
     -- Only the entries a rendered line actually stands for -- the truncation
     -- summary line above has no entry of its own, and is never selectable.
     dir_entries = shown,
+    tail_marker = (total > limit or capped) or nil,
   }
 end
 

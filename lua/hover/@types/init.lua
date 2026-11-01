@@ -455,6 +455,7 @@
 ---@field play_window? Hover.PlayWindow # Open a real mpv window for this file once the float is open, and tie its lifetime to the float. Present only on the windowed playing view.
 ---@field play_external? string # Path already handed to the system's own player (no mpv window available); this only wires the float's `on_close` to `preview.external.reset`, since `preview.video` already made the call and checked it worked.
 ---@field dir_entries? Hover.DirEntry[] # A directory preview's entries, in the same order as the lines that render them -- line `i` of `lines` is entry `i` here. Absent for every other content, and shorter than the directory's real size once truncated: only what is actually shown can be selected or clicked.
+---@field tail_marker? boolean # The last line of `lines` is the truncation marker of a text or directory preview (`…`, `… (N entries)`), not content; `:Hover copy` leaves it out.
 ---@field pending? boolean # Provisional; an async result replaces it (and it is not cached).
 ---@field transient? boolean # Final, and shown, but not cached: built from a kept page whose refresh is still out.
 
