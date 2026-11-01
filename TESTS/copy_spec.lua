@@ -126,6 +126,8 @@ describe("hover.copy", function()
     assert.is_truthy(vim.fs.basename(path):match("^example%.com%-%d+%-%d+%.png$"), path)
     local slash = copy.picture(source, "https://example.com/?q=1")
     assert.is_truthy(vim.fs.basename(slash):match("^example%.com%-%d+%-%d+"), slash)
+    local dir = copy.picture(source, "https://example.com/a.b/")
+    assert.is_truthy(vim.fs.basename(dir):match("^a%.b%-%d+%-%d+%.png$"), dir)
     vim.fn.delete(source)
   end)
 

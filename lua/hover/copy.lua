@@ -118,10 +118,12 @@ local function name_for(source, hint, stamp)
       -- dot-part is a TLD and no file extension.
       host_only = h:gsub("^%a[%w+.-]*://", ""):gsub("/+$", ""):find("/", 1, true) == nil
     end
+    local is_dir = h:sub(-1) == "/"
     base = h:gsub("[/]+$", ""):match("([^/]+)$") or ""
     if host_only then
       base = h:gsub("^%a[%w+.-]*://", ""):gsub("/+$", "")
-    else
+    elseif not is_dir then
+      -- a trailing slash names a directory: `a.b/` has no extension to drop
       base = base:gsub("%.%w+$", "")
     end
     base = base:gsub("[^%w%-_.]", "_"):sub(1, 60)
