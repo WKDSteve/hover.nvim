@@ -1138,6 +1138,26 @@ function M.show(opts)
     target = classify_target(found.target, source ~= "" and source or nil)
   end
 
+  -- Said only for an explicit request: the trigger passes over a document full
+  -- of dead links, and a message per link would be a flood. The float still
+  -- carries the marker either way.
+  if
+    opts.force
+    and target.type == "missing"
+    and not target.refused
+    and config.notify_missing_enabled()
+  then
+    local base = source ~= "" and vim.fs.dirname(source) or vim.uv.cwd()
+    require("hover.notify").warn(
+      ("%s: %s -- looked at %s (relative targets resolve against %s)"):format(
+        target.raw or "",
+        target.reason or "target does not exist",
+        target.path or "(no path)",
+        base
+      )
+    )
+  end
+
   -- **An explicitly requested hover must not be reset by its own trigger.**
   -- `directory` -- and `file`, `office`, `markdown`, `url`, `git`, every type
   -- but `image`/`pdf` -- is off by default in `auto_hover`, which only gates

@@ -120,6 +120,14 @@ local SWITCHES = {
     off_msg = "a path that resolves to nothing stays silent",
     desc = "whether a bare path that resolves to nothing is reported as broken",
   },
+  notify = {
+    path = { "paths", "notify_missing" },
+    implies = "missing",
+    label = "broken-target message",
+    on_msg = "an explicit request on a path that resolves to nothing also says so in a message",
+    off_msg = "a path that resolves to nothing is only marked in the float",
+    desc = "whether an explicit request on a broken target also sends a message",
+  },
   code = {
     path = { "paths", "code" },
     implies = "paths",
@@ -165,6 +173,7 @@ local ORDER = {
   "eager",
   "paths",
   "missing",
+  "notify",
   "code",
   "positions",
   "images",

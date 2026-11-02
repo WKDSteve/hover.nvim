@@ -22,7 +22,7 @@ plugin manager before anything else.
 
 `:Hover why` is the sharper tool whenever a hover fails to appear for one specific thing
 rather than for everything — it names the gate that declined, instead of leaving you to
-guess between twelve switches, a mode and a target type.
+guess between thirteen switches, a mode and a target type.
 
 ## Acting on the float on screen
 
@@ -51,7 +51,7 @@ be tried rather than decided.
 | `:Hover open` | hand what the float is showing to whatever opens it outside Neovim. A media file goes through media.nvim's `play` first, so its configured `player` wins; everything else goes to [open.nvim](https://github.com/WKDSteve/open.nvim)'s system-default handler — what a double-click does, so an `.mp4` reaches the registered player rather than its folder in a file manager — or to `vim.ui.open`. The same thing the borrowed `gf` does, as a command that works without having to know the key |
 | `:Hover copy` | copy what the float shows. A text hover's lines — the float's own, so a scrolled preview gives what it scrolled to, without the title and without a trailing `…` marker — go into the unnamed register and onto the clipboard. A drawn hover (picture, page screenshot, PDF page, zoomed or not) is copied as the very picture on screen into `stdpath("cache")/hover.nvim/copies`, and only its **path** goes into the registers: the picture itself is never put on the clipboard. Copies are kept for seven days. A playing video and a preview still rendering decline with a message. The same thing the borrowed `Y` does. The float cannot be entered (`focusable = false`), so this is the way to take anything out of it — see [COPY.md](FEATURES/COPY.md) |
 | `:Hover dashboard` | the mode, every switch and what opens by itself — as a board where `<CR>` toggles the row under the cursor, `?` lists its keys, and every row carries the command that acts on it. One message where lib.nvim has no UI kit |
-| `:Hover links cache [show\|clear]` | the pages kept on disk for [`links.cache`](configuration.md#the-twelve-switches) (see [LINKCACHE.md](FEATURES/LINKCACHE.md)): how many, and where — or delete them all. Omitted, show. Its own route rather than a switch, because the switches drop what the *session* holds and a kept page exists to outlive exactly that |
+| `:Hover links cache [show\|clear]` | the pages kept on disk for [`links.cache`](configuration.md#the-thirteen-switches) (see [LINKCACHE.md](FEATURES/LINKCACHE.md)): how many, and where — or delete them all. Omitted, show. Its own route rather than a switch, because the switches drop what the *session* holds and a kept page exists to outlive exactly that |
 
 Whatever this board shows survives a restart when [`persist = true`](configuration.md#persisting-runtime-changes)
 is set — it is written on `VimLeavePre` and read back the next time `enable()` runs.
@@ -61,7 +61,7 @@ The type names `:Hover auto` takes are `image`, `pdf`, `office`, `markdown`, `fi
 about the place the cursor is in. See
 [configuration.md](configuration.md#what-opens-by-itself).
 
-## The twelve switches
+## The thirteen switches
 
 | Command | Does |
 | --- | --- |
@@ -73,6 +73,7 @@ about the place the cursor is in. See
 | `:Hover links web shot eager [on\|off\|toggle]` | let the automatic trigger do that, not only `:Hover show`. Implies `links web shot on`. Off because fifty links scrolled past is fifty browser starts |
 | `:Hover paths [on\|off\|toggle]` | whether a path written in prose hovers |
 | `:Hover paths missing [on\|off\|toggle]` | whether a path resolving to nothing is marked broken |
+| `:Hover paths missing notify [on\|off\|toggle]` | whether an explicit request on a broken target also sends a message (resolved path and base folder); never from the automatic trigger |
 | `:Hover paths code [on\|off\|toggle]` | whether a bare path hovers inside executable code, not just comments and strings. Implies `paths on` |
 | `:Hover positions [on\|off\|toggle]` | whether a registered plugin may answer for a cursor position that points at nothing |
 | `:Hover images [on\|off\|toggle]` | whether pictures are drawn into the float, or described |
@@ -93,12 +94,12 @@ later. Every change also drops the preview cache, which is keyed by what a targe
 rather than by how it was rendered.
 
 Their configured counterparts, and what each one costs when it is on, are in
-[configuration.md](configuration.md#the-twelve-switches); why the defaults fall where they
+[configuration.md](configuration.md#the-thirteen-switches); why the defaults fall where they
 do is in [FEATURES/QUIET.md](FEATURES/QUIET.md).
 
 | Summary | Names |
 | --- | --- |
-| Twelve runtime switches | `links`, `links web`, `links web fetch`, `links web fetch pdf`, `links web shot`, `links web shot eager`, `paths`, `paths missing`, `paths code`, `positions`, `images`, `office` |
+| Thirteen runtime switches | `links`, `links web`, `links web fetch`, `links web fetch pdf`, `links web shot`, `links web shot eager`, `paths`, `paths missing`, `paths missing notify`, `paths code`, `positions`, `images`, `office` |
 
 ---
 

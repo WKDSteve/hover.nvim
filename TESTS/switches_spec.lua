@@ -39,6 +39,7 @@ describe("hover.switches", function()
       "eager",
       "paths",
       "missing",
+      "notify",
       "code",
       "positions",
       "images",

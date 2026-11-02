@@ -235,6 +235,7 @@ local NUMBER = {
   ten = 10,
   eleven = 11,
   twelve = 12,
+  thirteen = 13,
 }
 
 --- Every spelled-out count of `noun` a document claims, with the line it

@@ -139,6 +139,7 @@
 ---@class Hover.PathsConfig
 ---@field enabled? boolean # Whether a path written in prose hovers. Default true.
 ---@field missing? boolean # Whether text that resolves to nothing may be marked broken. Default true, and gated behind `hover.bare_path.is_unambiguous_path`.
+---@field notify_missing? boolean # Whether an explicit request on a target that resolves to nothing also says so in a message (resolved path and base folder). Never from the automatic trigger. Default true; needs `missing`.
 ---@field code? boolean # Whether a path may be found in executable code, not just a source file's comments and strings. Default false; see `hover.scope`.
 ---@field scope? Hover.ScopeFamilies # Capture families taught to the position gate for one grammar. Both lists empty by default.
 

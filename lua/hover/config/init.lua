@@ -451,6 +451,14 @@ function M.missing_enabled()
   return M.paths_enabled() and type(paths) == "table" and paths.missing ~= false
 end
 
+--- Whether an explicit request on a target that resolves to nothing may also
+--- say so in a message.
+---@return boolean
+function M.notify_missing_enabled()
+  local paths = M.get().paths
+  return M.missing_enabled() and type(paths) == "table" and paths.notify_missing ~= false
+end
+
 --- Whether a bare path may also be found in executable code, rather than
 --- only in a source file's comments and strings.
 ---

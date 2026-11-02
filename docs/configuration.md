@@ -49,7 +49,7 @@ default rather than extending it, which is what a list should mean. `{}` binds n
 | `zen.pin` | `true` | Whether `:Hover zen` also pins the float. On, and this default follows from a mechanism rather than taste: the float is `focusable = false` and its dismissal hangs on `CursorMoved`, so an unpinned full-screen hover closes on the first key that is not borrowed. `false` gives exactly that transient reading back. Leaving zen releases only a pin zen itself took. See [ZEN.md](FEATURES/ZEN.md). |
 | `placeholder_grace_ms` | `250` | How long an async preview may take before a "rendering…" placeholder is allowed to interrupt. Below this, waiting quietly reads as instant; above it, silence reads as breakage. |
 
-## The twelve switches
+## The thirteen switches
 
 Each of these has a `:Hover` route too, and the route is the way to throw one for the
 session — see [commands.md](commands.md). **Implication runs upward only:** `fetch` turns
@@ -82,6 +82,7 @@ clearing their flag, so turning it back on restores what you had.
 | `links.shot.command` | *(unset)* | The browser to run. Unset means "find one": the usual names on `PATH`, then the usual install locations, preferring Chrome and Chromium over Edge. The search is not a convenience — measured, Chrome is installed on the machine this was built on and is on no `PATH` at all. |
 | `paths.enabled` | `true` | Whether a path written without link syntax hovers. |
 | `paths.missing` | `true` | Whether a bare path resolving to nothing may be marked broken. Deliberately hard to satisfy — this is the only preview class whose value goes *negative* when it is wrong. |
+| `paths.notify_missing` | `true` | Whether an explicit request (`:Hover show`, the show key) on a target that resolves to nothing also sends a message with the resolved path and the folder it was resolved against. Never from the automatic trigger; the marker in the float is unchanged. Needs `paths.missing`. |
 | `paths.code` | `false` | Whether a bare path hovers inside executable code. Off: in a parsed buffer, only comments and strings are searched. Prose is untouched — see [BARE-PATHS.md](FEATURES/BARE-PATHS.md#where-one-is-looked-for). |
 | `paths.scope` | `{ prose = {}, code = {} }` | Treesitter capture families this plugin has never heard of, taught to it for one grammar. Almost always right to leave empty: the gate already falls open on anything it does not recognise, so an exotic language gets no gating rather than wrong gating. The `code` side is the footgun — adding a family there can silently switch bare paths off in a language. `:checkhealth hover` reports whatever is set here. |
 | `positions` | `true` | Whether a registered *position* preview may open a float — a plugin saying something about where the cursor is, when it points at nothing. Costs nothing with none registered. |

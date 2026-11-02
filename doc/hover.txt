@@ -235,6 +235,9 @@ toggles. >
   :Hover paths [on|off|toggle]           bare paths in prose hover
   :Hover paths missing [on|off|toggle]   a path resolving to nothing is
                                          marked broken
+  :Hover paths missing notify [on|off|toggle]
+                                         an explicit request on a broken
+                                         target also sends a message
   :Hover paths code [on|off|toggle]      bare paths hover inside code, not
                                          just comments and strings
   :Hover positions [on|off|toggle]       a plugin may answer for a position
@@ -853,8 +856,9 @@ hover.toggle({on})                        Off, or back to "auto".
                                                                   *hover.set()*
 hover.set({name}, {on})                   Turn one switch on, off, or over.
                                           Names: links, web, fetch, pdf,
-                                          shot, eager, paths, missing, code,
-                                          positions, images, office --
+                                          shot, eager, paths, missing,
+                                          notify, code, positions, images,
+                                          office --
                                           hover.switches.names() is the list.
                                           Returns the state, or nil plus a
                                           message.

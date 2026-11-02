@@ -243,7 +243,7 @@ left out. The list itself, so this cheatsheet is one:
 | asking | `:Hover show` &middot; `:Hover why` &middot; `:Hover pin` &middot; `:Hover next` &middot; `:Hover open` &middot; `:Hover copy` |
 | the float on screen | `:Hover zen` &middot; `:Hover resize` &middot; `:Hover zoom` &middot; `:Hover nav` &middot; `:Hover border` |
 | volume | `:Hover mode` &middot; `:Hover toggle` &middot; `:Hover all` &middot; `:Hover auto` &middot; `:Hover dashboard` |
-| switches | `:Hover links` &middot; `:Hover links web` &middot; `:Hover links web fetch` &middot; `:Hover links web fetch pdf` &middot; `:Hover links web shot` &middot; `:Hover links web shot eager` &middot; `:Hover paths` &middot; `:Hover paths missing` &middot; `:Hover paths code` &middot; `:Hover positions` &middot; `:Hover images` &middot; `:Hover office` |
+| switches | `:Hover links` &middot; `:Hover links web` &middot; `:Hover links web fetch` &middot; `:Hover links web fetch pdf` &middot; `:Hover links web shot` &middot; `:Hover links web shot eager` &middot; `:Hover paths` &middot; `:Hover paths missing` &middot; `:Hover paths missing notify` &middot; `:Hover paths code` &middot; `:Hover positions` &middot; `:Hover images` &middot; `:Hover office` |
 | kept pages | `:Hover links cache` |
 
 `:Hover` is registered from `plugin/hover.lua`, so it exists before `setup()`

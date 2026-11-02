@@ -468,6 +468,14 @@ return {
     ---@type boolean
     missing = true,
 
+    -- Whether an explicit request (`:Hover show`, the show key) on a target that
+    -- resolves to nothing also says so in a message, with the resolved path and
+    -- the folder it was resolved against. Never from the automatic trigger: a
+    -- document full of dead links would flood. Needs `missing`; the marker is
+    -- unchanged either way.
+    ---@type boolean
+    notify_missing = true,
+
     -- Whether a path may also be found in executable code, rather than only
     -- in the comments and strings of a source file. Off: in a parsed buffer
     -- a position Treesitter identifies as code is skipped before the
