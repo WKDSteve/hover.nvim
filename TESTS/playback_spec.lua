@@ -191,6 +191,57 @@ describe("the video transport", function()
     vim.api.nvim_buf_delete(buf, { force = true })
   end)
 
+  it("seeks in seconds, clamped to the file, through the same path as a step", function()
+    if not blocks_ok then
+      return
+    end
+    local cols, rows, frames = 40, 4, 24
+    local buf, raw = fixture(cols, rows, frames)
+    local asked = {}
+    playback.load({
+      buf = buf,
+      raw = raw,
+      frames = frames,
+      cols = cols,
+      rows = rows,
+      fps = 12,
+      from = 100,
+      duration = 110,
+      status_row = rows,
+      request = function(from, cb)
+        asked[#asked + 1] = from
+        cb({ raw = raw, frames = frames })
+      end,
+    })
+
+    playback.seek(5) -- outside the two-second window: the window holding 105 is fetched
+    assert.is_true(math.abs(playback.position() - 105) < 1e-6)
+    assert.is_true(math.abs(asked[#asked] - 105) < 1e-6)
+
+    playback.seek(-3)
+    assert.is_true(math.abs(playback.position() - 102) < 1e-6)
+
+    playback.seek(500) -- never past the end: one frame short of the duration
+    assert.is_true(math.abs(playback.position() - (110 - 1 / 12)) < 1e-6)
+
+    playback.seek(-500) -- never before 0:00
+    assert.are.equal(0, playback.position())
+    vim.api.nvim_buf_delete(buf, { force = true })
+  end)
+
+  it("seeks within the window without decoding when nothing can decode", function()
+    if not blocks_ok then
+      return
+    end
+    local buf, raw = fixture(40, 4, 5)
+    load_into(buf, raw, 5, 40, 4)
+    playback.seek(60) -- clamped to the last frame of the only window
+    assert.is_true(math.abs(playback.position() - 4 / 12) < 1e-6)
+    playback.seek(-60)
+    assert.are.equal(0, playback.position())
+    vim.api.nvim_buf_delete(buf, { force = true })
+  end)
+
   it("coalesces a held step key into one decode at a time", function()
     if not blocks_ok then
       return
@@ -586,6 +637,42 @@ describe("the transport keys", function()
     assert.are.same({ "<CR>" }, keys.toggle)
     assert.are.same({ "." }, keys.forward)
     assert.are.same({ "," }, keys.back)
+  end)
+
+  it("seek by seconds on plain arrows, shared with no other key table", function()
+    local cfg = require("hover.config")
+    cfg.setup({})
+    local keys = cfg.get().transport_keys
+    assert.are.same({ "<Right>" }, keys.seek_forward)
+    assert.are.same({ "<Left>" }, keys.seek_back)
+    assert.are.equal(5, cfg.preview_opts().video_seek_seconds)
+    local mine = { "<Right>", "<Left>" }
+    for name, table_ in pairs(cfg.get()) do
+      if name:match("_keys$") and name ~= "transport_keys" and type(table_) == "table" then
+        for _, list in pairs(table_) do
+          for _, lhs in ipairs(type(list) == "table" and list or { list }) do
+            assert.is_false(vim.tbl_contains(mine, lhs), name .. " also binds " .. tostring(lhs))
+          end
+        end
+      end
+    end
+  end)
+
+  it("bind the seek handler in both directions, for playable content only", function()
+    local keys = require("hover.bindings.keymaps")
+    keys.release()
+    local got = {}
+    keys.borrow({ lines = { "x" }, transport = true }, {
+      transport = function() end,
+      transport_seek = function(direction)
+        got[#got + 1] = direction
+      end,
+    })
+    vim.fn.maparg("<Right>", "n", false, true).callback()
+    vim.fn.maparg("<Left>", "n", false, true).callback()
+    assert.are.same({ 1, -1 }, got)
+    keys.release()
+    assert.is_nil(vim.fn.maparg("<Right>", "n", false, true).desc)
   end)
 
   it("are borrowed only for content that says it can play", function()

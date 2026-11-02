@@ -46,6 +46,8 @@ require("hover").setup({ keymaps = { show = false } })
 | `transport_keys.toggle` | `<CR>` | hovers that can play — a video | first press decodes a run and plays it; every press after starts and stops it |
 | `transport_keys.forward` | `.` | as above, once a run is loaded | one frame on, and pause |
 | `transport_keys.back` | `,` | as above | one frame back, and pause |
+| `transport_keys.seek_forward` | `<Right>` | as above | a jump of `video.seek_seconds` (default 5) on, and pause; clamped to the file |
+| `transport_keys.seek_back` | `<Left>` | as above | the same jump back |
 | `scroll_keys.down` | `<M-PageDown>`, `<C-Down>` | scrollable hovers only | next screenful of lines, or next PDF page |
 | `scroll_keys.up` | `<M-PageUp>`, `<C-Up>` | scrollable hovers only | back |
 | `resize_keys.larger` | `+` | hovers with a picture only | the float one step (×1.25) larger |

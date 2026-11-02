@@ -195,6 +195,7 @@ local EXCEPTIONS = {
   ["links.cache.patterns"] = "string|table",
   ["video.at"] = "number|string",
   ["video.step"] = "number|string",
+  ["video.seek_seconds"] = "number",
   ["video.play_at"] = "number|string",
   ["video.playback"] = { "string", enum = { "window", "inline" } },
 }
@@ -669,6 +670,8 @@ function M.preview_opts()
     video_play_at = video.play_at ~= nil and video.play_at or DEFAULTS.video.play_at,
     video_play_scale = video.play_scale ~= nil and video.play_scale or DEFAULTS.video.play_scale,
     video_fps = video.fps ~= nil and video.fps or DEFAULTS.video.fps,
+    video_seek_seconds = video.seek_seconds ~= nil and video.seek_seconds
+      or DEFAULTS.video.seek_seconds,
     video_run = video.run ~= nil and video.run or DEFAULTS.video.run,
     -- No default: nil means "size it from the canvas", not "unset".
     video_run_width = video.run_width,

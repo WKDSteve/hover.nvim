@@ -91,6 +91,7 @@ clearing their flag, so turning it back on restores what you had.
 | `office.cache_days` | `7` | How many days a converted PDF may sit in the cache before the next session sweeps it. Converted PDFs outlive the session — the mtime in their key makes that safe — and this is what keeps the cache from being a directory that only grows. `0` keeps nothing between sessions. |
 | `video.at` | `"10%"` | Where the first still of a video comes from. A number is seconds, `"10%"` is a fraction of the running time, anything else is handed to ffmpeg as a timestamp. Ten percent rather than zero because the first frame of a real video is usually black, a fade-in or a logo. |
 | `video.step` | `"10%"` | How far one press of the paging key moves through the file. A percentage, so ten presses walk a ten-second clip and a two-hour feature end to end alike. A file that reports no duration falls back to five seconds. |
+| `video.seek_seconds` | `5` | How far the transport's seek keys jump, in seconds. Clamped to the file. |
 | `video.width` | `nil` | Width in pixels the still is rendered at; `nil` leaves the choice to media.nvim. Chosen against the float rather than the source — every pixel past what the terminal draws is decode time spent on nothing. |
 | `video.playback` | `"window"` | What `<CR>` does: `"window"` opens a real mpv window, or without mpv the system's own player (`media.play()`, the same call `gf` makes — no extra install); `"inline"` paints a run of stills into the float instead of either — see [Playing a video](#playing-a-video). |
 | `video.use_mpv` | `true` | Whether `"window"` may reach for mpv at all. `false` is "I have mpv, do not use it" — skips straight to the system-player fallback (and silences inline's optional sound), unlike `playback = "inline"` which also gives up that fallback's real video and sound. |
@@ -136,6 +137,8 @@ borrow condition is in [BINDINGS.md](BINDINGS.md).
 | `transport_keys.toggle` | `{ "<CR>" }` | hovers that **can play** — a video. First press decodes a run and starts it, every press after starts and stops it. `<CR>` moves down a line unbound: not a prefix, and not `mapleader` — see [Playing a video](#playing-a-video) for the two keys this replaced |
 | `transport_keys.forward` | `{ "." }` | as above, once a run is loaded: one frame on, and pause. mpv's own frame-step key |
 | `transport_keys.back` | `{ "," }` | as above, one frame back |
+| `transport_keys.seek_forward` | `{ "<Right>" }` | as above: a jump of `video.seek_seconds` on, and pause. mpv's own seek key; plain arrows are neither a prefix nor `mapleader`, and `scroll_keys` uses Ctrl+arrows |
+| `transport_keys.seek_back` | `{ "<Left>" }` | as above, the same jump back |
 
 ## Playing a video
 

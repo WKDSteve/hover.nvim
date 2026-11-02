@@ -578,6 +578,11 @@ return {
     ---@type number|string
     step = "10%",
 
+    --- How far the transport's seek keys (`transport_keys.seek_forward` and
+    --- `seek_back`) jump, in seconds. Clamped to the file, like a frame step.
+    ---@type number
+    seek_seconds = 5,
+
     --- Width in pixels the still is rendered at, or `nil` for media.nvim's own
     --- default. Chosen against the float rather than the source: a hover is at
     --- most a few hundred cells wide, and every pixel past what the terminal
@@ -1129,6 +1134,13 @@ return {
     forward = { "." },
     ---@type string|string[]
     back = { "," },
+    -- mpv's own seek keys: a jump of `video.seek_seconds`, not a frame. Plain
+    -- arrows are not a prefix and not `mapleader`, and `scroll_keys` uses
+    -- Ctrl+arrows, so nothing here is shared with them.
+    ---@type string|string[]
+    seek_forward = { "<Right>" },
+    ---@type string|string[]
+    seek_back = { "<Left>" },
   },
 
   --- Keymaps this plugin sets in the user's namespace. Every entry is a

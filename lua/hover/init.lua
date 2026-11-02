@@ -1034,6 +1034,7 @@ local function present(content)
     end or nil,
     transport = content.transport and M.play_toggle or nil,
     transport_step = content.transport and M.play_step or nil,
+    transport_seek = content.transport and M.play_seek or nil,
     next_answer = M.next_position,
     -- Registered, not answering: see `registry.position_count`. Only a
     -- *position* hover has other answers to step to at all.
@@ -2907,6 +2908,18 @@ function M.play_step(delta)
   end
   playback.pause()
   playback.step(delta)
+end
+
+--- Jump the loaded run by `direction` times `video.seek_seconds`, pausing it.
+---@param direction integer 1 forward, -1 back
+---@return nil
+function M.play_seek(direction)
+  local playback = require("hover.preview.playback")
+  if not playback.is_active() then
+    return
+  end
+  playback.pause()
+  playback.seek(direction * require("hover.config").preview_opts().video_seek_seconds)
 end
 
 return M

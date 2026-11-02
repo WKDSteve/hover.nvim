@@ -145,7 +145,7 @@ end
 --- argument stops being readable -- `borrow(c, f, g, h, true)` says nothing
 --- about which of them pans. A fourth condition is one key here.
 ---@param content Hover.Content|nil
----@param handlers { next_answer?: fun(), has_answers?: boolean, scroll?: fun(delta: integer), resize?: fun(delta: integer), nav?: fun(dx: integer, dy: integer), zoom?: fun(delta: integer), zoomed?: boolean, zoomable?: boolean, zen?: fun(), transport?: fun(), transport_step?: fun(delta: integer), dir_browse?: boolean, dir_click?: fun(line0: integer) }
+---@param handlers { next_answer?: fun(), has_answers?: boolean, scroll?: fun(delta: integer), resize?: fun(delta: integer), nav?: fun(dx: integer, dy: integer), zoom?: fun(delta: integer), zoomed?: boolean, zoomable?: boolean, zen?: fun(), transport?: fun(), transport_step?: fun(delta: integer), transport_seek?: fun(direction: integer), dir_browse?: boolean, dir_click?: fun(line0: integer) }
 ---@return nil
 function M.borrow(content, handlers)
   handlers = handlers or {}
@@ -227,6 +227,18 @@ function M.borrow(content, handlers)
         take(seen, lhs, function()
           handlers.transport_step(-1)
         end, "hover: one frame back")
+      end
+    end
+    if handlers.transport_seek then
+      for _, lhs in ipairs(M.keylist(tk.seek_forward)) do
+        take(seen, lhs, function()
+          handlers.transport_seek(1)
+        end, "hover: seek forward")
+      end
+      for _, lhs in ipairs(M.keylist(tk.seek_back)) do
+        take(seen, lhs, function()
+          handlers.transport_seek(-1)
+        end, "hover: seek back")
       end
     end
   end

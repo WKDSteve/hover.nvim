@@ -629,14 +629,10 @@ end
 --- (`hover.play_step` pauses first), so this only keeps mpv's own position
 --- honest for whenever play resumes; it does not itself start or stop
 --- anything.
----@param delta integer
+---@param seconds number
 ---@return nil
-function M.step(delta)
-  if not M.is_active() or not state then
-    return
-  end
-
-  local target = M.position() + delta / state.fps
+local function move_by(seconds)
+  local target = M.position() + seconds
   if target < 0 then
     target = 0
   end
@@ -669,6 +665,27 @@ function M.step(delta)
   end
 
   scrub_to(target)
+end
+
+---@param delta integer
+---@return nil
+function M.step(delta)
+  if not M.is_active() or not state then
+    return
+  end
+  move_by(delta / state.fps)
+end
+
+--- Jump `seconds` forward (negative: back) and repaint, without starting the
+--- timer. The same path as a frame step: clamped to the file, a target outside
+--- the window on screen fetches the window that contains it.
+---@param seconds number
+---@return nil
+function M.seek(seconds)
+  if not M.is_active() or not state then
+    return
+  end
+  move_by(seconds)
 end
 
 --- Start playing from the current frame.

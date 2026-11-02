@@ -992,6 +992,10 @@ The bar under the picture measures the film, matching the clock beside it.
 pixel rows, so the still's budget is a 38-pixel-tall picture. The playing
 canvas is that budget scaled, capped to the editor's own rows and columns.
 
+`<Right>` and `<Left>` jump `video.seek_seconds` (default 5) on or back, through the
+same path as a frame step (clamped to the file, a target outside the window on
+screen fetches the window that holds it).
+
 The keys are configurable through `transport_keys`.
 
 ==============================================================================

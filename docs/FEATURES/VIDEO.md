@@ -240,7 +240,8 @@ text survives redraws, an image protocol does not), and starts a timer.
 `.` / `,` step one frame back or forward, pausing first — mpv's own
 frame-step keys, picked so a float does not eat a leader key or a bracket
 motion (`<Space>`, `]`, `[` were tried and reverted; see `transport_keys` in
-`config/DEFAULTS.lua`).
+`config/DEFAULTS.lua`). `<Right>` / `<Left>` jump `video.seek_seconds` (5)
+the same way, mpv's own seek keys.
 
 **The window rolls, so it does not stop after two seconds.** One decode covers
 two seconds — 24 stills at 12 fps — which is what makes the first frame arrive

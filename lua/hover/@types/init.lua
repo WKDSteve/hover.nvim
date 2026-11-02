@@ -168,6 +168,7 @@
 ---@class Hover.VideoConfig
 ---@field at? number|string # Offset of the first still. Default "10%".
 ---@field step? number|string # Offset a paging key adds. Default "10%".
+---@field seek_seconds? number # How far the transport's seek keys jump, in seconds. Default 5.
 ---@field width? integer # Render width in pixels. Default nil (media.nvim decides).
 ---@field playback? "window"|"inline" # What the transport key does. Default "window" -- a real mpv window, or without mpv the system's own player; "inline" paints a run of stills into the float instead of either.
 ---@field use_mpv? boolean # Whether "window" may reach for mpv at all. Default true. false is "I have mpv, do not use it" -- skips straight to the system-player fallback (and silences inline's optional sound too), unlike playback = "inline" which gives up that fallback's real video and sound as well.
@@ -407,6 +408,7 @@
 ---@field video_play_scale? number # Multiplier on the preview budget for the playing canvas, capped to the editor's rows and columns.
 ---@field play? boolean # Build the playing view (a decoded run) instead of the still. Set by the transport key, never by configuration.
 ---@field video_fps? number # Sampling rate of a played run; also the rate it is painted at.
+---@field video_seek_seconds? number # How far the transport's seek keys jump, in seconds.
 ---@field video_run? integer # How many stills one run holds.
 ---@field video_run_width? integer # Pixel width of a run's stills before they are sampled into cells; nil leaves it to media.nvim.
 ---@field video_sound? boolean # Start audio alongside a played run when the file has a track and mpv is on PATH. Default true; a player-driven clock is used either way, this only decides whether anything comes out of the speakers.
