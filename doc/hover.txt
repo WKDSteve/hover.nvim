@@ -35,7 +35,7 @@ hits or misses.
 ==============================================================================
 2. REQUIREMENTS                                            *hover-requirements*
 
-Neovim 0.10 or newer.
+Neovim 0.11 or newer.
 
 WKDSteve/lib.nvim is a HARD dependency -- required with no fallback. The
 debounce, the notifier, the LRU cache, the autocmd helpers and the `:Hover`

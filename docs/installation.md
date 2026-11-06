@@ -7,7 +7,7 @@
 > not there — nothing is reported and nothing fails. Neither plugin can work around it
 > from inside. [NAME-COLLISION.md](NAME-COLLISION.md) is the whole story; it is short.
 
-- Neovim >= 0.10
+- Neovim >= 0.11
 - [lib.nvim](https://github.com/WKDSteve/lib.nvim) — **required**, with no fallback.
   The `:Hover` command composer, the debounce behind `delay_ms`, the notifier, the LRU
   under the preview cache and the autocmd helpers all come from it.
