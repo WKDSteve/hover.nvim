@@ -19,7 +19,9 @@ return {
   -- "l" = `nvim -l`.
   host = "c",
   -- Environment variables the specs read; a child editor inherits an allowlist only (never secrets).
-  env_allow = { "MAGICK_*" },
+  -- FILETREE_NVIM_DIR: how filetree.nvim reaches the test sheet hover.http-preview-beside-explorer from the worktree
+  -- of `ci commit`, where it is no sibling (TESTS/minimal_init.lua names it, the sheet adds it).
+  env_allow = { "MAGICK_*", "FILETREE_NVIM_DIR" },
   -- The old runner let a case without assertions pass. Two cases in monitor_spec.lua
   -- ("parses a well-formed line ..." and "reports no screen index ...") return early when this
   -- Neovim build has no detectable platform, which is deliberate there, so they stay a warning.

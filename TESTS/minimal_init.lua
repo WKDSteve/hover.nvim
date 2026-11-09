@@ -14,7 +14,14 @@
 local this = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p")
 local root = vim.fs.dirname(vim.fs.dirname(vim.fs.normalize(this)))
 
-local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim" }
+local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim", "filetree.nvim" }
+
+-- Named above so the runner hands it to the child editors as $FILETREE_NVIM_DIR (`ci commit` runs in a worktree,
+-- where it is no sibling), and so the cache keys the sheets on it. But it is neither required nor put on the
+-- runtimepath: no spec uses it, and only the test sheet hover.http-preview-beside-explorer adds it in its own child
+-- (TESTS/sheets/_helpers.lua `add_deps`), which is a reported skip without it.
+---@type table<string, true>
+local SHEETS_ONLY = { ["filetree.nvim"] = true }
 
 ---@type table<string, string>
 local MARKERS = { ["lib.nvim"] = "lua/lib/nvim", ["testing.nvim"] = "lua/testing" }
@@ -60,7 +67,7 @@ for _, name in ipairs(DEPS) do
   end
   if hit then
     found[name] = hit
-  else
+  elseif not SHEETS_ONLY[name] then
     local lines = { ("error: dependency '%s' not found. Searched, in this order:"):format(name) }
     for i, p in ipairs(places) do
       lines[#lines + 1] = ("  %d. %s (%s)"):format(i, p[1], p[2] or "unset")
@@ -80,7 +87,9 @@ end
 
 vim.opt.rtp:prepend(root)
 for _, name in ipairs(DEPS) do
-  vim.opt.rtp:append(found[name])
+  if not SHEETS_ONLY[name] then
+    vim.opt.rtp:append(found[name])
+  end
 end
 
 -- Carried over from scripts/minimal_init.lua (removed by the migration): what the suite needs

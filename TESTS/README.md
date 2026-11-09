@@ -19,7 +19,10 @@ asserts the dashboard actually opens) via `TESTING_NVIM_DIR`/`LIB_NVIM_DIR`/
 `UI_NVIM_DIR`, a `.deps/<name>` checkout, or a sibling directory next to this
 repo — see the comment at the top of `TESTS/minimal_init.lua`. `images.nvim`
 is optional; without it the zoom crop spec reports `skip` (with its reason)
-rather than failing.
+rather than failing. `filetree.nvim` is named there too, but only for the test
+sheet `hover.http-preview-beside-explorer`: it is not required and not on the
+specs' runtimepath (the sheet adds it in its own child); without it that sheet
+is a reported skip (`n/a`). CI checks it out pinned (`ci.workflow.checkouts`).
 
 The guards of testing.nvim are on (`guards` in `.testing.lua`): a spec that
 writes outside the temp directory, starts a process other than `git`,
@@ -27,9 +30,11 @@ writes outside the temp directory, starts a process other than `git`,
 prompt or swallows a scheduled error fails.
 The state guard is off (every file has its own editor).
 
-[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `stylua
---check`, `luacheck lua plugin` and the full suite on Ubuntu, Windows and
-macOS on every push and PR to `main`.
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) is generated from
+`ci.workflow` in `.testing.lua` (`testing init --workflow=public --force`) and
+runs `scripts/test.sh ci` on GitHub-hosted Ubuntu (the whole profile: stylua,
+luacheck, suite, conformance, surface, workflow-in-sync), Windows and macOS
+(suite, conformance) on every push to `main` and every PR.
 
 `TESTS/minimal_init.lua` sets `vim.g.lib_nvim_deps_disable_first_run`, so
 no spec run opens lib.nvim's declared-tools popup — see the comment there.
@@ -48,6 +53,13 @@ what is left for a person (`judge` and `manual`).
 | Sheet | Live-check task | Automated | Left by hand |
 |---|---|---|---|
 | `hover-copy-register` | `hover.nvim/copy-live-check` | `Y` and `:Hover copy` on a text hover: register text (no title), linewise, after `<C-Down>` the scrolled lines; the clipboard call is stubbed | the real system clipboard, pasting into another program, the crop of a zoomed picture / PDF page / page screenshot |
+| `hover-http-preview-alone` | `hover.nvim/http-preview-live-check` | `:Hover show` on an https link: one fetch, status line, title and description (no HTML), a second hover from the session cache, a 404 | the real network (curl, `--proto`, no auth to `http://`), the judgement of the snapshots |
+| `hover-http-preview-beside-explorer` | `hover.nvim/http-preview-live-check` | the same beside `:Lexplore` (filetree.nvim on netrw): the float over the note, the tree untouched, one fetch, the cache | as above |
+
+The network in a sheet is a stub (`_G.net_stub` in `TESTS/sheets/_helpers.lua`
+replaces `lib.nvim.net.curl`): nothing is spawned or connected, the process
+guard stays strict, `curl` is not in `guard_allow`. The answers are data in
+`TESTS/sheets/fixtures/http/` (hosts under the reserved `example.test`).
 
 ## Coverage map
 

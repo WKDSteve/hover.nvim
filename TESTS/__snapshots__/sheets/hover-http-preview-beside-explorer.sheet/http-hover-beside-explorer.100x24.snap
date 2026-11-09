@@ -1,0 +1,54 @@
+testing.nvim screen v1
+size: 100x24
+cursor: 4,62
+mode: n
+--- text
+01|../                                               │ notes.md
+02|./                                                │# Notes
+03|notes.md                                          │
+04|~                                                 │see https://example.test/page for the details
+05|~                                                 │~     ╭page─────────────────────────────────────╮
+06|~                                                 │~     │HTTP 200 OK                              │
+07|~                                                 │~     │Example Domain                           │
+08|~                                                 │~     │A page for the test sheets of hover.nvim.│
+09|~                                                 │~     │text/html · 196 B                        │
+10|~                                                 │~     │                                         │
+11|~                                                 │~     │Example Domain                           │
+12|~                                                 │~     │Hello.                                   │
+13|~                                                 │~     │                                         │
+14|~                                                 │~     │example.test                             │
+15|~                                                 │~     │/page                                    │
+16|~                                                 │~     ╰─────────────────────────────────────────╯
+17|~                                                 │~
+18|~                                                 │~
+19|~                                                 │~
+20|~                                                 │~
+21|~                                                 │~
+22|~                                                 │~
+23|~                                                 │~
+24|:Hover show
+--- attrs
+01|aaa                                               bcddddddddcccccccccccccccccccccccccccccccccccccccc
+02|aa                                                beeeeeee
+03|ffffffffffffffffffffffffffffffffffffffffffffffffffb
+04|ggggggggggggggggggggggggggggggggggggggggggggggggggb
+05|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggheeeehhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+06|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+07|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+08|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+09|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+10|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+11|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+12|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+13|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+14|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+15|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+16|ggggggggggggggggggggggggggggggggggggggggggggggggggbgggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+17|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+18|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+19|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+20|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+21|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+22|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+23|ggggggggggggggggggggggggggggggggggggggggggggggggggbggggggggggggggggggggggggggggggggggggggggggggggggg
+24|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
