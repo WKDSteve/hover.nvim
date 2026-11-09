@@ -67,7 +67,9 @@ return {
         and vim.api.nvim_win_get_position(_G.note_win)[2] > 0]],
       note = "over the note, not over the tree on the left",
     },
-    { settle = 300 },
+    -- Up to 2 s, not 300 ms: entering the tree arms filetree's debounced redraws (lib.nvim debounce, one-shot
+    -- timers), which a slow runner has not run out within 300 ms. `settle` returns as soon as they have.
+    { settle = 2000 },
     { screen = "http-hover-beside-explorer" },
     { keys = "q", note = "close the hover" },
     { wait = [[_G.float() == nil]] },
