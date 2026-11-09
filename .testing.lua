@@ -71,9 +71,8 @@ return {
       checkouts = {
         {
           repo = "WKDSteve/filetree.nvim",
-          -- filetree.nvim publishes no ci-verified branch yet: a commit with green CI, moved on by hand
-          -- (then ref = "ci-verified").
-          ref = "978f8ddd5ff37d38032b6c2f24e68d922595dab8",
+          -- filetree.nvim publishes ci-verified since 2026-11-09 (its job publish-ci-verified).
+          ref = "ci-verified",
           why = "only the test sheet hover.http-preview-beside-explorer loads it",
         },
       },
