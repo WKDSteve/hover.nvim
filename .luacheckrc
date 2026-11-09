@@ -9,6 +9,9 @@ globals = {
 
 exclude_files = {
   "TESTS/*.lua",
+  -- The CI's checkouts of the dependencies: their code, their lint. testing.nvim's luacheck preset leaves them
+  -- alone too, but only from 4a74733 on, and the CI runs testing.nvim at ci-verified.
+  ".deps/**",
 }
 
 -- Long lines are handled by stylua's column_width; don't duplicate the check.
