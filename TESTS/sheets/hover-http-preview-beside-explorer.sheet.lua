@@ -1,4 +1,4 @@
--- Feature hover.http-preview (the field `feature` comes with testing.nvim's feature catalog; until then only here),
+-- Feature hover.http-preview (TESTS/sheets/features.lua),
 -- beside the explorer: a reader of notes.md with the file tree open rests the cursor on an http link; the hover opens
 -- over the note (not over the tree), fetches the page once, and shows its title and description; closing it leaves
 -- the tree where it was; a second hover comes from the session cache (task hover.nvim/http-preview-live-check).
@@ -8,6 +8,7 @@
 -- Without it the sheet is a reported skip (n/a), never green.
 return {
   id = "hover.http-preview-beside-explorer",
+  feature = "hover.http-preview",
   title = "hover.nvim: a hover over an http link beside the explorer fetches once and shows title and description",
   task = "hover.nvim/http-preview-live-check",
   engine = "rpc",

@@ -1,4 +1,4 @@
--- Feature hover.http-preview (the field `feature` comes with testing.nvim's feature catalog; until then only here).
+-- Feature hover.http-preview (TESTS/sheets/features.lua).
 -- Live check: a hover over an http link fetches the page once and shows its status, title and description
 -- (task hover.nvim/http-preview-live-check).
 -- Automated: in notes.md the cursor rests on an https link; `:Hover show` opens a float over the note, exactly one
@@ -9,6 +9,7 @@
 -- the answers are data in TESTS/sheets/fixtures/http/. The real transport stays by hand (`manual`).
 return {
   id = "hover.http-preview-alone",
+  feature = "hover.http-preview",
   title = "hover.nvim: a hover over an http link fetches once and shows status, title and description",
   task = "hover.nvim/http-preview-live-check",
   engine = "rpc",

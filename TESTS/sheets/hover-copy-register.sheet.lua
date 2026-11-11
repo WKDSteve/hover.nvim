@@ -7,6 +7,7 @@
 -- the real system clipboard, pasting into another program and the picture crop stay by hand.
 return {
   id = "hover.copy-register",
+  feature = "hover.copy",
   title = "hover.nvim: :Hover copy / Y into the register",
   task = "hover.nvim/copy-live-check",
   engine = "rpc",
