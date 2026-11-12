@@ -91,6 +91,7 @@ for _, name in ipairs(DEPS) do
     vim.opt.rtp:append(found[name])
   end
 end
+vim.g.hover_sheets_filetree_nvim = found["filetree.nvim"]
 
 -- Carried over from scripts/minimal_init.lua (removed by the migration): what the suite needs
 -- besides the runtimepath. Review each block; the diff of the removed file shows all of it.
