@@ -196,6 +196,10 @@ toggles. >
                                          the keys, y yanks its command
   :Hover pin                             keep this float while the cursor
                                          goes elsewhere; again releases it
+  :Hover focus                           enter a text hover: mouse and
+                                         Visual selection and y work in
+                                         it; q or <Esc> leave, the float
+                                         stays until the next movement
   :Hover zen [on|off|toggle]             the float on almost the whole
                                          editor, and back; pins by default
   :Hover resize [bigger|smaller]         the hover bigger or smaller;

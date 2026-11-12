@@ -31,6 +31,10 @@ local _buf = nil
 local _augroup = nil
 ---@type (fun())|nil Teardown for whatever was drawn into the window.
 local _on_close = nil
+---@type Hover.FloatOpts|nil The options the open float was made with, to put its dismissal back after a focus.
+local _opts = nil
+---@type { origin: integer, on_leave: (fun())|nil }|nil Set while the reader is inside the float (`M.focus`).
+local _focus = nil
 
 --- Highlight groups a preview may ask for on its first line, and what each
 --- links to when the user and the colorscheme have said nothing. Defined on
@@ -240,7 +244,7 @@ function M.close(on_close)
   if safe_api.is_valid_buffer(_buf) then
     pcall(api.nvim_buf_delete, _buf, { force = true })
   end
-  _win, _buf = nil, nil
+  _win, _buf, _opts, _focus = nil, nil, nil, nil
 end
 
 ---@internal
@@ -302,6 +306,28 @@ function M.size()
     return nil
   end
   return cfg.width, cfg.height
+end
+
+---@internal
+--- Dismiss on the next thing the user does. `CursorMoved` alone is not enough: leaving insert mode or switching
+--- windows must also clear it, or a stale hover outlives the context it described.
+---@param opts Hover.FloatOpts
+local function install_dismiss(opts)
+  if _augroup then
+    pcall(api.nvim_del_augroup_by_id, _augroup)
+  end
+  _augroup = autocmd.group("HoverDismiss", true)
+  autocmd.create(
+    { "CursorMoved", "CursorMovedI", "InsertEnter", "BufLeave", "WinScrolled" },
+    function()
+      M.close(opts.on_close)
+    end,
+    {
+      group = _augroup,
+      once = true,
+      desc = "hover: dismiss on the next cursor move or mode change",
+    }
+  )
 end
 
 --- Open (or replace) the hover window showing `lines`.
@@ -464,20 +490,72 @@ function M.open(lines, opts)
   -- Dismiss on the next thing the user does. `CursorMoved` alone is not
   -- enough: leaving insert mode or switching windows must also clear it, or
   -- a stale hover outlives the context it described.
-  _augroup = autocmd.group("HoverDismiss", true)
-  autocmd.create(
-    { "CursorMoved", "CursorMovedI", "InsertEnter", "BufLeave", "WinScrolled" },
-    function()
-      M.close(opts.on_close)
-    end,
-    {
-      group = _augroup,
-      once = true,
-      desc = "hover: dismiss on the next cursor move or mode change",
-    }
-  )
+  _opts = opts
+  install_dismiss(opts)
 
   return win, buf
+end
+
+--- Is the reader inside the float (entered with `M.focus`)?
+---@return boolean
+function M.is_focused()
+  return _focus ~= nil and M.is_open() and api.nvim_get_current_win() == _win
+end
+
+--- Enter the open float so that ordinary mouse and Visual selection (and `y`) work in it.
+---
+--- The float is made focusable, its dismissal (which would close it on the first cursor move, even its own) is
+--- taken away, and `q` / `<Esc>` become buffer-local keys that leave again. `unfocus` puts the dismissal back, so
+--- the float then stays until the next movement, as any hover does. A render (`float.open`) closes the float and
+--- ends the focus with it.
+---@param origin integer the window to go back to
+---@param on_leave? fun() runs once when the reader leaves (the caller undoes the pin it took)
+---@return boolean entered false when no float is open
+function M.focus(origin, on_leave)
+  if not M.is_open() or not safe_api.is_valid_buffer(_buf) then
+    return false
+  end
+  if _augroup then
+    pcall(api.nvim_del_augroup_by_id, _augroup)
+    _augroup = nil
+  end
+  pcall(api.nvim_win_set_config, _win, { focusable = true })
+  for _, lhs in ipairs({ "q", "<Esc>" }) do
+    vim.keymap.set("n", lhs, function()
+      M.unfocus()
+    end, { buffer = _buf, nowait = true, silent = true, desc = "[hover] leave the hover" })
+  end
+  _focus = { origin = origin, on_leave = on_leave }
+  pcall(api.nvim_set_current_win, _win)
+  return true
+end
+
+--- Leave the float: back to the window the reader came from, the focus-only keys gone, the dismissal restored.
+---@return boolean left false when the reader was not inside
+function M.unfocus()
+  local state = _focus
+  if not state then
+    return false
+  end
+  _focus = nil
+  if safe_api.is_valid_buffer(_buf) then
+    for _, lhs in ipairs({ "q", "<Esc>" }) do
+      pcall(vim.keymap.del, "n", lhs, { buffer = _buf })
+    end
+  end
+  if M.is_open() then
+    pcall(api.nvim_win_set_config, _win, { focusable = false })
+  end
+  if safe_api.is_valid_window(state.origin) then
+    pcall(api.nvim_set_current_win, state.origin)
+  end
+  if M.is_open() and _opts then
+    install_dismiss(_opts)
+  end
+  if state.on_leave then
+    pcall(state.on_leave)
+  end
+  return true
 end
 
 --- The window handle of the open hover, or nil.

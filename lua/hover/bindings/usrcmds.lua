@@ -390,6 +390,20 @@ function M.routes()
       run = open_dashboard,
     },
     {
+      path = { "focus" },
+      desc = "Enter the hover so mouse and Visual selection work in it; q or <Esc> leave again",
+      run = function()
+        local h = hover()
+        if not h.focus then
+          return
+        end
+        local ok, why = h.focus()
+        if not ok then
+          require("hover.notify").info(why or "no hover to enter")
+        end
+      end,
+    },
+    {
       path = { "pin" },
       desc = "Keep this hover on screen while the cursor goes elsewhere",
       run = function()

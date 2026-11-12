@@ -951,6 +951,10 @@ local function present(content)
   if _open and _open.pinned then
     float.set_pinned(true)
   end
+  -- What `M.focus` needs to know: a picture is a frame around a drawing, not text one could select.
+  if _open then
+    _open.canvas = content.canvas ~= nil
+  end
 
   -- The selection lives in the buffer `float.open` just (re)built, so it is
   -- drawn here rather than left to the next `nav`/click -- otherwise a fresh
@@ -1677,6 +1681,38 @@ function M.pin(on)
   _open.zen_pinned = nil
   float.set_pinned(_open.pinned == true)
   return _open.pinned == true
+end
+
+--- Enter the open text hover so that mouse and Visual selection, `y` and the normal motions work in it.
+---
+--- It pins the hover for the visit (a pin the reader set stays), the borrowed keys step aside while the cursor is
+--- in the float, and `q` / `<Esc>` there (buffer-local) lead back to the window the reader came from, release
+--- the pin this took and leave the float standing until the next movement. A picture cannot be entered: it is a
+--- frame around a drawing, and `:Hover copy` is the way to its path.
+---@return boolean entered
+---@return string|nil why present only where the refusal is worth reporting
+function M.focus()
+  if not (_open and float.win()) then
+    return false, "no hover to enter"
+  end
+  if _open.canvas then
+    return false, "a picture hover cannot be entered; try :Hover copy."
+  end
+  local was_pinned = _open.pinned == true
+  M.pin(true)
+  local open = _open
+  local entered = float.focus(open.win, function()
+    if _open == open and not was_pinned then
+      M.pin(false)
+    end
+  end)
+  if not entered then
+    if not was_pinned then
+      M.pin(false)
+    end
+    return false, "the hover is gone"
+  end
+  return true
 end
 
 --- Whether the open hover is pinned.

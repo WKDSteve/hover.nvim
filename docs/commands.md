@@ -17,6 +17,7 @@ plugin manager before anything else.
 | --- | --- |
 | `:Hover show` | one hover, here, now, ignoring every volume switch |
 | `:Hover why` | why nothing hovered *here* — which of the gates refused, and what to type about it |
+| `:Hover focus` | enter a *text* hover so that mouse and Visual selection, `y` and the normal motions work in it. The borrowed keys (`j`/`k`, `+`/`-`, `F`, `Y`, `gf`, ...) step aside while the cursor is in the float; `q` / `<Esc>` there (buffer-local) return to the window you came from, release the pin the visit took (one you set yourself stays) and leave the float up until the next movement. A picture hover refuses: `:Hover copy` takes its path |
 | `:Hover pin` | take this float out of the cursor's hands. While pinned the trigger opens nothing; `:Hover show` replaces it, `q`/`<Esc>` take it away. Again releases it |
 | `:Hover next` | step to the next plugin with something to say about this place. Wraps past the last one, and says so when there is only one |
 

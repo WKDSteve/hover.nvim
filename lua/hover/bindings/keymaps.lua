@@ -91,7 +91,18 @@ local function take(seen, lhs, rhs, desc)
   ---@type table|nil
   local saved = (type(raw) == "table" and raw.lhs ~= nil) and raw or nil
 
-  local ok = pcall(vim.keymap.set, "n", lhs, rhs, { desc = desc, nowait = true, silent = true })
+  -- Inside an entered float (`:Hover focus`) the borrowed keys are the reader's again: they are global
+  -- mappings, so without this `j`, `y` or `q` would keep acting on the hover instead of in the float.
+  local function wrapped(...)
+    if require("hover.float").is_focused() then
+      local typed = vim.api.nvim_replace_termcodes(lhs, true, false, true)
+      vim.api.nvim_feedkeys(typed, "n", false)
+      return
+    end
+    return rhs(...)
+  end
+
+  local ok = pcall(vim.keymap.set, "n", lhs, wrapped, { desc = desc, nowait = true, silent = true })
   if ok then
     _held[#_held + 1] = { lhs = lhs, saved = saved }
   end
