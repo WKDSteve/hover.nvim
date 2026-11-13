@@ -95,3 +95,32 @@ each page answers.
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 hover.nvim is released under the [MIT License](https://opensource.org/licenses/MIT).
+
+<!-- connections:begin (written by the app-icons tool of the workshop; change integrations.json there, not this block) -->
+## Connections
+
+![hover.nvim: what it uses and what uses it](assets/graphs/hover.nvim.png)
+
+**Uses**
+
+- [gopath.nvim](https://github.com/WKDSteve/gopath.nvim): hover.nvim resolves a bare path through gopath.nvim (`gopath.resolve`) to find the file and the line it names. ([picture](assets/graphs/pair/hover.nvim--gopath.nvim.png))
+- [images.nvim](https://github.com/WKDSteve/images.nvim): The media preview of hover.nvim reads sizes and settings from images.nvim (`images.info`, `images.config`) to draw a picture in the float. ([picture](assets/graphs/pair/hover.nvim--images.nvim.png))
+- [media.nvim](https://github.com/WKDSteve/media.nvim): hover.nvim asks media.nvim whether a target is a media file (`media.is_media`) and takes its player for audio and video. ([picture](assets/graphs/pair/hover.nvim--media.nvim.png))
+- [open.nvim](https://github.com/WKDSteve/open.nvim): hover.nvim opens the target it is showing with open.nvim (`open.open`), so a media file goes to its registered player and not to the file manager. ([picture](assets/graphs/pair/hover.nvim--open.nvim.png))
+- [pdfport.nvim](https://github.com/WKDSteve/pdfport.nvim): hover.nvim can show a page of a PDF in its float, rendered by pdfport.nvim (`render_page`). ([picture](assets/graphs/pair/hover.nvim--pdfport.nvim.png))
+- [ui.nvim](https://github.com/WKDSteve/ui.nvim): The `?` panel with the keys of the status board of hover.nvim is a viewer of the kit of ui.nvim (`ui.kit.viewer`). ([picture](assets/graphs/pair/hover.nvim--ui.nvim.png))
+- [lib.nvim](https://github.com/WKDSteve/lib.nvim): the shared base of the plugins.
+
+**Used by**
+
+- [docmap.nvim](https://github.com/WKDSteve/docmap.nvim): docmap.nvim registers a preview with hover.nvim (`hover.registry`). ([picture](assets/graphs/pair/docmap.nvim--hover.nvim.png))
+- [insights.nvim](https://github.com/WKDSteve/insights.nvim): insights.nvim registers a preview with hover.nvim (`hover.registry`) when it is installed. ([picture](assets/graphs/pair/insights.nvim--hover.nvim.png))
+- [language.nvim](https://github.com/WKDSteve/language.nvim): language.nvim registers a preview with hover.nvim (`hover.registry`) when it is installed. ([picture](assets/graphs/pair/language.nvim--hover.nvim.png))
+- [lsp.nvim](https://github.com/WKDSteve/lsp.nvim): The signature help of lsp.nvim uses the float of hover.nvim (`hover.float`) when it is installed. ([picture](assets/graphs/pair/lsp.nvim--hover.nvim.png))
+- [markdown.nvim](https://github.com/WKDSteve/markdown.nvim): The hover of markdown.nvim classifies a link target and builds its preview with hover.nvim (`hover.classify`, `hover.preview.text`). ([picture](assets/graphs/pair/markdown.nvim--hover.nvim.png))
+- [reposcope.nvim](https://github.com/WKDSteve/reposcope.nvim): reposcope.nvim registers its README preview as a source of hover.nvim and asks it to show the float (`hover.show`) once the README has been fetched. ([picture](assets/graphs/pair/reposcope.nvim--hover.nvim.png))
+- [sandbox.nvim](https://github.com/WKDSteve/sandbox.nvim): sandbox.nvim registers an image preview with hover.nvim; `:Hover show` asks for it. ([picture](assets/graphs/pair/sandbox.nvim--hover.nvim.png))
+- [spotlight.nvim](https://github.com/WKDSteve/spotlight.nvim): spotlight.nvim registers a preview with hover.nvim (`hover.registry`). ([picture](assets/graphs/pair/spotlight.nvim--hover.nvim.png))
+- [testing.nvim](https://github.com/WKDSteve/testing.nvim): testing.nvim registers its previews with hover.nvim (`hover.registry`). ([picture](assets/graphs/pair/testing.nvim--hover.nvim.png))
+- [ui.nvim](https://github.com/WKDSteve/ui.nvim): The url slot of ui.nvim previews a link with hover.nvim when it is installed. ([picture](assets/graphs/pair/ui.nvim--hover.nvim.png))
+<!-- connections:end -->
