@@ -21,6 +21,10 @@ the alternatives that were rejected, and the bugs that changed the design.
   *negative* when it is wrong: how a path with no link syntax around it is
   recognised, where it is looked for, and the three measurements that shaped
   both.
+- **[DIRECTORY.md](DIRECTORY.md)** — who draws the listing of a directory
+  hover: filetree.nvim's own tree when it is loaded, the plugin's own scan
+  otherwise, why the tree is asked and let go in one call, and why a `require`
+  of it is never made for a hover.
 - **[CONTRIBUTIONS.md](CONTRIBUTIONS.md)** — the registry: what another plugin
   or your own config can add, what `on_request` is for, and the bug that only a
   live wiring could find.

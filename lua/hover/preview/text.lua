@@ -278,6 +278,18 @@ function M.directory(target, opts)
   local dirbrowse = require("hover.preview.dirbrowse")
   local limit = opts.max_lines or 20
 
+  -- With filetree.nvim's own tree loaded the listing is drawn by it (order, icons, `a/b/c` as one line);
+  -- nil means there is no such tree, or it could not list this directory, and the scan below draws.
+  local ok_tree, drawn = pcall(require("hover.preview.dirtree").list, target.path, limit)
+  if ok_tree and drawn then
+    return {
+      lines = #drawn.lines > 0 and drawn.lines or { "(empty directory)" },
+      title = vim.fs.basename(target.path) .. "/",
+      dir_entries = drawn.entries,
+      tail_marker = drawn.more or nil,
+    }
+  end
+
   local entries, capped = dirbrowse.scan(target.path)
   if not entries then
     return { lines = { "(cannot read directory)" }, title = vim.fs.basename(target.path) }
