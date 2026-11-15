@@ -15,6 +15,10 @@ return {
   -- "none" = all specs in one nvim, "file" = one nvim per spec file
   -- (nothing leaks from one file into the next).
   isolated = "file",
+  -- A test sheet is one case that starts a child editor and, for two of them, sets up filetree.nvim in it: under
+  -- load (a full run beside other sessions, 2026-11-15) hover.directory-expand and hover.http-preview-beside-explorer
+  -- each ran into the default of 10 s per case once and were green when run again.
+  timeouts = { case_ms = 30000 },
   -- "c" = child started from a -c command (v:vim_did_enter is 0, <cword> works),
   -- "l" = `nvim -l`.
   host = "c",
