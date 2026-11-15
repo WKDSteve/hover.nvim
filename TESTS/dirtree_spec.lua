@@ -246,7 +246,7 @@ describe("hover.preview.dirtree", function()
     ---A stand-in for the tree that can open folders: `Alpha` holds `f1.txt`, a folder `sub` (with
     ---`g.txt`) and more than it shows; `a.txt` lies next to it. `seen.expand` notes what was asked.
     ---@param seen table
-    ---@param opts? { expand?: boolean, bare_more?: boolean }
+    ---@param opts? { expand?: boolean, bare_more?: boolean, top_more?: boolean }  `top_more`: the listed directory itself has more than the tree lists
     local function tree_engine(seen, opts)
       opts = opts or {}
       seen.expand, seen.closed, seen.embeds = {}, 0, 0
@@ -285,6 +285,9 @@ describe("hover.preview.dirtree", function()
               )
             end
             add("  a.txt", { id = dir .. "/a.txt", path = dir .. "/a.txt", kind = "file" })
+            if opts.top_more then
+              add("  … 7 more", { id = dir .. "//more", kind = "more" })
+            end
             vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
           end
           build()
@@ -362,6 +365,20 @@ describe("hover.preview.dirtree", function()
       local listing = dirtree.list(root, 3, { root .. "/Alpha", root .. "/Alpha/sub" })
       assert.equals(3, #listing.entries)
       assert.same({ "▸ Alpha/", "  ▸ sub/", "      g.txt", "… 3 more" }, listing.lines)
+      assert.is_true(listing.more)
+    end)
+
+    it("counts a floor where the cut takes the count of the directory itself away", function()
+      local seen = {}
+      package.loaded["filetree.native"] = tree_engine(seen, { top_more = true })
+      -- flat: the count of the tree is the last line, as it wrote it
+      local flat = dirtree.list(root, 3)
+      assert.same({ "▸ Alpha/", "  a.txt", "  … 7 more" }, flat.lines)
+      assert.is_true(flat.more)
+      -- a folder open: five entries for three lines, and seven more nobody listed
+      local listing = dirtree.list(root, 3, { root .. "/Alpha" })
+      assert.equals(3, #listing.entries)
+      assert.equals("… 2+ more", listing.lines[4])
       assert.is_true(listing.more)
     end)
 

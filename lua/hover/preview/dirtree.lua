@@ -145,7 +145,9 @@ function M.list(dir, limit, expanded)
       for i = 1, limit do
         cut_lines[i], cut_entries[i] = lines[i], entries[i]
       end
-      cut_lines[#cut_lines + 1] = ("… %d more"):format(left)
+      -- `more`: the directory itself has entries the tree did not list, and their number stood on the
+      -- line that is cut away here. So the count below is a floor then, and says so.
+      cut_lines[#cut_lines + 1] = (more and "… %d+ more" or "… %d more"):format(left)
       lines, entries, more = cut_lines, cut_entries, true
     end
     listing = { lines = lines, entries = entries, more = more, can_expand = can_expand }
