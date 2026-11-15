@@ -18,8 +18,9 @@ local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim", "filetree.nvim" }
 
 -- Named above so the runner hands it to the child editors as $FILETREE_NVIM_DIR (`ci commit` runs in a worktree,
 -- where it is no sibling), and so the cache keys the sheets on it. But it is neither required nor put on the
--- runtimepath: no spec uses it, and only the test sheet hover.http-preview-beside-explorer adds it in its own child
--- (TESTS/sheets/_helpers.lua `add_deps`), which is a reported skip without it.
+-- runtimepath: the test sheet hover.http-preview-beside-explorer adds it in its own child (TESTS/sheets/_helpers.lua
+-- `add_deps`), which is a reported skip without it, and TESTS/dirtree_spec.lua adds it for its cases on the real tree
+-- and takes it off again (it reads `vim.g.hover_sheets_filetree_nvim`, set below; pending without a checkout).
 ---@type table<string, true>
 local SHEETS_ONLY = { ["filetree.nvim"] = true }
 

@@ -13,8 +13,9 @@
 --
 -- The seam is checked against a stand-in engine (what is asked of it, what a
 -- broken answer falls back to, that nothing is left behind), and against the
--- real one where a filetree.nvim with `embed` is found ($FILETREE_NVIM_DIR);
--- a runner without it reports those cases as pending.
+-- real one where a filetree.nvim with `embed` is found: $FILETREE_NVIM_DIR, or
+-- the checkout TESTS/minimal_init.lua found (.deps/filetree.nvim in the CI, a
+-- sibling otherwise). A runner without one reports those cases as pending.
 
 local dirtree = require("hover.preview.dirtree")
 local text = require("hover.preview.text")
@@ -243,9 +244,20 @@ describe("hover.preview.dirtree", function()
 
   describe("with filetree.nvim's own tree", function()
     ---The real engine, or nil when no filetree.nvim with `embed` is around.
+    ---Where to look: `$FILETREE_NVIM_DIR` decides alone when it is set; otherwise the checkout
+    ---`TESTS/minimal_init.lua` found (`.deps/filetree.nvim` in the CI, a sibling at a desk). That
+    ---file keeps filetree.nvim off the runtimepath of the specs and hands the variable to the test
+    ---sheets only, so a spec that read nothing but the variable never saw the checkout of the CI.
     local function real()
       local dir = vim.env.FILETREE_NVIM_DIR
-      if not dir or dir == "" or vim.fn.isdirectory(dir .. "/lua/filetree/native") == 0 then
+      if not dir or dir == "" then
+        dir = vim.g.hover_sheets_filetree_nvim
+      end
+      if
+        type(dir) ~= "string"
+        or dir == ""
+        or vim.fn.isdirectory(dir .. "/lua/filetree/native") == 0
+      then
         return nil
       end
       vim.opt.runtimepath:append(dir)
@@ -261,7 +273,9 @@ describe("hover.preview.dirtree", function()
     it("draws the listing: folders first, a chain as one line, one entry per line", function()
       local native, dir = real()
       if not native then
-        pending("no filetree.nvim with the embed layout here ($FILETREE_NVIM_DIR)")
+        pending(
+          "no filetree.nvim with the embed layout here ($FILETREE_NVIM_DIR, .deps, a sibling)"
+        )
         return
       end
       vim.fn.mkdir(root .. "/zeta/only/deep", "p")
@@ -303,7 +317,9 @@ describe("hover.preview.dirtree", function()
     it("bounds a big directory and says how many more there are", function()
       local native, dir = real()
       if not native then
-        pending("no filetree.nvim with the embed layout here ($FILETREE_NVIM_DIR)")
+        pending(
+          "no filetree.nvim with the embed layout here ($FILETREE_NVIM_DIR, .deps, a sibling)"
+        )
         return
       end
       for i = 1, 30 do
