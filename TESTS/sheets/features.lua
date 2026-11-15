@@ -26,6 +26,12 @@ return {
     docs = "docs/FEATURES/BARE-PATHS.md",
   },
   {
+    id = "hover.directory",
+    title = "A hover on a directory lists it as a mini filetree; with filetree.nvim's own tree a folder opens in place",
+    surface = { "config:dir_keys.expand", "config:dir_keys.click", "config:nav_keys" },
+    docs = "docs/FEATURES/DIRECTORY.md",
+  },
+  {
     id = "hover.contributions",
     title = "Another plugin or the config adds a preview of its own",
     docs = "docs/FEATURES/CONTRIBUTIONS.md",

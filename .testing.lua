@@ -75,7 +75,7 @@ return {
           repo = "WKDSteve/filetree.nvim",
           -- filetree.nvim publishes ci-verified since 2026-11-09 (its job publish-ci-verified).
           ref = "ci-verified",
-          why = "only the test sheet hover.http-preview-beside-explorer loads it",
+          why = "only the test sheets load it: hover.http-preview-beside-explorer and hover.directory-expand (its own tree)",
         },
       },
       publish = { why = "markdown.nvim and reposcope.nvim check out hover.nvim at ci-verified" },
