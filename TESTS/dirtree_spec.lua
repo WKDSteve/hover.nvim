@@ -246,7 +246,7 @@ describe("hover.preview.dirtree", function()
     ---A stand-in for the tree that can open folders: `Alpha` holds `f1.txt`, a folder `sub` (with
     ---`g.txt`) and more than it shows; `a.txt` lies next to it. `seen.expand` notes what was asked.
     ---@param seen table
-    ---@param opts? { expand?: boolean, bare_more?: boolean, top_more?: boolean }  `top_more`: the listed directory itself has more than the tree lists
+    ---@param opts? { expand?: boolean, bare_more?: boolean, top_more?: boolean, dir_field?: boolean }  `top_more`: the listed directory itself has more than the tree lists; `dir_field`: a count names its folder in `dir` and its id says nothing (the tree since that field)
     local function tree_engine(seen, opts)
       opts = opts or {}
       seen.expand, seen.closed, seen.embeds = {}, 0, 0
@@ -279,13 +279,19 @@ describe("hover.preview.dirtree", function()
                 "    f1.txt",
                 { id = alpha .. "/f1.txt", path = alpha .. "/f1.txt", kind = "file" }
               )
-              add(
-                "    … 3 more",
-                { id = opts.bare_more and "?" or (alpha .. "//more"), kind = "more" }
-              )
+              if opts.dir_field then
+                add("    … 3 more", { id = "more:1", kind = "more", dir = alpha, more = 3 })
+              else
+                add(
+                  "    … 3 more",
+                  { id = opts.bare_more and "?" or (alpha .. "//more"), kind = "more" }
+                )
+              end
             end
             add("  a.txt", { id = dir .. "/a.txt", path = dir .. "/a.txt", kind = "file" })
-            if opts.top_more then
+            if opts.top_more and opts.dir_field then
+              add("  … 7 more", { id = "more:2", kind = "more", dir = dir, more = 7 })
+            elseif opts.top_more then
               add("  … 7 more", { id = dir .. "//more", kind = "more" })
             end
             vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -380,6 +386,43 @@ describe("hover.preview.dirtree", function()
       assert.equals(3, #listing.entries)
       assert.equals("… 2+ more", listing.lines[4])
       assert.is_true(listing.more)
+    end)
+
+    it("reads the folder of a count from its dir field, whatever its id says", function()
+      local seen = {}
+      package.loaded["filetree.native"] = tree_engine(seen, { dir_field = true, top_more = true })
+      local listing = dirtree.list(root, 20, { root .. "/Alpha" })
+      local more = listing.entries[4]
+      assert.equals("    … 3 more", listing.lines[4])
+      assert.is_true(more.more)
+      assert.equals(root .. "/Alpha", more.path)
+      -- the count of the listed directory itself is still the last line and no entry
+      assert.equals(5, #listing.entries)
+      assert.equals("  … 7 more", listing.lines[6])
+      assert.is_true(listing.more)
+    end)
+
+    it("takes the dir field over an id that names another folder", function()
+      local seen = {}
+      local engine = tree_engine(seen)
+      local embed = engine.embed
+      engine.embed = function(buf, dir)
+        local handle = embed(buf, dir)
+        local rows = handle.rows
+        handle.rows = function()
+          local out = rows()
+          for _, row in ipairs(out) do
+            if row.kind == "more" then
+              row.id, row.dir = dir .. "/elsewhere//more", dir .. "/Alpha"
+            end
+          end
+          return out
+        end
+        return handle
+      end
+      package.loaded["filetree.native"] = engine
+      local listing = dirtree.list(root, 20, { root .. "/Alpha" })
+      assert.equals(root .. "/Alpha", listing.entries[4].path)
     end)
 
     it("hands a count it cannot place back to the own scan", function()

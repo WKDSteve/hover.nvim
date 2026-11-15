@@ -55,11 +55,15 @@ end
 ---@field can_expand boolean the tree can show a folder open in place (`M.list` takes `expanded`)
 
 --- The folder a "... N more" row of the tree counts for, or nil when the row does not say. The row has no
---- path; its id is the folder's with `//more` behind it.
+--- path: it names its folder in `dir`. A filetree.nvim from before that field says it only in the id of
+--- the row, the folder's with `//more` behind it, which is no part of the contract and read as a fallback.
 ---@param row table
 ---@return string|nil
 local function more_of(row)
-  local folder = type(row.id) == "string" and row.id:match("^(.+)//more$") or nil
+  local folder = type(row.dir) == "string" and row.dir ~= "" and row.dir or nil
+  if not folder and type(row.id) == "string" then
+    folder = row.id:match("^(.+)//more$")
+  end
   return folder and vim.fs.normalize(folder) or nil
 end
 
