@@ -12,7 +12,8 @@ A hover on a directory shows its entries as a mini filetree: a selection that
 
 The keys, the selection, the click and the window a file opens into are the
 same in both: the tree is asked for lines and for what each line stands for,
-and everything after that is one code path.
+and everything after that is one code path. One thing only the tree can do:
+show [a folder open in place](#a-folder-open-in-place).
 
 ## Why the tree is asked and let go
 
@@ -26,8 +27,46 @@ buffer, no watcher (`watch = false`), no autocmd and no key (the layout
 creates none). `TESTS/dirtree_spec.lua` counts buffers, autocmds and handles
 before and after.
 
-The price is that the listing is flat: one level, as before. A line `a/b/c`
-stands for the folder at its end, so `right` on it steps into `c` directly.
+The listing is flat by default: one level, as before. A line `a/b/c` stands
+for the folder at its end, so `right` on it steps into `c` directly.
+
+## A folder open in place
+
+With filetree.nvim's tree drawing, a folder can also be shown open where it
+stands, its entries indented under it. There is no key for it by default,
+because a hover is gone on the next cursor move and grows under the cursor
+with every folder opened; name one to have it:
+
+```lua
+require("hover").setup({
+  dir_keys = { expand = { "o" } },
+})
+```
+
+| Key | On a folder | On a file |
+| --- | --- | --- |
+| `dir_keys.expand` | open it in place, or close it again | nothing |
+| `nav_keys.right`, a click | step into it: it becomes the listing | open it |
+
+`require("hover").dir_expand()` is the same from Lua. What it changes:
+
+- The folders that are open are remembered for as long as the float shows
+  this directory. Stepping into another directory, or a new hover, starts
+  flat.
+- Closing a folder closes what was open inside it.
+- A folder with more entries than fit gets a line `… N more` under its
+  entries. That line can be selected: `right` on it steps into the folder,
+  where the rest is.
+- The float still shows no more entries than it has room for
+  (`max_lines`); what is cut is counted on the last line.
+
+The tree still does not live in the float. Opening a folder draws the listing
+again with one folder more named as open (`hover.preview.dirtree.list(dir,
+limit, expanded)`), in the same one call that asks the tree and lets it go.
+So there is nothing to tear down when the float goes: the spec counts
+buffers, autocmds and handles after a dismissal by cursor move, with folders
+open. The key is borrowed only where the tree drew the listing: with
+hover.nvim's own scan there is nothing it could do.
 
 ## Why filetree.nvim is never loaded for it
 

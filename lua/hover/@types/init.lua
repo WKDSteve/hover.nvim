@@ -238,6 +238,7 @@
 --- Left-click, borrowed while a directory hover shows its mini filetree.
 ---@class Hover.DirKeys
 ---@field click? string|string[] # Default `{ "<LeftMouse>" }`. A click that misses the float is replayed as an ordinary left-button press rather than swallowed.
+---@field expand? string|string[] # Default `{}` (no key). Show the selected folder open in place, or close it again; needs filetree.nvim's own tree.
 
 --- Keys borrowed while the hover on screen *can* be zoomed -- a picture with
 --- a cropping provider present, or a PDF page with a rasterizer that can
@@ -309,6 +310,8 @@
 ---@field win? integer # The window `show()` was triggered from. A directory hover's "open" opens a file here rather than wherever the cursor happens to be by the time a key is pressed -- the float itself is never a candidate, being `focusable = false`.
 ---@field dir_dir? string # The directory currently browsed, once a target has resolved to one. Distinct from `target.path`, which only ever names where the hover *started*: descending into a subdirectory rewrites this without reclassifying anything.
 ---@field dir_entries? Hover.DirEntry[] # This directory's rendered entries, copied from the content that built it -- see `Hover.Content.dir_entries`.
+---@field dir_expanded? string[] # The folders of this directory hover the reader opened in place. Gone when the hover steps into another directory.
+---@field dir_expandable? boolean # Whether what drew the listing can show a folder open in place -- see `Hover.Content.dir_expandable`.
 ---@field dir_selected? integer # 1-based index into `dir_entries` -- the row `nav_keys`/`dir_keys.click` act on. Reset to 1 whenever `dir_dir` changes.
 
 -- #####################################################################
@@ -389,6 +392,7 @@
 --- Options threaded from the configuration into the previewers.
 ---@class Hover.PreviewOpts
 ---@field max_lines integer
+---@field dir_expanded? string[] # A directory preview: the folders to show open in place. Read by `hover.preview.text.directory`, used only where filetree.nvim's tree draws the listing.
 ---@field max_width? integer # Needed by the image previewer, which sizes the float itself rather than letting it be measured from text.
 ---@field inline_images? boolean
 ---@field url_fetch? boolean
@@ -458,6 +462,7 @@
 ---@field play_window? Hover.PlayWindow # Open a real mpv window for this file once the float is open, and tie its lifetime to the float. Present only on the windowed playing view.
 ---@field play_external? string # Path already handed to the system's own player (no mpv window available); this only wires the float's `on_close` to `preview.external.reset`, since `preview.video` already made the call and checked it worked.
 ---@field dir_entries? Hover.DirEntry[] # A directory preview's entries, in the same order as the lines that render them -- line `i` of `lines` is entry `i` here. Absent for every other content, and shorter than the directory's real size once truncated: only what is actually shown can be selected or clicked.
+---@field dir_expandable? boolean # A directory preview whose folders can be shown open in place (`opts.dir_expanded`): drawn by filetree.nvim's tree, not by the plugin's own scan.
 ---@field tail_marker? boolean # The last line of `lines` is the truncation marker of a text or directory preview (`…`, `… (N entries)`), not content; `:Hover copy` leaves it out.
 ---@field pending? boolean # Provisional; an async result replaces it (and it is not cached).
 ---@field transient? boolean # Final, and shown, but not cached: built from a kept page whose refresh is still out.
@@ -468,6 +473,8 @@
 ---@field name string # Bare filename, no path.
 ---@field path string # `dir .. "/" .. name`, absolute.
 ---@field is_dir boolean
+---@field expanded? boolean # The folder is shown open in place: the lines after it are what is in it (only with filetree.nvim's tree).
+---@field more? boolean # No entry of its own: the line that counts what a folder shown open has more of. `path` is that folder, so activating the line steps into it.
 
 --- What `hover.init` needs to open a windowed player: the file, and where in it
 --- to start. `hover.preview.window` holds the handle that stops it again.

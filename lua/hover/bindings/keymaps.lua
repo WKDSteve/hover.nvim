@@ -156,7 +156,7 @@ end
 --- argument stops being readable -- `borrow(c, f, g, h, true)` says nothing
 --- about which of them pans. A fourth condition is one key here.
 ---@param content Hover.Content|nil
----@param handlers { next_answer?: fun(), has_answers?: boolean, scroll?: fun(delta: integer), resize?: fun(delta: integer), nav?: fun(dx: integer, dy: integer), zoom?: fun(delta: integer), zoomed?: boolean, zoomable?: boolean, zen?: fun(), transport?: fun(), transport_step?: fun(delta: integer), transport_seek?: fun(direction: integer), dir_browse?: boolean, dir_click?: fun(line0: integer) }
+---@param handlers { next_answer?: fun(), has_answers?: boolean, scroll?: fun(delta: integer), resize?: fun(delta: integer), nav?: fun(dx: integer, dy: integer), zoom?: fun(delta: integer), zoomed?: boolean, zoomable?: boolean, zen?: fun(), transport?: fun(), transport_step?: fun(delta: integer), transport_seek?: fun(direction: integer), dir_browse?: boolean, dir_click?: fun(line0: integer), dir_expand?: fun(): boolean }
 ---@return nil
 function M.borrow(content, handlers)
   handlers = handlers or {}
@@ -420,6 +420,17 @@ function M.borrow(content, handlers)
           vim.api.nvim_input_mouse("left", "press", "", 0, pos.screenrow - 1, pos.screencol - 1)
         end
       end, "hover: open the directory entry under the pointer")
+    end
+  end
+
+  -- A folder of the mini filetree open in place. No key by default (`dir_keys.expand = {}`): the listing
+  -- is flat unless the reader asks, and the handler is only handed over where the listing can do it.
+  if handlers.dir_expand and handlers.dir_browse then
+    local dk = type(cfg.dir_keys) == "table" and cfg.dir_keys or {}
+    for _, lhs in ipairs(M.keylist(dk.expand)) do
+      take(seen, lhs, function()
+        handlers.dir_expand()
+      end, "hover: show the selected folder open in place, or close it")
     end
   end
 end

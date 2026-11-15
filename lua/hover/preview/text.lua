@@ -280,12 +280,15 @@ function M.directory(target, opts)
 
   -- With filetree.nvim's own tree loaded the listing is drawn by it (order, icons, `a/b/c` as one line);
   -- nil means there is no such tree, or it could not list this directory, and the scan below draws.
-  local ok_tree, drawn = pcall(require("hover.preview.dirtree").list, target.path, limit)
+  -- `opts.dir_expanded`: the folders the reader opened in place (`hover.init` remembers them).
+  local ok_tree, drawn =
+    pcall(require("hover.preview.dirtree").list, target.path, limit, opts.dir_expanded)
   if ok_tree and drawn then
     return {
       lines = #drawn.lines > 0 and drawn.lines or { "(empty directory)" },
       title = vim.fs.basename(target.path) .. "/",
       dir_entries = drawn.entries,
+      dir_expandable = drawn.can_expand or nil,
       tail_marker = drawn.more or nil,
     }
   end

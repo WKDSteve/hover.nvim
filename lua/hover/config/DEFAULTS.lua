@@ -980,9 +980,20 @@ return {
   ---
   --- `{}` binds nothing, for a reader who wants the keyboard-only route
   --- (`nav_keys.right`, or `open_keys`) and no click at all.
+  ---
+  --- **`expand` has no key by default, and that is the decision, not an
+  --- omission.** It shows the selected folder open in place, its entries
+  --- indented under it, and closes it again; `nav_keys.right` still steps into
+  --- the folder. The float goes on the next cursor move and the listing under
+  --- the cursor grows with every folder opened, so the flat listing stays what
+  --- a hover is unless a reader binds this (`expand = { "o" }`). Needs
+  --- filetree.nvim's own tree to have drawn the listing: with the plugin's own
+  --- scan the key is not borrowed at all.
   dir_keys = {
     ---@type string|string[]
     click = { "<LeftMouse>" },
+    ---@type string|string[]
+    expand = {},
   },
 
   --- Step to the next plugin with something to say about this place.

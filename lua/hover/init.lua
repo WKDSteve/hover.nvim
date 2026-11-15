@@ -900,8 +900,20 @@ local function present(content)
       _open.dir_entries = content.dir_entries
       _open.dir_selected =
         require("hover.preview.dirbrowse").clamp(_open.dir_selected, #content.dir_entries)
+      -- The folders shown open in place, read back off what was drawn rather than kept as asked: a
+      -- folder that is gone, or one that fell behind the cut of a long listing, is not open any more,
+      -- and the next render must not bring it back from a list nobody can see.
+      _open.dir_expandable = content.dir_expandable
+      local expanded = {}
+      for _, entry in ipairs(content.dir_entries) do
+        if entry.expanded then
+          expanded[#expanded + 1] = entry.path
+        end
+      end
+      _open.dir_expanded = #expanded > 0 and expanded or nil
     else
       _open.dir_dir, _open.dir_entries, _open.dir_selected = nil, nil, nil
+      _open.dir_expanded, _open.dir_expandable = nil, nil
     end
   end
 
@@ -1027,6 +1039,9 @@ local function present(content)
     nav = dir_browse and M.dir_nav or M.nav,
     dir_browse = dir_browse,
     dir_click = dir_browse and M.dir_click or nil,
+    -- Only where the listing can do it (filetree.nvim's tree drew it): with the plugin's own scan the
+    -- key would be bound to a refusal.
+    dir_expand = (dir_browse and _open and _open.dir_expandable) and M.dir_expand or nil,
     zoom = M.zoom,
     zoomed = ((_open and _open.zoom) or 0) > 0,
     zoomable = can_magnify(_open),
@@ -1935,6 +1950,7 @@ local function current_preview_opts()
     opts.zoom_cx = _open.zoom_cx
     opts.zoom_cy = _open.zoom_cy
     opts.requested = _open.requested
+    opts.dir_expanded = _open.dir_expanded
   end
   return opts
 end
@@ -2154,6 +2170,8 @@ local function enter_directory(path)
   end
   ---@type Hover.Target
   _open.target = { type = "directory", raw = path, path = path }
+  -- what was open in place belongs to the listing that is left
+  _open.dir_expanded = nil
   return rerender(_open, _open.target)
 end
 
@@ -2242,6 +2260,47 @@ function M.dir_nav(dx, dy)
   _open.dir_selected = next_sel
   set_dir_highlight()
   return true
+end
+
+--- Show the selected folder of the mini filetree open in place, its entries
+--- indented under it, or close it again. Borrowed as `dir_keys.expand` (no key
+--- by default) while a directory hover drawn by filetree.nvim's tree is on
+--- screen; `right` still steps into the folder.
+---
+--- The listing is drawn again with one folder more or less open: no tree
+--- lives in the float, so nothing has to be torn down when the float goes on
+--- the next cursor move. The selection stays on the folder, whose line does
+--- not move.
+---
+--- Declines on a file, on the line that counts what an open folder has more
+--- of, and where the plugin's own scan drew the listing (it is flat).
+---@return boolean acted
+function M.dir_expand()
+  if not (_open and _open.dir_entries and _open.dir_selected and _open.target) then
+    return false
+  end
+  if not _open.dir_expandable then
+    return false
+  end
+  local entry = _open.dir_entries[_open.dir_selected]
+  if not (entry and entry.is_dir) or entry.more then
+    return false
+  end
+  ---@type string[]
+  local expanded = {}
+  local was_open = false
+  for _, path in ipairs(_open.dir_expanded or {}) do
+    if path == entry.path then
+      was_open = true
+    else
+      expanded[#expanded + 1] = path
+    end
+  end
+  if not was_open then
+    expanded[#expanded + 1] = entry.path
+  end
+  _open.dir_expanded = expanded
+  return rerender(_open, _open.target)
 end
 
 --- Select and activate the entry under screen line `line0`, borrowed as

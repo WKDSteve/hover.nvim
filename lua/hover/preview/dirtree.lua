@@ -9,6 +9,11 @@
 --- names without regard to case), its icons, a chain of single folders
 --- `a/b/c` as one line, and its line for what did not fit.
 ---
+--- **A folder can be shown open in place**, its entries indented under it
+--- (`dir_keys.expand`, no key by default: the listing is flat unless the
+--- reader asks). That does not make the tree live in the float either:
+--- `M.list` is told which folders are open and draws the listing again.
+---
 --- **The tree is asked and let go in one call.** It draws into a scratch
 --- buffer that exists for the length of `M.list`; the lines and the rows are
 --- read off, the handle is closed, the buffer wiped. What reaches the float
@@ -44,15 +49,31 @@ function M.engine()
 end
 
 ---@class Hover.DirTree.Listing
----@field lines string[] one per entry, then the tree's own "... N more" line when the directory has more
+---@field lines string[] one per entry, then a last line that counts what was left out when there is more
 ---@field entries Hover.DirEntry[] what each of the first `#entries` lines stands for
----@field more boolean the last line is the tree's count of what was left out, not an entry
+---@field more boolean the last line is a count of what was left out, not an entry
+---@field can_expand boolean the tree can show a folder open in place (`M.list` takes `expanded`)
+
+--- The folder a "... N more" row of the tree counts for, or nil when the row does not say. The row has no
+--- path; its id is the folder's with `//more` behind it.
+---@param row table
+---@return string|nil
+local function more_of(row)
+  local folder = type(row.id) == "string" and row.id:match("^(.+)//more$") or nil
+  return folder and vim.fs.normalize(folder) or nil
+end
 
 --- List `dir` through the embedded tree.
+---
+--- `expanded` names folders below `dir` that are shown open, their entries indented under them. The tree is
+--- still asked and let go in this one call: which folders are open is the caller's to remember, not a tree
+--- that lives on. A name that is no folder of the listing (it is gone, or its parent is closed) is passed
+--- over.
 ---@param dir string absolute directory path
----@param limit integer entries shown at most
+---@param limit integer entries shown at most, per folder and in all
+---@param expanded? string[] folders to show open
 ---@return Hover.DirTree.Listing|nil nil: no engine, or it could not list this directory; `dirbrowse` takes over
-function M.list(dir, limit)
+function M.list(dir, limit, expanded)
   local native = M.engine()
   if not native then
     return nil
@@ -68,34 +89,66 @@ function M.list(dir, limit)
     if not tree then
       return
     end
+    local can_expand = type(tree.expand) == "function"
+    if can_expand and type(expanded) == "table" and #expanded > 0 then
+      -- a folder before what lies in it: a row exists only once its parent is open
+      local wanted = vim.list_extend({}, expanded)
+      table.sort(wanted, function(a, b)
+        return #a < #b
+      end)
+      for _, path in ipairs(wanted) do
+        if type(path) == "string" then
+          tree:expand(path)
+        end
+      end
+    end
     local rows = tree:rows()
     local lines = api.nvim_buf_get_lines(buf, 0, -1, false)
     tree:close()
     if #rows == 0 then
-      listing = { lines = {}, entries = {}, more = false }
+      listing = { lines = {}, entries = {}, more = false, can_expand = can_expand }
       return
     end
     -- one row, one line: anything else and the line a reader selects would not be the entry it resolves to
     if #rows ~= #lines then
       return
     end
+    local top = vim.fs.normalize(dir)
     local entries, more = {}, false
     for i, row in ipairs(rows) do
       if row.kind == "more" or type(row.path) ~= "string" then
-        -- the count of what was left out is the last line or the listing is not one this float can select in
-        if i ~= #rows then
+        local folder = more_of(row)
+        if i == #rows and (folder == nil or folder == top) then
+          -- what the listed directory itself has more of: the last line, and no entry
+          more = true
+        elseif folder and folder ~= top then
+          -- what a folder shown open has more of: a line to select, and it leads into that folder, where
+          -- the rest is
+          entries[#entries + 1] = { name = "…", path = folder, is_dir = true, more = true }
+        else
+          -- a line in the middle that stands for nothing: not a listing this float can select in
           return
         end
-        more = true
       else
         entries[#entries + 1] = {
           name = vim.fs.basename(row.path),
           path = row.path,
           is_dir = row.kind == "dir",
+          expanded = row.expanded == true or nil,
         }
       end
     end
-    listing = { lines = lines, entries = entries, more = more }
+    -- folders shown open add lines: the float still shows `limit` entries at most
+    if #entries > limit then
+      local left = #entries - limit
+      local cut_lines, cut_entries = {}, {}
+      for i = 1, limit do
+        cut_lines[i], cut_entries[i] = lines[i], entries[i]
+      end
+      cut_lines[#cut_lines + 1] = ("… %d more"):format(left)
+      lines, entries, more = cut_lines, cut_entries, true
+    end
+    listing = { lines = lines, entries = entries, more = more, can_expand = can_expand }
   end)
   pcall(api.nvim_buf_delete, buf, { force = true })
   if not ok then

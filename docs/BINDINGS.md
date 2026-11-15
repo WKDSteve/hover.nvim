@@ -63,6 +63,7 @@ require("hover").setup({ keymaps = { show = false } })
 | `nav_keys.up` | `k` | as above | up, or the previous entry |
 | `nav_keys.down` | `j` | as above | down, or the next entry |
 | `dir_keys.click` | `<LeftMouse>` | **only while a directory's mini filetree is shown** | select and open the entry under the pointer; a click elsewhere is replayed as an ordinary left click |
+| `dir_keys.expand` | none | **only while filetree.nvim's own tree drew the mini filetree**, and only once you name a key | show the selected folder open in place, its entries indented under it, or close it again; `nav_keys.right` still steps into it ([DIRECTORY.md](FEATURES/DIRECTORY.md)) |
 
 What follows from "borrowed" is below, and each of these has been a bug at some
 point. No count in that sentence on purpose: the list has grown with every new
