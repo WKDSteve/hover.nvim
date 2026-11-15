@@ -20,9 +20,10 @@ asserts the dashboard actually opens) via `TESTING_NVIM_DIR`/`LIB_NVIM_DIR`/
 repo — see the comment at the top of `TESTS/minimal_init.lua`. `images.nvim`
 is optional; without it the zoom crop spec reports `skip` (with its reason)
 rather than failing. `filetree.nvim` is named there too, but only for the test
-sheet `hover.http-preview-beside-explorer`: it is not required and not on the
-specs' runtimepath (the sheet adds it in its own child); without it that sheet
-is a reported skip (`n/a`). CI checks it out pinned (`ci.workflow.checkouts`).
+sheets `hover.http-preview-beside-explorer` and `hover.directory-expand`: it is
+not required and not on the specs' runtimepath (a sheet adds it in its own
+child); without it those sheets are a reported skip (`n/a`). CI checks it out
+pinned (`ci.workflow.checkouts`).
 
 The guards of testing.nvim are on (`guards` in `.testing.lua`): a spec that
 writes outside the temp directory, starts a process other than `git`,
@@ -55,6 +56,7 @@ what is left for a person (`judge` and `manual`).
 | `hover-copy-register` | `hover.nvim/copy-live-check` | `Y` and `:Hover copy` on a text hover: register text (no title), linewise, after `<C-Down>` the scrolled lines; the clipboard call is stubbed | the real system clipboard, pasting into another program, the crop of a zoomed picture / PDF page / page screenshot |
 | `hover-http-preview-alone` | `hover.nvim/http-preview-live-check` | `:Hover show` on an https link: one fetch, status line, title and description (no HTML), a second hover from the session cache, a 404 | the real network (curl, `--proto`, no auth to `http://`), the judgement of the snapshots |
 | `hover-http-preview-beside-explorer` | `hover.nvim/http-preview-live-check` | the same beside `:Lexplore` (filetree.nvim on netrw): the float over the note, the tree untouched, one fetch, the cache | as above |
+| `hover-directory-expand` | `hover.nvim/abnahme-directory-hover-folder-open-in-place` | `:Hover show` on the path of a folder with filetree.nvim on its own tree: the flat listing, the key named for `dir_keys.expand` shows the selected folder open in place and closes it again (two snapshots), the key did not reach the buffer; a cursor move takes the float, the borrowed key, and leaves no buffer or window | icons with a Nerd Font, how the float grows, a dismissal by wheel or click |
 
 The network in a sheet is a stub (`_G.net_stub` in `TESTS/sheets/_helpers.lua`
 replaces `lib.nvim.net.curl`): nothing is spawned or connected, the process
