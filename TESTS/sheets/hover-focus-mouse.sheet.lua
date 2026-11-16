@@ -3,7 +3,7 @@
 -- events through nvim_input_mouse on the attached UI: a drag with the left button selects words of the float and `y`
 -- yanks them; the wheel over the float scrolls the float's text, not the window behind it; `q` and `<Esc>` lead back
 -- to the window the reader came from, the float stays up, and the next cursor move closes it.
--- Line 4 (a picture hover refuses to be entered) needs a drawn picture and stays by hand, as does a real mouse.
+-- Line 4 (a picture hover refuses to be entered) is TESTS/focus_spec.lua; a real mouse stays by hand.
 -- Acceptance: hover.nvim/hover-focus-maus-handpruefung-auswahl-rad-q-esc.
 return {
   id = "hover.focus-mouse",
@@ -115,6 +115,5 @@ return {
   },
   manual = {
     "With a real mouse in the real config: drag over words of a text hover after :Hover focus, the wheel inside it, q and <Esc>; it behaves as the sheet says",
-    "A picture hover: :Hover focus answers 'a picture hover cannot be entered' instead of entering",
   },
 }

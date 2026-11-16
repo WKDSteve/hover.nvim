@@ -111,6 +111,25 @@ describe("hover.focus", function()
     assert.is_truthy(float.win())
   end)
 
+  it("refuses a picture hover: it says so and the cursor stays where it was", function()
+    -- A preview that answers with a canvas is what a picture hover is to `focus` (preview/media.lua); a drawn
+    -- picture is not needed for the refusal, so a registered preview stands in for the image renderer.
+    registry.register("spec", {
+      previews = {
+        file = function()
+          return { lines = {}, canvas = { cols = 10, rows = 4 } }
+        end,
+      },
+    })
+    open_hover()
+    local ok, why = hover.focus()
+    assert.is_false(ok)
+    assert.same("a picture hover cannot be entered; try :Hover copy.", why)
+    assert.same(win, vim.api.nvim_get_current_win(), "the cursor did not enter the float")
+    assert.is_false(hover.pinned(), "the refusal takes no pin")
+    assert.is_false(float.is_focused())
+  end)
+
   it("keeps a pin the reader set themselves", function()
     open_hover()
     hover.pin(true)
