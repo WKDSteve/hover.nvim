@@ -14,15 +14,17 @@
 local this = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p")
 local root = vim.fs.dirname(vim.fs.dirname(vim.fs.normalize(this)))
 
-local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim", "filetree.nvim" }
+local DEPS = { "testing.nvim", "lib.nvim", "ui.nvim", "filetree.nvim", "images.nvim" }
 
 -- Named above so the runner hands it to the child editors as $FILETREE_NVIM_DIR (`ci commit` runs in a worktree,
 -- where it is no sibling), and so the cache keys the sheets on it. But it is neither required nor put on the
 -- runtimepath: the test sheet hover.http-preview-beside-explorer adds it in its own child (TESTS/sheets/_helpers.lua
 -- `add_deps`), which is a reported skip without it, and TESTS/dirtree_spec.lua adds it for its cases on the real tree
 -- and takes it off again (it reads `vim.g.hover_sheets_filetree_nvim`, set below; pending without a checkout).
+-- images.nvim is named for the same hand-over ($IMAGES_NVIM_DIR, for the test sheet hover.copy-zoom-crop); the zoom
+-- specs put it on the runtimepath further down (`add_optional`), and a run without it skips them.
 ---@type table<string, true>
-local SHEETS_ONLY = { ["filetree.nvim"] = true }
+local SHEETS_ONLY = { ["filetree.nvim"] = true, ["images.nvim"] = true }
 
 ---@type table<string, string>
 local MARKERS = { ["lib.nvim"] = "lua/lib/nvim", ["testing.nvim"] = "lua/testing" }
