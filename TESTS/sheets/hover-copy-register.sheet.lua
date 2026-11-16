@@ -4,7 +4,8 @@
 -- into the unnamed register; after `<C-Down>` `Y` takes the scrolled lines; `:Hover copy` does the
 -- same as `Y`; the copy pastes into another buffer as whole lines; once the hover is closed `Y`
 -- is `y$` again. lib.nvim's clipboard call is stubbed in the child and records what it was handed:
--- the real system clipboard, pasting into another program and the picture crop stay by hand.
+-- the real system clipboard and pasting into another program stay by hand. The picture crop after a zoom is the sheet
+-- hover.copy-zoom-crop.
 return {
   id = "hover.copy-register",
   feature = "hover.copy",
@@ -113,7 +114,6 @@ return {
   },
   manual = {
     "Text hover, Y, paste into another program: the lines on screen arrive through the real system clipboard, without the title",
-    "Image hover, > twice, move with l, Y: the reported file under stdpath('cache')/hover.nvim/copies shows the crop, not the whole picture; likewise a PDF page and a page screenshot",
     "Enter the result (a failure too) in the row 'A hover copied' of NOTES/MANUAL-EVIDENCE.md",
   },
 }
