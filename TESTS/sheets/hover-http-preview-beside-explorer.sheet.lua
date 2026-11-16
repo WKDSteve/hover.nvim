@@ -86,6 +86,6 @@ return {
     "The float sits over the note and does not cover the tree",
   },
   manual = {
-    "Once with the real network on a real page (:Hover links web fetch on): the title arrives, nothing is sent to http://",
+    "Once: testing sheets run --live --sheet hover.http-preview-live (the real network against example.com: the title arrives, http:// gets no credential)",
   },
 }

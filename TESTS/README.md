@@ -54,7 +54,8 @@ what is left for a person (`judge` and `manual`).
 | Sheet | Live-check task | Automated | Left by hand |
 |---|---|---|---|
 | `hover-copy-register` | `hover.nvim/copy-live-check` | `Y` and `:Hover copy` on a text hover: register text (no title), linewise, after `<C-Down>` the scrolled lines; the clipboard call is stubbed | the real system clipboard, pasting into another program, the crop of a zoomed picture / PDF page / page screenshot |
-| `hover-http-preview-alone` | `hover.nvim/http-preview-live-check` | `:Hover show` on an https link: one fetch, status line, title and description (no HTML), a second hover from the session cache, a 404 | the real network (curl, `--proto`, no auth to `http://`), the judgement of the snapshots |
+| `hover-http-preview-alone` | `hover.nvim/http-preview-live-check` | `:Hover show` on an https link: one fetch, status line, title and description (no HTML), a second hover from the session cache, a 404 | one `--live` run of `hover-http-preview-live`, the judgement of the snapshots |
+| `hover-http-preview-live` | `hover.nvim/http-preview-live-check` | a **live sheet** (runs only with `testing sheets run --live`; in the suite, without `--live` and under CI a reported skip): the real curl against `https://example.com/`, the title arrives; a credential rule for `example.com/private/*` would apply over https, and the hover of the `http://` link under it hands curl no `-K`, no stdin config and no `Authorization` (every curl is recorded by a wrapper around `vim.system`) | running it once |
 | `hover-http-preview-beside-explorer` | `hover.nvim/http-preview-live-check` | the same beside `:Lexplore` (filetree.nvim on netrw): the float over the note, the tree untouched, one fetch, the cache | as above |
 | `hover-directory-expand` | `hover.nvim/abnahme-directory-hover-folder-open-in-place` | `:Hover show` on the path of a folder with filetree.nvim on its own tree: the flat listing, the key named for `dir_keys.expand` shows the selected folder open in place and closes it again (two snapshots), the key did not reach the buffer; a cursor move takes the float, the borrowed key, and leaves no buffer or window; so do the wheel and a click beside the float (`nvim_input_mouse`), the click landing as an ordinary click | icons with a Nerd Font, how the float grows, a real mouse |
 | `hover-focus-mouse` | `hover.nvim/hover-focus-maus-handpruefung-auswahl-rad-q-esc` | `:Hover focus` on a text hover, then through `nvim_input_mouse`: a drag selects words (Visual mode, snapshot) and `y` yanks exactly them; the wheel scrolls the float, not the window behind; `q` and `<Esc>` lead back to the origin window, the float stays up and the next cursor move closes it | a real mouse (a picture hover refusing to be entered is `focus_spec.lua`) |
@@ -62,7 +63,9 @@ what is left for a person (`judge` and `manual`).
 The network in a sheet is a stub (`_G.net_stub` in `TESTS/sheets/_helpers.lua`
 replaces `lib.nvim.net.curl`): nothing is spawned or connected, the process
 guard stays strict, `curl` is not in `guard_allow`. The answers are data in
-`TESTS/sheets/fixtures/http/` (hosts under the reserved `example.test`).
+`TESTS/sheets/fixtures/http/` (hosts under the reserved `example.test`). The
+exception is the live sheet `hover-http-preview-live`: it reaches
+`example.com` and nothing else (`live.hosts`), and never in the suite or on CI.
 
 ## Coverage map
 

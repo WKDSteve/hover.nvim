@@ -6,7 +6,8 @@
 -- with nothing of the HTML; a second hover of the same link comes from the session cache (no second request); a
 -- link that answers 404 shows the status as the answer.
 -- The network is a stub (TESTS/sheets/_helpers.lua `net_stub`): no process, no connection, the guard stays strict;
--- the answers are data in TESTS/sheets/fixtures/http/. The real transport stays by hand (`manual`).
+-- the answers are data in TESTS/sheets/fixtures/http/. The real transport is the live sheet
+-- hover.http-preview-live, run once by hand with --live (`manual`).
 return {
   id = "hover.http-preview-alone",
   feature = "hover.http-preview",
@@ -92,6 +93,6 @@ return {
     "The 404 float reads as an error (its own highlight), not as a page",
   },
   manual = {
-    "Once with the real network on a real page (:Hover links web fetch on): the title arrives, nothing is sent to http://",
+    "Once: testing sheets run --live --sheet hover.http-preview-live (the real network against example.com: the title arrives, http:// gets no credential)",
   },
 }
