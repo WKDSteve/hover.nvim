@@ -311,20 +311,32 @@ end
 ---@internal
 --- Dismiss on the next thing the user does. `CursorMoved` alone is not enough: leaving insert mode or switching
 --- windows must also clear it, or a stale hover outlives the context it described.
+---
+--- `hold` is where the cursor stands when the dismissal is put back after a visit to the float (`M.unfocus`): going
+--- back to the origin window makes Neovim report a `CursorMoved` there on the next pass of its main loop, although
+--- the cursor did not move in that window. That report is not "the next thing the user does", so a `CursorMoved`
+--- with the cursor still in `hold.win` at `hold.pos` is skipped; the first real move clears `hold` and closes.
 ---@param opts Hover.FloatOpts
-local function install_dismiss(opts)
+---@param hold? { win: integer, pos: integer[] }
+local function install_dismiss(opts, hold)
   if _augroup then
     pcall(api.nvim_del_augroup_by_id, _augroup)
   end
   _augroup = autocmd.group("HoverDismiss", true)
   autocmd.create(
     { "CursorMoved", "CursorMovedI", "InsertEnter", "BufLeave", "WinScrolled" },
-    function()
+    function(args)
+      if hold and args.event == "CursorMoved" and api.nvim_get_current_win() == hold.win then
+        local ok, pos = pcall(api.nvim_win_get_cursor, hold.win)
+        if ok and pos[1] == hold.pos[1] and pos[2] == hold.pos[2] then
+          return
+        end
+      end
       M.close(opts.on_close)
     end,
     {
       group = _augroup,
-      once = true,
+      -- Not `once`: a skipped report must leave the dismissal armed. `M.close` deletes the group.
       desc = "hover: dismiss on the next cursor move or mode change",
     }
   )
@@ -550,7 +562,9 @@ function M.unfocus()
     pcall(api.nvim_set_current_win, state.origin)
   end
   if M.is_open() and _opts then
-    install_dismiss(_opts)
+    local cur = api.nvim_get_current_win()
+    local ok, pos = pcall(api.nvim_win_get_cursor, cur)
+    install_dismiss(_opts, ok and { win = cur, pos = pos } or nil)
   end
   if state.on_leave then
     pcall(state.on_leave)

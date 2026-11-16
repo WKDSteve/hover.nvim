@@ -32,6 +32,12 @@ return {
     docs = "docs/FEATURES/DIRECTORY.md",
   },
   {
+    id = "hover.focus",
+    title = ":Hover focus enters a text hover, so the mouse selects and scrolls in it and q / <Esc> leave",
+    surface = { "command:Hover focus" },
+    docs = "docs/commands.md",
+  },
+  {
     id = "hover.contributions",
     title = "Another plugin or the config adds a preview of its own",
     docs = "docs/FEATURES/CONTRIBUTIONS.md",

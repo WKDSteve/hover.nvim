@@ -1,0 +1,54 @@
+testing.nvim screen v1
+size: 80x24
+cursor: 5,17
+mode: v
+--- text
+01|see ./target.txt here
+02|note l╭📌 target.txt────────╮
+03|note l│line 01 of the target│
+04|note l│line 02 of the target│
+05|note l│line 03 of the target│
+06|note l│line 04 of the target│
+07|note l│line 05 of the target│
+08|note l│line 06 of the target│
+09|note l│line 07 of the target│
+10|note l│line 08 of the target│
+11|note l│line 09 of the target│
+12|note l│line 10 of the target│
+13|note l│line 11 of the target│
+14|note l│line 12 of the target│
+15|note l│line 13 of the target│
+16|note l│line 14 of the target│
+17|note l│line 15 of the target│
+18|note l│line 16 of the target│
+19|note l│line 17 of the target│
+20|note l│line 18 of the target│
+21|note l│line 19 of the target│
+22|note l│line 20 of the target│
+23|note l╰─────────────────────╯
+24|-- VISUAL --                                                         10
+--- attrs
+01|
+02|      abbbbbbbbbbbbaaaaaaaaa
+03|      aaaaaaaaaaaaaaaaaaaaaaa
+04|      aaaaaaaaaaaaaaaaaaaaaaa
+05|      acccccccccaaaaaaaaaaaaa
+06|      aaaaaaaaaaaaaaaaaaaaaaa
+07|      aaaaaaaaaaaaaaaaaaaaaaa
+08|      aaaaaaaaaaaaaaaaaaaaaaa
+09|      aaaaaaaaaaaaaaaaaaaaaaa
+10|      aaaaaaaaaaaaaaaaaaaaaaa
+11|      aaaaaaaaaaaaaaaaaaaaaaa
+12|      aaaaaaaaaaaaaaaaaaaaaaa
+13|      aaaaaaaaaaaaaaaaaaaaaaa
+14|      aaaaaaaaaaaaaaaaaaaaaaa
+15|      aaaaaaaaaaaaaaaaaaaaaaa
+16|      aaaaaaaaaaaaaaaaaaaaaaa
+17|      aaaaaaaaaaaaaaaaaaaaaaa
+18|      aaaaaaaaaaaaaaaaaaaaaaa
+19|      aaaaaaaaaaaaaaaaaaaaaaa
+20|      aaaaaaaaaaaaaaaaaaaaaaa
+21|      aaaaaaaaaaaaaaaaaaaaaaa
+22|      aaaaaaaaaaaaaaaaaaaaaaa
+23|      aaaaaaaaaaaaaaaaaaaaaaa
+24|ddddddddddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
