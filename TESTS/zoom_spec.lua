@@ -589,20 +589,27 @@ describe("hover.zoom and hover.nav", function()
       end
       return n
     end
+    ---@return { width: integer, height: integer }|nil
+    local function crop_size()
+      for name, kind in vim.fs.dir(dir) do
+        if kind == "file" then
+          return media.pixel_size(dir .. "/" .. name)
+        end
+      end
+      return nil
+    end
+    -- Waited for until its size is readable, not merely until it exists: magick creates the
+    -- file before it has written the header, and a read in between found no size (flaky in
+    -- WSL2, 2026-11-16, once images.nvim was mirrored there and this case ran at all).
     vim.wait(4000, function()
-      return crops() > 0
+      return crop_size() ~= nil
     end, 50)
     assert.is_true(crops() > 0, "a zoom step wrote no cropped file")
 
     -- And it is the rectangle the arithmetic asked for, not the whole picture
     -- copied: that is the difference between a zoom and an expensive no-op.
     local want = media.zoom_rect(assert(media.pixel_size(root .. "/pic.png")), 1, 0.5, 0.5)
-    local seen
-    for name, kind in vim.fs.dir(dir) do
-      if kind == "file" then
-        seen = media.pixel_size(dir .. "/" .. name)
-      end
-    end
+    local seen = crop_size()
     assert.is_truthy(seen, "the cropped file has no readable size")
     assert.same({ want.w, want.h }, { seen.width, seen.height })
   end)
