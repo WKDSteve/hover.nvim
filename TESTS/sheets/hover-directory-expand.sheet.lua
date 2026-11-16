@@ -2,7 +2,9 @@
 -- notes.md rests the cursor on the path docs/ in a sentence and asks for the hover; the float lists the folder. With a
 -- key named for `dir_keys.expand` (there is none by default) the selected folder is shown open where it stands, its
 -- entries indented under it, and closed again by the same key; moving the cursor takes the float away and with it the
--- borrowed key, and nothing of the tree is left behind (docs/FEATURES/DIRECTORY.md).
+-- borrowed key, and nothing of the tree is left behind (docs/FEATURES/DIRECTORY.md). The same holds for the mouse:
+-- the wheel over the note beside the float and a click there (replayed as an ordinary click) take the float and free
+-- the key, as events through nvim_input_mouse on the attached UI.
 -- Acceptance: hover.nvim/abnahme-directory-hover-folder-open-in-place. filetree.nvim comes from .deps/ (CI:
 -- ci.workflow.checkouts in .testing.lua) or beside this repository; without it the sheet is a reported skip (n/a).
 return {
@@ -81,6 +83,50 @@ return {
       expect = [[_G.eq(#vim.api.nvim_list_wins(), 1)]],
       note = "and no window",
     },
+    {
+      lua = [[vim.o.mouse = "a"
+      local more = {}
+      for i = 2, 80 do more[#more + 1] = ("more of the note, line %02d"):format(i) end
+      vim.api.nvim_buf_set_lines(0, 1, -1, false, more)
+      vim.bo.modified = false
+      vim.api.nvim_win_set_cursor(0, { 1, 5 })]],
+      note = "the mouse on, the note long enough to scroll, the cursor on the path again",
+    },
+    { keys = ":Hover show<CR>", note = "hover the path again" },
+    { wait = [[_G.float() ~= nil and _G.float_text():find("guide.md", 1, true) ~= nil]] },
+    { keys = "o", note = "a folder open" },
+    { wait = [[_G.float_text():find("client.md", 1, true) ~= nil]] },
+    {
+      lua = [[vim.api.nvim_input_mouse("wheel", "down", "", 0, 20, 70)]],
+      note = "the wheel over the note, beside the float",
+    },
+    { wait = [[_G.float() == nil]], note = "the float is gone" },
+    {
+      expect = [[_G.eq(vim.fn.maparg("o", "n"), _G.before.o)]],
+      note = "the key is free again",
+    },
+    {
+      lua = [[vim.cmd("normal! gg"); vim.api.nvim_win_set_cursor(0, { 1, 5 })]],
+      note = "back on the path",
+    },
+    { keys = ":Hover show<CR>", note = "and the hover once more" },
+    { wait = [[_G.float() ~= nil and _G.float_text():find("guide.md", 1, true) ~= nil]] },
+    { keys = "o", note = "a folder open" },
+    { wait = [[_G.float_text():find("client.md", 1, true) ~= nil]] },
+    {
+      lua = [[vim.api.nvim_input_mouse("left", "press", "", 0, 15, 70)
+      vim.api.nvim_input_mouse("left", "release", "", 0, 15, 70)]],
+      note = "a click on the note, beside the float",
+    },
+    { wait = [[_G.float() == nil]], note = "the float is gone" },
+    {
+      expect = [[_G.eq(vim.api.nvim_win_get_cursor(0)[1], 16)]],
+      note = "the click was an ordinary click: the cursor is on the line clicked",
+    },
+    {
+      expect = [[_G.eq(vim.fn.maparg("o", "n"), _G.before.o)]],
+      note = "the key is free again",
+    },
   },
   judge = {
     "The open folder reads as a tree: api with client.md and server.md indented under it, then img, then guide.md",
@@ -88,6 +134,6 @@ return {
   },
   manual = {
     "In the real config with a Nerd Font and dir_keys.expand set: the icons of the open folder line up, the float grows downwards and does not jump",
-    "Open a folder, then dismiss by moving the cursor with the mouse wheel or a click elsewhere: the float goes, the key is free again",
+    "With a real mouse in the real config: open a folder, then the wheel or a click beside the float takes it as the sheet says",
   },
 }
