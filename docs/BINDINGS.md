@@ -57,7 +57,7 @@ require("hover").setup({ keymaps = { show = false } })
 | `zoom_keys.into` | `>` | hovers whose picture or PDF page **can** be zoomed | magnify a detail one step |
 | `zoom_keys.out` | `\|` | as above | step back out |
 | `zoom_keys.reset` | `=` | as above | back to the whole picture or page |
-| `position_keys.next` | `<M-n>` | **position hovers only**, and only where more than one contribution is registered | the next plugin with something to say about this place; wraps |
+| `position_keys.next` | `<M-n>` | **position hovers only**, and only where more than one contribution is registered | the next plugin with something to say about this place; wraps. An Alt chord arrives only where the terminal sends Alt (on the development machine it does not); `:Hover next` is the same step without a key, and `:checkhealth hover` names the one-minute test |
 | `nav_keys.left` | `h` | **only while zoomed in, or a directory's mini filetree is shown** | move the magnified view left, or up a directory level |
 | `nav_keys.right` | `l` | as above | right, or into the selected entry |
 | `nav_keys.up` | `k` | as above | up, or the previous entry |

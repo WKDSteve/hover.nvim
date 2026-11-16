@@ -299,6 +299,30 @@ local function check_config()
     })
   end
 
+  -- A keyboard Alt chord arrives only where the terminal sends Alt; on the
+  -- machine this plugin is developed on it sends `<Esc>` and the key instead
+  -- (measured with `<M-z>`, 2026-09-03). Nothing here can tell which terminal
+  -- this is, so it is said once, with the one-minute test and the route that
+  -- needs no key. Mouse chords (`<M-ScrollWheelUp>`) take another path.
+  ---@type string[]
+  local alt = {}
+  local pk = config.get().position_keys
+  for _, lhs in ipairs(keylist(type(pk) == "table" and pk.next or nil)) do
+    local inner = lhs:match("^<[MmAa]%-(.+)>$")
+    if inner and not inner:find("Mouse") and not inner:find("Wheel") then
+      alt[#alt + 1] = lhs
+    end
+  end
+  if #alt > 0 then
+    health.info(
+      ("position_keys.next is an Alt chord (`%s`): it works only where the terminal sends Alt. "):format(
+        table.concat(alt, "`, `")
+      )
+        .. ('Test once: `:nnoremap %s <Cmd>echo "arrives"<CR>`. '):format(alt[1])
+        .. "`:Hover next` takes the same step with no key."
+    )
+  end
+
   -- A zoom key a resize key already holds is bound, and then never fires:
   -- `borrow` takes the resize keys first, a key taken twice is taken once,
   -- and the two conditions overlap completely -- every hover a zoom key is

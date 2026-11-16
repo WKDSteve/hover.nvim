@@ -592,7 +592,10 @@ without a key.
 More than one plugin can answer for one place: on a dotted name, "what is
 this module" and "who imports it" are both true, and only the first
 registered one used to be seen. `<M-n>` steps to the next and wraps past the
-last; `:Hover next` is the same step with no borrow at all.
+last; `:Hover next` is the same step with no borrow at all. An Alt chord
+arrives only where the terminal sends Alt -- many send <Esc> and the key
+instead -- so where `<M-n>` does nothing, `:Hover next` is the way (or map it
+to a key of your own); `:checkhealth hover` names the one-minute test.
 
 Stepped rather than merged, because two answers in one float would mean two
 titles for one border and two filetypes for one highlight -- and a picture

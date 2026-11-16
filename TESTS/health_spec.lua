@@ -298,6 +298,21 @@ describe("hover.health, configuration diagnostics", function()
     assert.is_false(any_contains(calls.warn, "no wheel event arrives"))
   end)
 
+  it(
+    "says that the Alt chord of position_keys.next depends on the terminal, and names :Hover next",
+    function()
+      config.reset() -- position_keys.next defaults to <M-n>
+      local calls = run()
+      assert.is_true(any_contains(calls.info, "position_keys.next is an Alt chord (`<M-n>`)"))
+      assert.is_true(any_contains(calls.info, ":Hover next"))
+      config.setup({ position_keys = { next = { "<C-n>" } } })
+      assert.is_false(any_contains(run().info, "is an Alt chord"))
+      config.setup({ position_keys = { next = { "<M-ScrollWheelDown>" } } })
+      assert.is_false(any_contains(run().info, "is an Alt chord"), "a mouse chord is another path")
+      config.reset()
+    end
+  )
+
   it("warns when a zoom key is shadowed by a resize key bound to the same lhs", function()
     config.setup({ zoom_keys = { into = { "+" } } }) -- resize_keys.larger defaults to "+"
     local calls = run()
