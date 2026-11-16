@@ -37,8 +37,10 @@ written as plain text — and a small float shows what it points at.
 > [docs/NAME-COLLISION.md](docs/NAME-COLLISION.md).
 >
 > **[markdown.nvim](https://github.com/WKDSteve/markdown.nvim)** — the single biggest
-> upgrade this plugin can receive. Without it only bare paths start a hover; with it
-> `[text](target)`, an `<img src>`, and `file.md#heading` opening on *that section*.
+> upgrade this plugin can receive. Without it a hover starts on bare paths and on the
+> plain markdown links of a markdown buffer (`[text](target)`, `[text][ref]`, on the text
+> as on the target); with it also an `<img src>`, and `file.md#heading` opening on *that
+> section*.
 >
 > **[images.nvim](https://github.com/WKDSteve/images.nvim)** — turns "1920×1080, 340 KB"
 > into the actual picture, and is what makes a rasterized PDF page visible at all.

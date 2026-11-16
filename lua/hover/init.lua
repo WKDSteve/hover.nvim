@@ -251,7 +251,9 @@ end
 ---
 --- Registered sources first, in registration order -- markdown.nvim
 --- contributes link scanning and `<figure>` resolution there -- then the
---- bare URL source, then the built-in bare-path source. That order matters:
+--- built-in markdown link reading (`hover.md_link`, for a setup without
+--- markdown.nvim), then the bare URL source, then the built-in bare-path
+--- source. That order matters:
 --- on `[a](./b.png)` both the link scanner and the path source would answer,
 --- and the link is the more specific reading of the same text.
 ---
@@ -302,6 +304,12 @@ function M.target_under_cursor(bufnr, opts)
         record[k] = v
       end
       return record
+    end
+    -- No plugin claimed it: the built-in markdown link reading, so the text
+    -- of a link is a target without markdown.nvim too. See `hover.md_link`.
+    local link = require("hover.md_link").under_cursor(bufnr)
+    if link then
+      return link
     end
   end
 

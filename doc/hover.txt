@@ -45,7 +45,8 @@ Four optional contributors, none required. What each one adds (+), and what
 the hover falls back to without it (-): >
 
   markdown.nvim  + link and <figure> scanning; #heading section previews
-                 - only bare paths hover; file.md#frag shows the file head
+                 - bare paths and plain markdown links ([text](target),
+                   [text][ref]) hover; file.md#frag shows the file head
 
   images.nvim    + draws the picture into the float, over OSC 1337
                  - an image (or a PDF page) is described as text instead
