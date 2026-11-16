@@ -424,6 +424,18 @@ judge whether a contribution is noisy — it cannot know what the answer is
 about — so `:Hover positions off` is a blunt instrument that silences all of
 them at once. Being quiet is the contributor's job.
 
+## Beside, not wired: fileops.nvim `on_hold`
+
+[fileops.nvim](https://github.com/WKDSteve/fileops.nvim) answers `CursorHold` too, when `on_hold.enable = true`: it
+shows the committed version of the cursor line as virtual text at its end (`previous: ...`), or gitsigns' inline hunk
+preview when gitsigns is installed. The two do not know of each other, and they need not: the test sheet
+`hover.fileops-on-hold` (`TESTS/sheets/`) rests the cursor on a link in a changed line with both on and finds one
+float (hover's, below the line), the previous line still readable beside the link, neither taking the other away,
+and both gone on the next move. fileops' own `delay = 3000` puts its text about three seconds after the float.
+One thing to know: fileops sets `'updatetime'` to 100 for the whole editor, so hover's `CursorHold` trigger then
+opens after 100 ms plus `delay_ms`. Use `trigger = { "cursor" }` if that is too eager. The gitsigns path (it inserts
+lines and restores the view) is not covered by the sheet.
+
 ## Reading a symptom back to its owner
 
 | Symptom | Owner |
@@ -444,6 +456,7 @@ them at once. Being quiet is the contributor's job.
 | screenshots say no browser was found, but one is installed | `chrome` is not on `PATH`, which is the normal case on Windows. The previewer looks in the usual install locations by itself; `:checkhealth hover` names what it would run, and `links.shot.command` names one outright |
 | a fetched link shows a status line and no page text | the response was not `text/html` — a JSON API or a download has no prose in it — or the box had no rows left for it. `F` (`:Hover zen`) is what gives it room |
 | a fetched link keeps showing an old status | fetch results are cached for the session — the built preview, and the last raw response behind it — and `:Hover links web off` then `on` drops both. A link `links.cache.patterns` names is kept on disk as well: that gesture does not reach it — its refresh does, after `max_age_days`, and `:Hover links cache clear` does at once |
+| the hover opens sooner than your `'updatetime'` says | something set it lower: fileops.nvim's `on_hold` sets it to 100 for the whole editor. `trigger = { "cursor" }` makes `delay_ms` absolute |
 | nothing hovers anywhere | `enable()` never ran from a non-lazy spec, `:Hover mode off` was typed and forgotten, or `vim.g.hover_disable` is set |
 | a path in source code does not hover, but the same text in a comment does | the position gate — **hover.nvim**. `:Hover paths code on` turns it off; see [Where one is looked for](FEATURES/BARE-PATHS.md#where-one-is-looked-for) |
 | one path stopped hovering while everything else still works | it was dismissed with `q`/`<Esc>`. It re-arms at the next target the cursor resolves, or immediately via `show({ force = true })` |

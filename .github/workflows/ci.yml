@@ -104,6 +104,14 @@ jobs:
           repository: WKDSteve/filetree.nvim
           path: .deps/filetree.nvim
           ref: ci-verified
+      # only the test sheet hover.fileops-on-hold loads it (on_hold beside hover on CursorHold)
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          repository: WKDSteve/fileops.nvim
+          path: .deps/fileops.nvim
+          # Pinned: a commit whose own CI was green (no ci-verified branch to follow). Bump on purpose.
+          ref: addd8bfebbbc514cec2e73db92209e9816539f14
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false

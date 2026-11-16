@@ -25,8 +25,9 @@ return {
   -- Environment variables the specs read; a child editor inherits an allowlist only (never secrets).
   -- FILETREE_NVIM_DIR: how filetree.nvim reaches the test sheet hover.http-preview-beside-explorer from the worktree
   -- of `ci commit`, where it is no sibling (TESTS/minimal_init.lua names it, the sheet adds it). IMAGES_NVIM_DIR: the
-  -- same for images.nvim and the test sheet hover.copy-zoom-crop.
-  env_allow = { "MAGICK_*", "FILETREE_NVIM_DIR", "IMAGES_NVIM_DIR" },
+  -- same for images.nvim and the test sheet hover.copy-zoom-crop, FILEOPS_NVIM_DIR for fileops.nvim and the test sheet
+  -- hover.fileops-on-hold.
+  env_allow = { "MAGICK_*", "FILETREE_NVIM_DIR", "IMAGES_NVIM_DIR", "FILEOPS_NVIM_DIR" },
   -- The old runner let a case without assertions pass. Two cases in monitor_spec.lua
   -- ("parses a well-formed line ..." and "reports no screen index ...") return early when this
   -- Neovim build has no detectable platform, which is deliberate there, so they stay a warning.
@@ -81,6 +82,12 @@ return {
           -- filetree.nvim publishes ci-verified since 2026-11-09 (its job publish-ci-verified).
           ref = "ci-verified",
           why = "only the test sheets load it: hover.http-preview-beside-explorer and hover.directory-expand (its own tree)",
+        },
+        {
+          repo = "WKDSteve/fileops.nvim",
+          -- fileops.nvim publishes no ci-verified (2026-11-16), so a full commit id: main at that day.
+          ref = "addd8bfebbbc514cec2e73db92209e9816539f14",
+          why = "only the test sheet hover.fileops-on-hold loads it (on_hold beside hover on CursorHold)",
         },
       },
       publish = { why = "markdown.nvim and reposcope.nvim check out hover.nvim at ci-verified" },

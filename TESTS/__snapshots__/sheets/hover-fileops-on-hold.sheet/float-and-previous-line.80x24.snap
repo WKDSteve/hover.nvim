@@ -1,0 +1,54 @@
+testing.nvim screen v1
+size: 80x24
+cursor: 3,6
+mode: n
+--- text
+01|# Notes
+02|
+03|see [the other note](other.md) for more previous: see [the other note](other.md)
+04|~    ╭other.md──────╮
+05|~    │# Other       │
+06|~    │              │
+07|~    │the other note│
+08|~    ╰──────────────╯
+09|~
+10|~
+11|~
+12|~
+13|~
+14|~
+15|~
+16|~
+17|~
+18|~
+19|~
+20|~
+21|~
+22|~
+23|~
+24|
+--- attrs
+01|aaaaaaa
+02|
+03|    bbbbbbbbbbbbbbbbbbbbbbbbbb          cccccccccccccccccccccccccccccccccccccccc
+04|dddddeaaaaaaaaeeeeeeeddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+05|dddddefffffffeeeeeeeeddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+06|dddddeeeeeeeeeeeeeeeeddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+07|dddddeeeeeeeeeeeeeeeeddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+08|dddddeeeeeeeeeeeeeeeeddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+09|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+10|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+11|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+12|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+13|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+14|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+15|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+16|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+17|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+18|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+19|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+20|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+21|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+22|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+23|dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+24|gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
