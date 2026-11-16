@@ -103,6 +103,7 @@ hover.nvim is released under the [MIT License](https://opensource.org/licenses/M
 
 **Uses**
 
+- [filetree.nvim](https://github.com/WKDSteve/filetree.nvim): With filetree.nvim loaded, the directory preview of hover.nvim embeds its tree (`filetree.native.embed`) instead of a plain listing. ([picture](assets/graphs/pair/hover.nvim--filetree.nvim.png))
 - [gopath.nvim](https://github.com/WKDSteve/gopath.nvim): hover.nvim resolves a bare path through gopath.nvim (`gopath.resolve`) to find the file and the line it names. ([picture](assets/graphs/pair/hover.nvim--gopath.nvim.png))
 - [images.nvim](https://github.com/WKDSteve/images.nvim): The media preview of hover.nvim reads sizes and settings from images.nvim (`images.info`, `images.config`) to draw a picture in the float. ([picture](assets/graphs/pair/hover.nvim--images.nvim.png))
 - [media.nvim](https://github.com/WKDSteve/media.nvim): hover.nvim asks media.nvim whether a target is a media file (`media.is_media`) and takes its player for audio and video. ([picture](assets/graphs/pair/hover.nvim--media.nvim.png))
