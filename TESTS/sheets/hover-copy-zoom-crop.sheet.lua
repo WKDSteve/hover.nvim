@@ -10,7 +10,9 @@
 -- hover.copy-register; the real clipboard, a PDF page and a page screenshot stay by hand.
 return {
   id = "hover.copy-zoom-crop",
-  feature = "hover.copy",
+  -- No `feature`: a feature sheet must not be skipped under CI (the workflow is to provide what `requires` asks
+  -- for), and no hosted runner has images.nvim plus a magick that reads a picture in a sheet child. The feature
+  -- hover.copy has its feature sheet, hover.copy-register; this one is the picture half of the task.
   title = "hover.nvim: Y after a zoom copies the crop on screen, not the whole picture",
   task = "hover.nvim/copy-live-check",
   engine = "rpc",
