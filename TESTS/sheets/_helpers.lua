@@ -11,6 +11,11 @@ local M = {}
 vim.opt.shortmess:append("I")
 vim.o.swapfile = false
 vim.o.hidden = true
+-- Treesitter parses in one go, not in 3 ms slices: the highlighter of a markdown buffer otherwise queues its next
+-- slice with vim.schedule, and on a loaded machine one is always pending, so `settle` failed with "scheduled 1"
+-- while hover itself was done (measured 2026-11-16: the only schedule besides the network stub's came from
+-- languagetree.lua `parse`). The highlights it draws are the same.
+vim.g._ts_force_sync_parsing = true
 
 ---A stand-in for lib.nvim.net.curl: `fetch_raw` answers from `answers[url]` (a table `{ status, status_text, headers,
 ---body }`, the shape the real one hands its callback) through vim.schedule, as the real one does from a process;
