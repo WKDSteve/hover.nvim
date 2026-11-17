@@ -1,0 +1,54 @@
+testing.nvim screen v1
+size: 80x24
+cursor: 8,6
+mode: n
+--- text
+01|# Notes
+02|    ╭─────────────────────────────────hover─────────────────────────────────╮
+03|see │         <CR> Toggle  |  + On  |  - Off  |  y Yank  |  ? Keys          │
+04|    │                                                                       │
+05|noth│ ● everything                    on     :Hover all                     │
+06|~   │                                                                       │
+07|~   │  MODE                                                                 │
+08|~   │ ● mode                          auto   :Hover mode                    │
+09|~   │                                                                       │
+10|~   │  SWITCHES                                                             │
+11|~   │ ● link targets                  on     :Hover links                   │
+12|~   │ ●   web links                   on     :Hover links web               │
+13|~   │ ●     link fetching             on     :Hover links web fetch         │
+14|~   │ ●       PDF links               on     :Hover links web fetch pdf     │
+15|~   │ ●     page screenshots          on     :Hover links web shot          │
+16|~   │ ●       screenshots unasked     on     :Hover links web shot eager    │
+17|~   │ ● bare paths                    on     :Hover paths                   │
+18|~   │ ●   broken-target marker        on     :Hover paths missing           │
+19|~   │ ●     broken-target message     on     :Hover paths missing notify    │
+20|~   │ ●   paths in code               on     :Hover paths code              │
+21|~   │ ● position previews             on     :Hover positions               │
+22|~   ╰───────────────────────────────────────────────────────────────────────╯
+23|~
+24|:Hover dashboard
+--- attrs
+01|aaaaaaa
+02|    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+03|    bcccccccccdddddcccccccccccddcccccccddccccccccddcccccccccddccccccccccccccb
+04|    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+05|    bbefffffffffffffffffffffffffffffffeeeeeeeggggggggggbbbbbbbbbbbbbbbbbbbbbb
+06|hhhhbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhh
+07|hhhhbiiiiiibbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhh
+08|hhhhbjkfffffffffffffffffffffffffffffffkkkkkkkllllllllllljjjjjjjjjjjjjjjjjjjjbhhh
+09|hhhhbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhh
+10|hhhhbiiiiiiiiiibbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhh
+11|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggbbbbbbbbbbbbbbbbbbbbhhh
+12|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggggggbbbbbbbbbbbbbbbbhhh
+13|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggggggggggggbbbbbbbbbbhhh
+14|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggggggggggggggggbbbbbbhhh
+15|hhhhbbefffffffffffffffffffffffffffffffeeeeeeegggggggggggggggggggggbbbbbbbbbbbhhh
+16|hhhhbbefffffffffffffffffffffffffffffffeeeeeeegggggggggggggggggggggggggggbbbbbhhh
+17|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggbbbbbbbbbbbbbbbbbbbbhhh
+18|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggggggggggbbbbbbbbbbbbhhh
+19|hhhhbbefffffffffffffffffffffffffffffffeeeeeeegggggggggggggggggggggggggggbbbbbhhh
+20|hhhhbbefffffffffffffffffffffffffffffffeeeeeeegggggggggggggggggbbbbbbbbbbbbbbbhhh
+21|hhhhbbefffffffffffffffffffffffffffffffeeeeeeeggggggggggggggggbbbbbbbbbbbbbbbbhhh
+22|hhhhbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhh
+23|hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+24|mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
