@@ -93,6 +93,24 @@ return {
     { wait = [[_G.noted("nothing is zoomed")]], note = "the whole picture: nothing left to reset" },
     { keys = "q" },
     { wait = [[_G.float() == nil]] },
+    -- :Hover images, on the same picture: off, the float describes it in text; on, it is the blank canvas the
+    -- picture is drawn into (hover/float.lua, canvas mode), with no text of its own.
+    { keys = ":Hover images off<CR>", note = ":Hover images off" },
+    { keys = ":Hover show<CR>" },
+    {
+      wait = [[_G.float() ~= nil and _G.float_text():find("1200 × 800 px", 1, true) ~= nil]],
+      note = "images off: the picture is described, its size as text",
+    },
+    { keys = "q" },
+    { wait = [[_G.float() == nil]] },
+    { keys = ":Hover images on<CR>", note = ":Hover images on" },
+    { keys = ":Hover show<CR>" },
+    {
+      wait = [[_G.float() ~= nil and vim.trim(_G.float_text()) == ""]],
+      note = "images on: the float is the canvas for the picture, no description",
+    },
+    { keys = "q" },
+    { wait = [[_G.float() == nil]] },
   },
   manual = {
     "In a terminal that draws pictures: :Hover zoom shows the magnified detail sharp, :Hover nav moves it the way named",
