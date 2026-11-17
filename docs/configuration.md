@@ -42,7 +42,7 @@ default rather than extending it, which is what a list should mean. `{}` binds n
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `max_lines` | `20` | Preview line cap, and the float's max height. |
+| `max_lines` | `20` | Preview line cap, and the float's max height. On a small screen a text float is cut to the rows beside the cursor line, so it never covers that line. |
 | `max_width` | `80` | Float width cap, in columns. |
 | `border` | `"rounded"` | The frame's look. Every `nvim_open_win` name — `none` `single` `double` `rounded` `solid` `shadow` — plus `heavy` (a thick line), `ascii` (`+-\|`, for a font or terminal without box-drawing characters), `dashed` and `block`, which Neovim has no names for. An eight-character list works too, clockwise from the top-left. A name that does not exist is **reported and ignored** rather than passed on: `nvim_open_win` refuses one, and a hover that never opens again over a typo is a bad way to find out. `:Hover border [style]` changes the float already on screen, so a style can be tried. |
 | `inline_images` | `true` | Draw pictures / PDF pages into the float when a provider can. Off degrades an image to its format, dimensions and size as text — which is also what happens with no provider installed. |

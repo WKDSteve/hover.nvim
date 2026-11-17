@@ -2115,6 +2115,10 @@ function M.resize(delta)
       canvas = content.canvas,
       max_width = preview_opts.max_width,
       max_height = preview_opts.max_lines,
+      -- What `present` passes too: next to the cursor a text float is also
+      -- cut to the rows beside the cursor line, and that cut is a refusal.
+      center = (_open and _open.zen) == true,
+      border = config.get().border,
     })
     if w == before_w and h == before_h then
       -- The screen refused, not this function. Undo the step so holding the

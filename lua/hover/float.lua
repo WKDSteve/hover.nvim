@@ -277,6 +277,85 @@ local function measure(lines, opts)
   return width, math.max(height, 1)
 end
 
+---@internal
+--- Rows the border takes above and below the text: 0 for `none`, 1 for any
+--- other style (a `shadow` only draws below and is counted on both sides --
+--- one row lost on a small screen, never the cursor line covered).
+---@param border string|string[]|nil
+---@return integer
+local function ring_of(border)
+  local resolved = M.resolve_border(border)
+  if resolved == "none" or resolved == "" then
+    return 0
+  end
+  return 1
+end
+
+---@internal
+--- The window a cursor-anchored float sits next to: the current one, or the
+--- one the reader came from while they are inside the float (`M.focus`).
+---@return integer
+local function anchor_win()
+  local cur = api.nvim_get_current_win()
+  if _focus and cur == _win and safe_api.is_valid_window(_focus.origin) then
+    return _focus.origin
+  end
+  return cur
+end
+
+---@internal
+--- The cursor's cell on the editor grid, 1-based, or nil when it is not on
+--- screen. screenpos() returns {row=0, col=0} for a position that is not
+--- visible (folded, scrolled away).
+---@param win integer
+---@return integer|nil row
+---@return integer|nil col
+local function cursor_cell(win)
+  local ok, cursor = pcall(api.nvim_win_get_cursor, win)
+  if not ok then
+    return nil
+  end
+  local sp = vim.fn.screenpos(win, cursor[1], cursor[2] + 1)
+  if type(sp) == "table" and (sp.row or 0) > 0 and (sp.col or 0) > 0 then
+    return sp.row, sp.col
+  end
+  return nil
+end
+
+---@internal
+--- Where a float of `height` text rows goes next to the cursor on screen row
+--- `cursor_row` (1-based), and how many of those rows it keeps.
+---
+--- **The cursor line stays visible.** The float goes below the line when it
+--- fits there, above it when it fits there instead, and otherwise onto the
+--- larger side, cut to the rows that side has. It used to go below
+--- regardless: on 80x24 with the cursor on row 3, a 20-line hover (22 with
+--- its ring) did not fit, Neovim pushed it up to fit the screen, and the
+--- frame covered the very line -- the target -- it described.
+---@param cursor_row integer 1-based screen row of the cursor
+---@param height integer text rows wanted
+---@param ring integer rows the border adds on each side
+---@return integer row 0-based editor row of the frame, as `nvim_open_win` takes it
+---@return integer height text rows that fit
+local function place_at_cursor(cursor_row, height, ring)
+  -- The last row a float may use is the one above the command line.
+  local bottom = vim.o.lines - vim.o.cmdheight
+  local below = bottom - cursor_row
+  local above = cursor_row - 1
+  local need = height + 2 * ring
+  if need <= below then
+    return cursor_row, height
+  end
+  if need <= above then
+    return cursor_row - 1 - need, height
+  end
+  if below >= above then
+    return cursor_row, math.max(1, below - 2 * ring)
+  end
+  local kept = math.max(1, above - 2 * ring)
+  return math.max(0, cursor_row - 1 - (kept + 2 * ring)), kept
+end
+
 --- The size a float would have for this content: the size *after* the clamp
 --- against the screen, which is the only one worth comparing.
 ---
@@ -285,8 +364,14 @@ end
 --- visible in the content -- twenty-five lines asked for and twenty shown is
 --- a clamp, and a resize that did not notice would let a held key run the
 --- level away somewhere it has to be pressed back from.
+---
+--- A text float next to the cursor is also cut to the rows beside the cursor
+--- line (`place_at_cursor`), so that clamp counts as a refusal too. A canvas
+--- is not cut: the picture was drawn for its size, and a shorter frame would
+--- crop it. It moves above the line when it fits there, and otherwise keeps
+--- the old placement.
 ---@param lines string[]|nil
----@param opts table `canvas`, `max_width`, `max_height`
+---@param opts table `canvas`, `max_width`, `max_height`, `center`, `border`
 ---@return integer width
 ---@return integer height
 function M.size_for(lines, opts)
@@ -296,7 +381,14 @@ function M.size_for(lines, opts)
     return math.max(1, math.min(canvas.cols, math.max(20, vim.o.columns - 4))),
       math.max(1, math.min(canvas.rows, math.max(3, vim.o.lines - 4)))
   end
-  return measure(lines or {}, opts)
+  local width, height = measure(lines or {}, opts)
+  if not opts.center then
+    local row = cursor_cell(anchor_win())
+    if row then
+      height = select(2, place_at_cursor(row, height, ring_of(opts.border)))
+    end
+  end
+  return width, height
 end
 
 --- The open float's own width and height, or nil when none is open.
@@ -464,13 +556,15 @@ function M.open(lines, opts)
     anchor_row = math.max(1, math.floor((vim.o.lines - height) / 2))
     anchor_col = math.max(1, math.floor((vim.o.columns - width) / 2))
   else
-    local cur_win = api.nvim_get_current_win()
-    local cursor = api.nvim_win_get_cursor(cur_win)
-    -- screenpos() is 1-based and returns {row=0, col=0} when the position is
-    -- not currently visible (folded, scrolled away).
-    local sp = vim.fn.screenpos(cur_win, cursor[1], cursor[2] + 1)
-    if type(sp) == "table" and (sp.row or 0) > 0 and (sp.col or 0) > 0 then
-      anchor_row, anchor_col = sp.row, sp.col - 1
+    local cur_win = anchor_win()
+    local sp_row, sp_col = cursor_cell(cur_win)
+    if sp_row and sp_col then
+      -- `height` is already cut to the side that has room (`M.size_for`);
+      -- this picks that side. A canvas keeps its size, so it moves above the
+      -- line only when it fits there whole.
+      local row, kept = place_at_cursor(sp_row, height, ring_of(opts.border))
+      anchor_row = kept == height and row or sp_row
+      anchor_col = sp_col - 1
     else
       -- Fall back to the window's own origin rather than to cursor-relative
       -- positioning: a slightly misplaced float still reports honestly, and

@@ -74,6 +74,13 @@ editor-relative float, which reports back exactly what it was given. **Reverting
 `relative = "cursor"` brings the bug straight back**, and it only shows with a sidebar
 open.
 
+The row is chosen there too: below the cursor line when the float fits there, above it
+when it fits there instead, and otherwise on the larger side, cut to the rows that side
+has. The cursor line itself is never covered (on 80x24 with the cursor on row 3 a 20-line
+hover used to be pushed up over it). A picture's canvas is not cut, since that would crop
+it; it moves above only when it fits whole. `float.size_for` reports the cut, so
+`hover.resize` counts it as the screen refusing a step.
+
 ### The image is fitted to the drawing box, not to the frame
 
 `canvas_cells` subtracts `draw_inset` before asking `fit_cells`, then adds it back for the

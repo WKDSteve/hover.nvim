@@ -4,34 +4,34 @@ cursor: 3,5
 mode: n
 --- text
 01|# Notes
-02|    ╔guide.txt════╗
-03|see ║guide line 01║for the guide
-04|    ║guide line 02║
-05|noth║guide line 03║
-06|~   ║guide line 04║
-07|~   ║guide line 05║
-08|~   ║guide line 06║
-09|~   ║guide line 07║
-10|~   ║guide line 08║
-11|~   ║guide line 09║
-12|~   ║guide line 10║
-13|~   ║guide line 11║
-14|~   ║guide line 12║
-15|~   ║guide line 13║
-16|~   ║guide line 14║
-17|~   ║guide line 15║
-18|~   ║guide line 16║
-19|~   ║guide line 17║
-20|~   ║guide line 18║
-21|~   ║guide line 19║
-22|~   ║guide line 20║
+02|
+03|see docs/guide.txt for the guide
+04|    ╔guide.txt════╗
+05|noth║guide line 01║
+06|~   ║guide line 02║
+07|~   ║guide line 03║
+08|~   ║guide line 04║
+09|~   ║guide line 05║
+10|~   ║guide line 06║
+11|~   ║guide line 07║
+12|~   ║guide line 08║
+13|~   ║guide line 09║
+14|~   ║guide line 10║
+15|~   ║guide line 11║
+16|~   ║guide line 12║
+17|~   ║guide line 13║
+18|~   ║guide line 14║
+19|~   ║guide line 15║
+20|~   ║guide line 16║
+21|~   ║guide line 17║
+22|~   ║guide line 18║
 23|~   ╚═════════════╝
 24|:Hover show
 --- attrs
 01|aaaaaaa
-02|    baaaaaaaaabbbbb
-03|    bbbbbbbbbbbbbbb
-04|    bbbbbbbbbbbbbbb
+02|
+03|
+04|    baaaaaaaaabbbbb
 05|    bbbbbbbbbbbbbbb
 06|ccccbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 07|ccccbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
