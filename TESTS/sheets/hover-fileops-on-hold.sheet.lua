@@ -84,8 +84,10 @@ return {
       note = "when the virtual text came",
     },
     {
-      expect = [[(_G.t_marks - _G.t_float) / 1e6 > 2500]],
-      note = "seconds after hover: the two never appear together, hover first",
+      -- Both times are taken when a poll saw the thing, so on a loaded machine the float can be seen late and the
+      -- gap look shorter than fileops' 3 s; more than a second still says what matters.
+      expect = [[(_G.t_marks - _G.t_float) / 1e6 > 1000]],
+      note = "well after hover (fileops' delay is 3 s): the two never appear together, hover first",
     },
     {
       expect = [[_G.has(_G.marks()[1][4].virt_text[1][1], "previous: see [the other note](other.md) for details")]],

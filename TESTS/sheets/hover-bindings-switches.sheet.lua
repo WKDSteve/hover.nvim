@@ -72,8 +72,11 @@ add({
 type_cmd("auto file", "lets a file open by itself")
 add({ wait = [[_G.noted("file opens by itself")]] })
 add({ keys = "l", note = "a key, then nothing: CursorHold" })
-add({ wait = [[_G.float() ~= nil and _G.has(_G.float_text(), "guide line 01")]], timeout = 3000 })
-add({ note = "the trigger opened the file by itself", expect = [[true]] })
+add({
+  wait = [[_G.float() ~= nil and _G.has(_G.float_text(), "guide line 01")]],
+  timeout = 3000,
+  note = "the trigger opened the file by itself",
+})
 add({ keys = "5G", note = "away to a line without a target" })
 add({ wait = [[_G.float() == nil]] })
 type_cmd("auto file", "back to on request only")
