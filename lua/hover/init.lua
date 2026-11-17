@@ -509,7 +509,8 @@ function M.preview_target(target, cb, opts)
     -- Text only: no browser render, no PDF download, no inline picture.
     popts.shot_enabled, popts.url_pdf, popts.inline_images = false, false, false
 
-    local claimed = require("hover.registry").preview_for(classified.type)
+    local registry = require("hover.registry")
+    local claimed = #registry.preview_names(classified.type) > 0
 
     -- A preview a plugin registered for this type wins, as it does for the
     -- hover (markdown.nvim resolves `#heading` anchors this way). It may decline.
@@ -524,9 +525,9 @@ function M.preview_target(target, cb, opts)
     end
 
     if claimed and (bufnr or classified.type ~= "anchor") then
-      local claimed_ok, claimed_content =
-        pcall(claimed, classified, popts, bufnr or api.nvim_get_current_buf())
-      if claimed_ok and claimed_content then
+      local claimed_content =
+        registry.preview(classified, popts, bufnr or api.nvim_get_current_buf())
+      if claimed_content then
         content = claimed_content
         return
       end
@@ -755,21 +756,21 @@ end
 ---@param emit fun(content: Hover.Content|nil)
 ---@return nil
 local function build(target, bufnr, opts, emit)
-  -- A registered preview claims its type outright. This is how anything
+  -- A registered preview is asked first for its type. This is how anything
   -- needing knowledge this plugin does not have gets in: markdown.nvim
   -- registers `anchor` (and `markdown` targets carrying one), because
   -- resolving `#some-heading` means GFM slugging and heading parsing, which
   -- belong to the plugin that owns markdown.
-  local claimed = require("hover.registry").preview_for(target.type)
-  if claimed then
-    -- A registered preview may decline (nil) -- an anchor that resolves to
-    -- nothing, say -- and the built-in handling below is then still the
-    -- better answer than an empty float.
-    local ok, content = pcall(claimed, target, opts, bufnr)
-    if ok and content then
-      emit(content)
-      return
-    end
+  --
+  -- Several plugins may register the same type (testing.nvim and
+  -- casedesk.nvim both preview some `file`s); `registry.preview` asks them in
+  -- chain order. Each may decline (nil) -- an anchor that resolves to
+  -- nothing, a file that is not theirs -- and the built-in handling below is
+  -- then still the better answer than an empty float.
+  local content = require("hover.registry").preview(target, opts, bufnr)
+  if content then
+    emit(content)
+    return
   end
 
   local builder = BUILDERS[target.type]

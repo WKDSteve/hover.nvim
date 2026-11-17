@@ -122,8 +122,32 @@ require("hover.registry").register("your.nvim", {
 Target types a preview can claim: `image`, `pdf`, `office`, `markdown`, `file`,
 `directory`, `url`, `anchor`, `missing`.
 
+### Several previews for one type
+
+More than one plugin may register a preview for the same type — testing.nvim previews
+its spec files and casedesk.nvim the logs of a case, and both register `file`. The
+previews of a type form a **chain**: they are asked in registration order, the first that
+answers wins, one that returns nil (or throws) hands the target to the next, and the
+built-in preview answers when every one declined. So a preview should decline every
+target that is not its own rather than render it.
+
+To go ahead of a plugin that registered earlier — an override in your own config, say —
+give the entry a priority (higher is asked first, default 0):
+
+```lua
+previews = {
+  file = { fn = function(target, opts, bufnr) end, priority = 10 },
+},
+```
+
+`registry.preview(target, opts, bufnr)` asks the chain the way the hover does;
+`registry.preview_names(type)` lists who is in it, in order. `registry.preview_for(type)`
+is kept for older callers: the one registered function, or with several a function that
+asks the chain as it stood when it was called.
+
 **Re-registering under the same name replaces that plugin's contribution**, so a `setup()`
-that runs twice does not leave two copies firing on every hover. A source that throws is
+that runs twice does not leave two copies firing on every hover; its previews keep their
+place in the chain. A source that throws is
 skipped and the next one still runs.
 
 ### When your answer is expensive

@@ -347,7 +347,7 @@
 --- replaces it rather than stacking a second scanner onto every hover.
 ---@class Hover.Contribution
 ---@field sources? (Hover.SourceFn|Hover.OnRequest)[] # Tried in registration order, before the built-in bare-path source.
----@field previews? table<string, Hover.PreviewFn> # Keyed by the target type this preview claims.
+---@field previews? table<string, Hover.PreviewFn|Hover.PreviewEntry> # Keyed by the target type. Several plugins may register one type: asked in order (priority, then registration), nil hands the target to the next, the built-in preview answers last.
 ---@field positions? (Hover.PositionFn|Hover.OnRequest)[] # Tried in registration order, only after every source declined.
 
 --- One registered contributor, as `hover.registry.contributors()` reports
@@ -361,6 +361,11 @@
 ---@field previews integer # Registered previews, counted over the target types they claim.
 ---@field positions integer # Registered position previews.
 ---@field on_request integer # How many of the sources and positions above are asked only on an explicit request.
+
+--- A `previews` value that states its place in the chain of its type.
+---@class Hover.PreviewEntry
+---@field fn Hover.PreviewFn # The preview function itself.
+---@field priority? number # Higher is asked first; default 0. Equal priorities keep registration order.
 
 --- An entry of `sources` or `positions` that says its answer is expensive.
 --- Asked only for an explicit request -- `:Hover show`, or a key bound to it

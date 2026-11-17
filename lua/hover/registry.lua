@@ -20,19 +20,29 @@
 ---     function(bufnr, row, col) return link_scan_at(bufnr, row, col) end,
 ---   },
 ---   -- "how do I preview a target of this type?" -- keyed by the type
----   -- `classify` produced. Overrides the built-in preview for that type.
+---   -- `classify` produced. Asked before the built-in preview for that
+---   -- type; returning nil hands the target on (see "chain" below).
 ---   previews = {
 ---     anchor = function(target, opts, bufnr) return section_of(target, bufnr) end,
 ---   },
 --- })
 --- ```
 ---
---- **Why sources are ordered and previews are not.** Several sources can
---- match the same cursor position — a markdown link and a bare path both
---- exist on `[a](./b.png)` — so "first match wins" needs an order, and
---- registration order is the only one a library can honestly offer. A preview
---- answers for exactly one type, so a second registration for that type is a
---- replacement, not a competitor, and needs no ordering rule.
+--- **Why both are ordered.** Several sources can match the same cursor
+--- position -- a markdown link and a bare path both exist on `[a](./b.png)`
+--- -- so "first match wins" needs an order, and registration order is the
+--- only one a library can honestly offer.
+---
+--- Previews were once one per type, a second registration replacing the
+--- first. That held until two plugins wanted the same type for different
+--- files: testing.nvim previews its spec files, casedesk.nvim the logs of a
+--- case, and both register `file`. Whichever loaded last silently took the
+--- other's preview away. So the previews of one type form a **chain**: asked
+--- in order, each may decline (`nil`) and hand the target to the next, and
+--- the built-in preview answers when every one declined. The order is
+--- registration order, unless an entry states a `priority` (higher first,
+--- default 0) -- the one way to go ahead of a plugin that registered earlier,
+--- which is what an override in a user's own config needs.
 ---
 --- **Why a plugin name is required.** Re-registering under the same name
 --- replaces that plugin's contribution instead of stacking a second copy on
@@ -49,8 +59,13 @@ local M = {}
 ---@type { name: string, fn: function, on_request: boolean }[]
 local sources = {}
 
----@type table<string, { name: string, fn: function }>
+---@type table<string, { name: string, fn: function, priority: number, seq: integer }[]>
 local previews = {}
+
+--- Registration counter: the tie-break between previews of equal priority.
+--- A plugin registering again keeps the number it had, so a retry or a second
+--- `setup()` does not move it behind a plugin that registered in between.
+local seq = 0
 
 ---@type { name: string, fn: function, on_request: boolean }[]
 local positions = {}
@@ -89,6 +104,22 @@ local function normalize(entry)
   return nil, false
 end
 
+---@internal
+--- Read one value of a `previews` table: a bare function (priority 0), or
+--- `{ fn = ..., priority = n }`.
+---@param value any
+---@return function|nil fn
+---@return number priority
+local function normalize_preview(value)
+  if type(value) == "function" then
+    return value, 0
+  end
+  if type(value) == "table" and type(value.fn) == "function" then
+    return value.fn, type(value.priority) == "number" and value.priority or 0
+  end
+  return nil, 0
+end
+
 --- Register a plugin's hover contributions.
 ---@param name string plugin name; re-registering replaces its previous entry
 ---@param contribution Hover.Contribution
@@ -124,9 +155,39 @@ function M.register(name, contribution)
     end
   end
 
-  for target_type, fn in pairs(contribution.previews or {}) do
-    if type(fn) == "function" then
-      previews[target_type] = { name = name, fn = fn }
+  -- Drop this plugin's previews of every type, remembering where each stood:
+  -- a type it no longer names is gone, one it names again keeps its place.
+  ---@type table<string, integer>
+  local had = {}
+  for target_type, chain in pairs(previews) do
+    local kept_chain = {}
+    for _, entry in ipairs(chain) do
+      if entry.name == name then
+        had[target_type] = entry.seq
+      else
+        kept_chain[#kept_chain + 1] = entry
+      end
+    end
+    previews[target_type] = #kept_chain > 0 and kept_chain or nil
+  end
+
+  for target_type, value in pairs(contribution.previews or {}) do
+    local fn, priority = normalize_preview(value)
+    if type(target_type) == "string" and fn then
+      local chain = previews[target_type] or {}
+      local at = had[target_type]
+      if not at then
+        seq = seq + 1
+        at = seq
+      end
+      chain[#chain + 1] = { name = name, fn = fn, priority = priority, seq = at }
+      table.sort(chain, function(a, b)
+        if a.priority ~= b.priority then
+          return a.priority > b.priority
+        end
+        return a.seq < b.seq
+      end)
+      previews[target_type] = chain
     end
   end
 
@@ -162,12 +223,73 @@ function M.source_at(bufnr, row, col, opts)
   return nil
 end
 
+--- Ask the previews registered for `target.type`, in chain order. The first
+--- one that answers wins; one that declines (`nil`, or an error) hands the
+--- target to the next.
+---
+--- `pcall` per entry, for the reason `source_at` gives: one broken preview
+--- must not take the others in the chain down with it.
+---@param target Hover.Target
+---@param opts Hover.PreviewOpts
+---@param bufnr integer
+---@return Hover.Content|nil content
+---@return string|nil name the plugin that answered
+function M.preview(target, opts, bufnr)
+  local chain = type(target) == "table" and previews[target.type]
+  if not chain then
+    return nil
+  end
+  -- A copy: a preview that registers (or re-registers) while being asked
+  -- must not reorder the list under this loop.
+  for _, entry in ipairs(vim.list_slice(chain)) do
+    local ok, content = pcall(entry.fn, target, opts, bufnr)
+    if ok and content then
+      return content, entry.name
+    end
+  end
+  return nil
+end
+
 --- The registered preview for `target_type`, if a plugin claimed it.
+---
+--- Kept for callers from before previews were chained. With one preview
+--- registered it is that function itself; with several, one function that
+--- asks the chain as it stands **now** -- a snapshot, so a plugin that
+--- captures it to wrap and then registers its own wrapper for the same type
+--- does not end up asking itself. New code calls `preview` instead.
 ---@param target_type string
 ---@return function|nil
 function M.preview_for(target_type)
-  local entry = previews[target_type]
-  return entry and entry.fn or nil
+  local chain = previews[target_type]
+  if not chain then
+    return nil
+  end
+  if #chain == 1 then
+    return chain[1].fn
+  end
+  local snapshot = vim.list_slice(chain)
+  return function(target, opts, bufnr)
+    for _, entry in ipairs(snapshot) do
+      local ok, content = pcall(entry.fn, target, opts, bufnr)
+      if ok and content then
+        return content
+      end
+    end
+    return nil
+  end
+end
+
+--- The plugins that registered a preview for `target_type`, in the order
+--- they are asked. For `:checkhealth` and tests: names, not the functions,
+--- for the reason `contributors` gives.
+---@param target_type string
+---@return string[]
+function M.preview_names(target_type)
+  local out = {}
+  for _, entry in ipairs(previews[target_type] or {}) do
+    out[#out + 1] = entry.name
+  end
+  return out
 end
 
 --- Ask every registered *position* preview, in registration order, for
@@ -297,9 +419,11 @@ function M.contributors()
     end
   end
 
-  for _, entry in pairs(previews) do
-    local contributor = entry_for(entry.name)
-    contributor.previews = contributor.previews + 1
+  for _, chain in pairs(previews) do
+    for _, entry in ipairs(chain) do
+      local contributor = entry_for(entry.name)
+      contributor.previews = contributor.previews + 1
+    end
   end
 
   for _, entry in ipairs(positions) do
@@ -338,6 +462,7 @@ end
 ---@return nil
 function M.reset()
   sources, previews, positions = {}, {}, {}
+  seq = 0
 end
 
 return M

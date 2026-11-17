@@ -76,6 +76,134 @@ describe("hover.registry", function()
     end)
   end)
 
+  -- Previews of one type form a chain. testing.nvim (spec files) and
+  -- casedesk.nvim (case logs) both register `file`; while a second
+  -- registration replaced the first, whichever loaded last silently took the
+  -- other's preview away.
+  describe("several previews for one type", function()
+    local target = { type = "file", path = "x" }
+
+    ---@param tag string
+    ---@param answers boolean
+    local function stub(tag, answers)
+      return function()
+        return answers and { lines = { tag } } or nil
+      end
+    end
+
+    it("asks them in registration order; the first that answers wins", function()
+      registry.register("declines.nvim", { previews = { file = stub("declines", false) } })
+      registry.register("answers.nvim", { previews = { file = stub("answers", true) } })
+      local content, name = registry.preview(target, {}, 0)
+      assert.same({ "answers" }, content.lines)
+      assert.equals("answers.nvim", name)
+    end)
+
+    it("does not depend on which of the two loaded first", function()
+      registry.register("answers.nvim", { previews = { file = stub("answers", true) } })
+      registry.register("declines.nvim", { previews = { file = stub("declines", false) } })
+      assert.same({ "answers" }, registry.preview(target, {}, 0).lines)
+      assert.same({ "answers.nvim", "declines.nvim" }, registry.preview_names("file"))
+    end)
+
+    it("lets the earlier one win when both answer", function()
+      registry.register("first.nvim", { previews = { file = stub("first", true) } })
+      registry.register("second.nvim", { previews = { file = stub("second", true) } })
+      assert.same({ "first" }, registry.preview(target, {}, 0).lines)
+    end)
+
+    it("hands on past a preview that raises", function()
+      registry.register("broken.nvim", {
+        previews = {
+          file = function()
+            error("boom")
+          end,
+        },
+      })
+      registry.register("answers.nvim", { previews = { file = stub("answers", true) } })
+      assert.same({ "answers" }, registry.preview(target, {}, 0).lines)
+    end)
+
+    it("is nil when every one declines, so the built-in preview answers", function()
+      registry.register("a.nvim", { previews = { file = stub("a", false) } })
+      registry.register("b.nvim", { previews = { file = stub("b", false) } })
+      assert.is_nil(registry.preview(target, {}, 0))
+      assert.is_nil(registry.preview({ type = "pdf" }, {}, 0))
+    end)
+
+    it("puts a higher priority first, whatever the registration order", function()
+      registry.register("plugin.nvim", { previews = { file = stub("plugin", true) } })
+      registry.register(
+        "user",
+        { previews = { file = { fn = stub("user", true), priority = 10 } } }
+      )
+      assert.same({ "user" }, registry.preview(target, {}, 0).lines)
+      assert.same({ "user", "plugin.nvim" }, registry.preview_names("file"))
+    end)
+
+    it("keeps a plugin's place when it registers again", function()
+      registry.register("a.nvim", { previews = { file = stub("a", true) } })
+      registry.register("b.nvim", { previews = { file = stub("b", true) } })
+      -- a.nvim's retry (a lazy loader, a second setup()) replaces its entry
+      -- in place: no duplicate, and it does not fall behind b.nvim.
+      registry.register("a.nvim", { previews = { file = stub("a2", true) } })
+      assert.same({ "a.nvim", "b.nvim" }, registry.preview_names("file"))
+      assert.same({ "a2" }, registry.preview(target, {}, 0).lines)
+    end)
+
+    it("drops the types a plugin no longer names when it registers again", function()
+      registry.register("a.nvim", { previews = { file = stub("a", true), pdf = stub("p", true) } })
+      registry.register("a.nvim", { previews = { file = stub("a", true) } })
+      assert.same({}, registry.preview_names("pdf"))
+      assert.is_nil(registry.preview_for("pdf"))
+      registry.register("a.nvim", {})
+      assert.same({}, registry.preview_names("file"))
+    end)
+
+    it("counts each plugin's previews in contributors()", function()
+      registry.register("a.nvim", { previews = { file = stub("a", true) } })
+      registry.register("b.nvim", { previews = { file = stub("b", true), pdf = stub("p", true) } })
+      assert.same({
+        { name = "a.nvim", sources = 0, previews = 1, positions = 0, on_request = 0 },
+        { name = "b.nvim", sources = 0, previews = 2, positions = 0, on_request = 0 },
+      }, registry.contributors())
+    end)
+
+    describe("preview_for, for callers from before the chain", function()
+      it("is the function itself while only one is registered", function()
+        local fn = stub("only", true)
+        registry.register("only.nvim", { previews = { file = fn } })
+        assert.equals(fn, registry.preview_for("file"))
+      end)
+
+      it("asks the whole chain when several are registered", function()
+        registry.register("declines.nvim", { previews = { file = stub("declines", false) } })
+        registry.register("answers.nvim", { previews = { file = stub("answers", true) } })
+        assert.same({ "answers" }, registry.preview_for("file")(target, {}, 0).lines)
+      end)
+
+      -- casedesk.nvim before the chain: captures `preview_for("file")`,
+      -- registers a wrapper that asks it for every file not its own. The
+      -- capture is a snapshot, so the wrapper never ends up asking itself.
+      it("lets the old wrap-the-previous trick work without recursion", function()
+        registry.register("x.nvim", { previews = { file = stub("x", false) } })
+        registry.register("testing.nvim", { previews = { file = stub("spec", true) } })
+        local prev = registry.preview_for("file")
+        registry.register("wrapper.nvim", {
+          previews = {
+            file = function(t, o, b)
+              if t.path == "mine" then
+                return { lines = { "mine" } }
+              end
+              return prev(t, o, b)
+            end,
+          },
+        })
+        assert.same({ "spec" }, registry.preview(target, {}, 0).lines)
+      end)
+    end)
+  end)
+
   it("replaces a contribution on re-registration rather than stacking it", function()
     -- A `setup()` running twice (a reload, `:Lazy reload`) must not make
     -- every source fire twice -- for a source with side effects that is a

@@ -1031,6 +1031,19 @@ Target types a preview can claim: image, pdf, office, video, markdown,
 file, directory, url, anchor, missing, git. Returning nil declines, and the
 built-in preview runs instead.
 
+                                                          *hover-preview-chain*
+Several plugins may register a preview for the same type (testing.nvim and
+casedesk.nvim both preview some `file`s). They form a chain: asked in
+registration order, the first that answers wins, nil (or an error) hands the
+target to the next, the built-in preview answers last. A preview should
+therefore decline every target that is not its own. To go first regardless
+of registration order, give the entry a priority (higher first, default 0):
+>lua
+    previews = { file = { fn = my_preview, priority = 10 } }
+<
+A plugin registering again keeps its place in the chain.
+`registry.preview_names(type)` lists the chain in the order it is asked.
+
                                                              *hover-contribute*
 The same table can be handed to |hover.setup()| as `contribute`, which
 registers it under the name "user". That is the door for a hover of your own,
