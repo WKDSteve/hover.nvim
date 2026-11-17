@@ -122,3 +122,79 @@ describe("hover.float placement on a small screen", function()
     assert.is_true(bottom <= vim.o.lines - vim.o.cmdheight)
   end)
 end)
+
+-- The window cut alone was not enough: the previewer built a page of
+-- `max_lines` (20) lines into an 18-row window and scrolled by 20, so lines
+-- 19 and 20 of every page were never on screen. `box()` now asks
+-- `float.fit_height`, so the page is as tall as its window.
+describe("hover on a small screen: every line of a long file is reachable", function()
+  local config = require("hover.config")
+  local registry = require("hover.registry")
+  local hover = require("hover")
+  local saved_lines, saved_cols, root, buf, prev_buf
+
+  before_each(function()
+    config.reset()
+    registry.reset()
+    hover.hide()
+    saved_lines, saved_cols = vim.o.lines, vim.o.columns
+    vim.o.lines, vim.o.columns = 24, 80
+    root = vim.fn.tempname()
+    vim.fn.mkdir(root, "p")
+    local path = root .. "/guide.txt"
+    local guide = {}
+    for i = 1, 60 do
+      guide[i] = ("guide line %02d"):format(i)
+    end
+    vim.fn.writefile(guide, path)
+    prev_buf = api.nvim_get_current_buf()
+    buf = api.nvim_create_buf(true, false)
+    api.nvim_buf_set_name(buf, root .. "/notes.md")
+    api.nvim_win_set_buf(0, buf)
+    api.nvim_buf_set_lines(buf, 0, -1, false, { "# Notes", "", path })
+    api.nvim_win_set_cursor(0, { 3, 0 })
+    vim.cmd("normal! gg")
+    api.nvim_win_set_cursor(0, { 3, 0 })
+    vim.cmd("redraw")
+  end)
+
+  after_each(function()
+    hover.hide()
+    pcall(api.nvim_win_set_buf, 0, prev_buf)
+    pcall(api.nvim_buf_delete, buf, { force = true })
+    vim.fn.delete(root, "rf")
+    vim.o.lines, vim.o.columns = saved_lines, saved_cols
+    config.reset()
+    registry.reset()
+  end)
+
+  it("shows lines 1..60 across the pages, none hidden under the frame", function()
+    assert.is_true(hover.show({ force = true }))
+    local seen = {}
+    for _ = 1, 10 do
+      local win = assert(float.win(), "no float")
+      local rows = api.nvim_win_get_height(win)
+      local page = api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, -1, false)
+      -- Visible is what fits the window; the "…" line that marks a cut file
+      -- is not a guide line.
+      for i = 1, math.min(rows, #page) do
+        local n = page[i]:match("^guide line (%d+)$")
+        if n then
+          seen[tonumber(n)] = true
+        end
+      end
+      local top = frame_rows()
+      assert.is_true(top > cursor_row(), "the frame covers the cursor line")
+      if not hover.scroll(1) then
+        break
+      end
+    end
+    local missing = {}
+    for i = 1, 60 do
+      if not seen[i] then
+        missing[#missing + 1] = i
+      end
+    end
+    assert.are.same({}, missing, "lines never shown")
+  end)
+end)

@@ -383,12 +383,29 @@ function M.size_for(lines, opts)
   end
   local width, height = measure(lines or {}, opts)
   if not opts.center then
-    local row = cursor_cell(anchor_win())
-    if row then
-      height = select(2, place_at_cursor(row, height, ring_of(opts.border)))
-    end
+    height = M.fit_height(height, opts.border)
   end
   return width, height
+end
+
+--- How many of `height` text rows a cursor-anchored float keeps beside the
+--- cursor line on this screen (`place_at_cursor`): `height` when it fits
+--- below or above, the rows of the larger side otherwise.
+---
+--- Public because cutting only the window is not enough: the previewer builds
+--- a page of `max_lines` lines and scrolls by that many, so a window cut to 18
+--- of 20 rows hid the last two lines of every page for good. `hover`'s
+--- `box()` asks this before anything is built, so the page is as tall as the
+--- window it lands in.
+---@param height integer
+---@param border string|string[]|nil
+---@return integer
+function M.fit_height(height, border)
+  local row = cursor_cell(anchor_win())
+  if not row then
+    return height
+  end
+  return select(2, place_at_cursor(row, height, ring_of(border)))
 end
 
 --- The open float's own width and height, or nil when none is open.

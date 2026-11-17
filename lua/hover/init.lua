@@ -136,8 +136,16 @@ local function box()
     end
   end
   local factor = resize_factor()
-  return math.max(1, math.floor(width * factor + 0.5)),
-    math.max(1, math.floor(height * factor + 0.5))
+  width = math.max(1, math.floor(width * factor + 0.5))
+  height = math.max(1, math.floor(height * factor + 0.5))
+  -- Next to the cursor, a float gets only the rows beside the cursor line
+  -- (`float.fit_height`). Cut here, not only in the float: the previewer
+  -- builds and scrolls by this height, so a page taller than its window lost
+  -- its last lines on every page. Zen is centred and keeps the full height.
+  if not (_open and _open.zen) then
+    height = float.fit_height(height, c.border)
+  end
+  return width, height
 end
 
 -- ---------------------------------------------------------------------------
@@ -2011,7 +2019,10 @@ function M.scroll(delta)
     _open.page = next_page
     preview_opts.page = next_page
   else
-    local step = c.max_lines or 20
+    -- The page height the previewer was asked for (`box()`): the configured
+    -- `max_lines` after resize and the cut beside the cursor line. Stepping
+    -- by `c.max_lines` skipped the lines a shorter page did not show.
+    local step = preview_opts.max_lines or c.max_lines or 20
     local next_offset = math.max(0, (_open.offset or 0) + delta * step)
     if next_offset == _open.offset then
       return false

@@ -77,9 +77,13 @@ open.
 The row is chosen there too: below the cursor line when the float fits there, above it
 when it fits there instead, and otherwise on the larger side, cut to the rows that side
 has. The cursor line itself is never covered (on 80x24 with the cursor on row 3 a 20-line
-hover used to be pushed up over it). A picture's canvas is not cut, since that would crop
-it; it moves above only when it fits whole. `float.size_for` reports the cut, so
-`hover.resize` counts it as the screen refusing a step.
+hover used to be pushed up over it). The cut is made before anything is built: `box()`
+asks `float.fit_height`, so a previewer builds a page (or a picture's canvas) exactly as
+tall as the window it lands in, and scrolling steps by that height -- a window cut below
+its page would hide the last lines of every page. `float.size_for` reports the same cut,
+so `hover.resize` counts it as the screen refusing a step. A canvas built for another
+size is never cut by the float (that would crop it); it moves above only when it fits
+whole.
 
 ### The image is fitted to the drawing box, not to the frame
 
