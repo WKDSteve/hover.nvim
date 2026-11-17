@@ -86,12 +86,13 @@ function _G.float_text()
   return w and _G.text(vim.api.nvim_win_get_buf(w)) or ""
 end
 
----`got == want`, or an error that says what came instead (the failure line of the sheet shows it).
+---`got == want` (tables compared by content: `{ 3, 5 }` equals a cursor `{ 3, 5 }`), or an error that says what came
+---instead (the failure line of the sheet shows it).
 ---@param got any
 ---@param want any
 ---@return boolean
 function _G.eq(got, want)
-  if got ~= want then
+  if not vim.deep_equal(got, want) then
     error(("got %s, wanted %s"):format(vim.inspect(got), vim.inspect(want)), 0)
   end
   return true
