@@ -35,7 +35,7 @@ return {
     },
     {
       expect = [[_G.eq(vim.o.updatetime, 100)]],
-      note = "fileops set 'updatetime' to 100 for the whole editor: hover's CursorHold follows it too",
+      note = "fileops lowered the default 'updatetime' to 100 for the whole editor: hover's CursorHold follows it too",
     },
     {
       lua = [[_G.sandbox()
@@ -126,7 +126,7 @@ return {
     "The float sits below the cursor line; the previous-line text at the end of line 3 stays readable beside the link",
   },
   manual = {
-    "A working day with fileops on_hold.enable = true and hover.nvim on CursorHold in the real config: does anything flicker, and is 'updatetime' = 100 (set by fileops for everyone) a problem for other plugins",
+    "A working day with fileops on_hold.enable = true and hover.nvim on CursorHold in the real config: does anything flicker, and is 'updatetime' = 100 (fileops lowers the default for everyone) a problem for other plugins",
     "With gitsigns installed: on_hold uses preview_hunk_inline instead, which inserts lines and restores the view; check whether hover's float jumps or closes then",
   },
 }

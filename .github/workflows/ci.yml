@@ -110,8 +110,7 @@ jobs:
           persist-credentials: false
           repository: WKDSteve/fileops.nvim
           path: .deps/fileops.nvim
-          # Pinned: a commit whose own CI was green (no ci-verified branch to follow). Bump on purpose.
-          ref: addd8bfebbbc514cec2e73db92209e9816539f14
+          ref: ci-verified
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false

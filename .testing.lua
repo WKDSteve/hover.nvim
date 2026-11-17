@@ -85,8 +85,7 @@ return {
         },
         {
           repo = "WKDSteve/fileops.nvim",
-          -- fileops.nvim publishes no ci-verified (2026-11-16), so a full commit id: main at that day.
-          ref = "addd8bfebbbc514cec2e73db92209e9816539f14",
+          ref = "ci-verified",
           why = "only the test sheet hover.fileops-on-hold loads it (on_hold beside hover on CursorHold)",
         },
       },
