@@ -183,7 +183,7 @@ add({ wait = [[_G.float() == nil]] })
 return {
   id = "hover.bindings-switches",
   title = "hover.nvim: the switch, mode, auto, border, toggle, dashboard and why commands of the bindings checklist",
-  task = "hover.nvim/testblatt-bindings-checkliste",
+  task = "hover.nvim/abnahme-bindings-testblaetter",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   steps = steps,

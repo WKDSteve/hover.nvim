@@ -12,7 +12,7 @@ return {
   id = "hover.fileops-on-hold",
   feature = "hover.contributions",
   title = "hover.nvim beside fileops.nvim on_hold: one float and one line of virtual text from the same CursorHold",
-  task = "hover.nvim/sheet-hover-neben-fileops-on-hold",
+  task = "hover.nvim/copy-live-check",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   requires = {

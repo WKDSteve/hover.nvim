@@ -119,7 +119,7 @@ add({ wait = [[_G.float() == nil]] })
 return {
   id = "hover.bindings-float",
   title = "hover.nvim: the show, resize, zen, pin, open and next commands of the bindings checklist",
-  task = "hover.nvim/testblatt-bindings-checkliste",
+  task = "hover.nvim/abnahme-bindings-testblaetter",
   engine = "rpc",
   -- 40 rows: zen builds against `lines - 4`, which at 24 rows is the 20 lines of `max_lines` again
   sizes = { { rows = 40, cols = 100 } },

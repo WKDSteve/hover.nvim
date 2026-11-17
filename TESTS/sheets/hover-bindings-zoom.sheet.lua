@@ -10,7 +10,7 @@
 return {
   id = "hover.bindings-zoom",
   title = "hover.nvim: the zoom and nav commands of the bindings checklist, on a real picture",
-  task = "hover.nvim/testblatt-bindings-checkliste",
+  task = "hover.nvim/abnahme-bindings-testblaetter",
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   requires = {
