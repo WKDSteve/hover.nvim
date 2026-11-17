@@ -736,6 +736,22 @@ describe("a pinned hover", function()
     assert.is_true(float.is_open())
   end)
 
+  it("survives the float's own dismissal events: a move, leaving the buffer, insert", function()
+    -- The cases above call hover's functions; the float also closes itself on these events (float.lua
+    -- `install_dismiss`), which a cursor set through the API never fires. Until 2026-11-17 that closed a pinned
+    -- float on the first move (found by the sheet hover.bindings-float).
+    always("first")
+    hover.show()
+    hover.pin()
+    for _, event in ipairs({ "CursorMoved", "WinScrolled", "BufLeave", "InsertEnter" }) do
+      api.nvim_exec_autocmds(event, {})
+      assert.is_true(float.is_open(), event .. " closed a pinned float")
+    end
+    hover.pin()
+    api.nvim_exec_autocmds("CursorMoved", {})
+    assert.is_false(float.is_open(), "released, the next move takes it")
+  end)
+
   it("is closed by those events once released", function()
     always("first")
     hover.show()

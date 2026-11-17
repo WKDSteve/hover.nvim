@@ -35,6 +35,8 @@ local _on_close = nil
 local _opts = nil
 ---@type { origin: integer, on_leave: (fun())|nil }|nil Set while the reader is inside the float (`M.focus`).
 local _focus = nil
+---@type boolean Whether the open float is pinned (`M.set_pinned`): its dismissal then lets every event pass.
+local _pinned = false
 
 --- Highlight groups a preview may ask for on its first line, and what each
 --- links to when the user and the colorscheme have said nothing. Defined on
@@ -160,6 +162,9 @@ function M.set_pinned(pinned)
   if not safe_api.is_valid_window(_win) then
     return
   end
+  -- What the dismissal reads: a pinned float is out of the cursor's hands, so a move, `BufLeave` or `InsertEnter`
+  -- must not close it here behind `hide_unless_pinned`'s back.
+  _pinned = pinned == true
   local ok, cfg = pcall(api.nvim_win_get_config, _win)
   if not ok or type(cfg) ~= "table" then
     return
@@ -245,6 +250,7 @@ function M.close(on_close)
     pcall(api.nvim_buf_delete, _buf, { force = true })
   end
   _win, _buf, _opts, _focus = nil, nil, nil, nil
+  _pinned = false
 end
 
 ---@internal
@@ -326,6 +332,10 @@ local function install_dismiss(opts, hold)
   autocmd.create(
     { "CursorMoved", "CursorMovedI", "InsertEnter", "BufLeave", "WinScrolled" },
     function(args)
+      -- Pinned: what closes it is `:Hover pin` again, `q`/`<Esc>` or `:Hover show` (hover.pin), never a move.
+      if _pinned then
+        return
+      end
       if hold and args.event == "CursorMoved" and api.nvim_get_current_win() == hold.win then
         local ok, pos = pcall(api.nvim_win_get_cursor, hold.win)
         if ok and pos[1] == hold.pos[1] and pos[2] == hold.pos[2] then
