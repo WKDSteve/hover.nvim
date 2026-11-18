@@ -2028,7 +2028,13 @@ function M.scroll(delta)
     -- by `c.max_lines` skipped the lines a shorter page did not show.
     -- A cut text page says how many lines it showed (its `…` takes the last row).
     local step = preview_opts.max_lines or c.max_lines or 20
-    step = math.min(step, _open.scroll_step or step)
+    if delta > 0 then
+      step = math.min(step, _open.scroll_step or step)
+    elseif step > 1 and _open.scroll_step then
+      -- Back: every page before this one was cut and showed a line less than its height. The
+      -- last page is not cut (step = its height), so stepping back by that skipped a line.
+      step = step - 1
+    end
     local next_offset = math.max(0, (_open.offset or 0) + delta * step)
     if next_offset == _open.offset then
       return false

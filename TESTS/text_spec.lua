@@ -106,7 +106,7 @@ describe("hover.preview.text.file", function()
     assert.is_falsy(content.lines[1]:find("12345", 1, true))
   end)
 
-  it("ends a cut page with … in its last row, and a cut range below all its lines", function()
+  it("ends a cut page with … in its last row; a range shown whole has no marker", function()
     local path = root .. "/long.txt"
     local all = {}
     for i = 1, 30 do
@@ -123,9 +123,20 @@ describe("hover.preview.text.file", function()
     assert.are.equal("…", page.lines[10])
     assert.are.same({ offset = 0, step = 9, more = true }, page.scroll)
 
-    -- A range (`:1-4`) is shorter than the float: all four lines and the marker below them.
+    -- A range shown whole is not cut, though the file goes on: no marker, no scrolling.
     local range = text.file(target, { max_lines = 10, line = 1, line_end = 4 })
-    assert.are.same({ "line 1", "line 2", "line 3", "line 4", "…" }, range.lines)
+    assert.are.same({ "line 1", "line 2", "line 3", "line 4" }, range.lines)
+    assert.is_false(range.scroll.more)
+
+    -- As long as the page: all ten lines, the last one not given up to a marker.
+    local full = text.file(target, { max_lines = 10, line = 1, line_end = 10 })
+    assert.are.equal(10, #full.lines)
+    assert.are.equal("line 10", full.lines[10])
+
+    -- Longer than the page: cut like any page.
+    local long = text.file(target, { max_lines = 10, line = 1, line_end = 25 })
+    assert.are.equal("line 9", long.lines[9])
+    assert.are.equal("…", long.lines[10])
   end)
 end)
 

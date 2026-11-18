@@ -193,16 +193,23 @@ function M.file(target, opts)
   -- naming a neighbourhood. `max_lines` still caps it -- a `:1-4000` out of a
   -- log must not try to fill the screen.
   local LEAD = 3
+  local range_len = nil
   if offset == 0 and type(opts.line) == "number" then
     if type(opts.line_end) == "number" then
       offset = opts.line - 1
-      limit = math.min(limit, opts.line_end - opts.line + 1)
+      range_len = opts.line_end - opts.line + 1
+      limit = math.min(limit, range_len)
     elseif opts.line > LEAD + 1 then
       offset = opts.line - 1 - LEAD
     end
   end
 
   local lines, truncated, skipped, ok = head(target.path, limit, offset)
+  -- A range is cut only when it is longer than the page: `:1-20` shown whole is not cut because
+  -- the file goes on (its last line would otherwise give way to the marker).
+  if range_len and range_len <= limit then
+    truncated = false
+  end
 
   -- Scrolled past the end (the file shrank, or the offset overshot): fall
   -- back to the last readable window rather than showing an empty float.
@@ -235,7 +242,7 @@ function M.file(target, opts)
   -- The float is at most `max_lines` rows high, so on a page that fills it the marker takes
   -- the last row: appended as row max_lines + 1 it was never on screen. The line it replaces
   -- opens the next page, which is why one step advances by the lines shown, not by `limit`.
-  -- A range (`:1-4`) is shorter than the float and keeps all its lines, the marker below.
+  -- A range longer than the page (`:1-4000`) is cut the same way; one shown whole has no marker.
   local step = limit
   if truncated then
     if #lines > 1 and #lines >= (opts.max_lines or 20) then

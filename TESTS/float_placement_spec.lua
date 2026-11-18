@@ -198,6 +198,32 @@ describe("hover on a small screen: every line of a long file is reachable", func
     assert.are.same({}, missing, "lines never shown")
   end)
 
+  it("scrolls back from the last page onto the page before it, skipping no line", function()
+    -- 50 lines, 20 rows: pages at 0, 19 and 38 (cut pages show 19 lines). The last page is not
+    -- cut, and stepping back by its 20 rows landed on 18: that page showed lines 19-37, and
+    -- line 38 was never on screen on the way up.
+    local guide = {}
+    for i = 1, 50 do
+      guide[i] = ("guide line %02d"):format(i)
+    end
+    vim.fn.writefile(guide, root .. "/guide.txt")
+    vim.o.lines = 40
+    vim.cmd("redraw")
+    assert.is_true(hover.show({ force = true }))
+    local function first()
+      local win = assert(float.win(), "no float")
+      return api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, 1, false)[1]
+    end
+    assert.is_true(hover.scroll(1))
+    assert.are.equal("guide line 20", first())
+    assert.is_true(hover.scroll(1))
+    assert.are.equal("guide line 39", first())
+    assert.is_true(hover.scroll(-1))
+    assert.are.equal("guide line 20", first(), "back on the page before, not one line above it")
+    assert.is_true(hover.scroll(-1))
+    assert.are.equal("guide line 01", first())
+  end)
+
   it("shows the … of a cut page on screen, in the float's last row", function()
     -- text.lua appended the marker as row max_lines + 1 of a float max_lines high. Room for
     -- all max_lines rows here: on the 24-row screen above, the first page is still built at
