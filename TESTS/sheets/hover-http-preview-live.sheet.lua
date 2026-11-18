@@ -10,8 +10,7 @@
 -- transport and the network guard of the live sheet stay real.
 -- Runs only with `testing sheets run --live`; in the suite, without --live and under CI it is a reported skip
 -- (testing.nvim docs/SHEETS.md, "Live sheets"). No feature: a feature sheet may not skip under CI.
--- live.env: the http preview needs no key, but testing.nvim takes a list of 1 to 10 names. PATH is in the child's
--- allowlist anyway, so naming it hands on nothing new; it is never shown (no screen step here).
+-- No live.env: the http preview needs no key, only the network (testing.nvim allows a live sheet without variables).
 return {
   id = "hover.http-preview-live",
   title = "hover.nvim: with the real network the title of a real page arrives, and http:// gets no credential",
@@ -19,7 +18,6 @@ return {
   engine = "rpc",
   sizes = { { rows = 24, cols = 80 } },
   live = {
-    env = { "PATH" },
     hosts = { "example.com" },
     cost = "two GET requests to example.com, no key",
   },
