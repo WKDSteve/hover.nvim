@@ -946,6 +946,11 @@ local function present(content)
     -- How far one line-scroll step goes: a cut text page shows a line less than its height.
     _open.scroll_step = content.scroll and content.scroll.offset ~= nil and content.scroll.step
       or nil
+    -- Where the page on screen starts: a `file:42` target opens a few lines above 42 (and a
+    -- scroll past the end is pulled back), so the next step counts from there, not from 0.
+    if content.scroll and type(content.scroll.offset) == "number" then
+      _open.offset = content.scroll.offset
+    end
     _open.copy_refused = (content.playback or content.play_window)
         and "a playing video has nothing to copy -- stop it first"
       or content.pending and "still rendering -- copy once it is on screen"

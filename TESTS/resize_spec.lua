@@ -335,6 +335,33 @@ describe("hover.resize", function()
     assert.same(h0, select(2, geometry()))
   end)
 
+  it("scrolls on from a named line, not from the top of the file", function()
+    -- `many.txt:100` opens a few lines above line 100; the first scroll used
+    -- to count from offset 0 (what `show` seeded) and jumped to the top.
+    local long = {}
+    for i = 1, 200 do
+      long[i] = ("line %d"):format(i)
+    end
+    vim.fn.writefile(long, root .. "/many.txt")
+
+    ---@return integer
+    local function first_line()
+      local text = vim.api.nvim_buf_get_lines(float.buf(), 0, 1, false)[1]
+      return assert(tonumber(text:match("^line (%d+)")), "no 'line N' at the top: " .. text)
+    end
+
+    assert.is_true(show_at("see ./many.txt:100 here", 5))
+    local opened = first_line()
+    assert.is_true(opened > 90 and opened <= 100, ("opened at line %d"):format(opened))
+
+    assert.is_true(hover.scroll(1))
+    local down = first_line()
+    assert.is_true(down > opened, ("scrolled down from %d to %d"):format(opened, down))
+
+    assert.is_true(hover.scroll(-1))
+    assert.equals(opened, first_line(), "scrolling back did not return to the opened page")
+  end)
+
   it("declines for a position preview, which has no target to re-ask", function()
     -- The one float this cannot resize. A position preview is finished
     -- content from another plugin and `_open` holds an id rather than a
