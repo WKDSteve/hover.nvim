@@ -125,6 +125,10 @@ describe("hover.preview.dirtree", function()
       assert.same({ "Alpha/", "zeta/", "… (4 entries)" }, content.lines)
       assert.same({ "Alpha", "zeta" }, names(content.dir_entries))
       assert.is_true(content.tail_marker)
+      -- one row: the summary alone, no entry
+      local one = text.directory({ path = root }, { max_lines = 1 })
+      assert.same({ "… (4 entries)" }, one.lines)
+      assert.same({}, one.dir_entries)
       -- exactly as many entries as rows: no summary, nothing cut
       local fits = text.directory({ path = root }, { max_lines = 4 })
       assert.same({ "Alpha/", "zeta/", "a.txt", "b.txt" }, fits.lines)
@@ -175,15 +179,26 @@ describe("hover.preview.dirtree", function()
         { path = root .. "/a.txt", kind = "file" },
         { kind = "more" },
       })
-      local listing = dirtree.list(root, 1)
+      local listing = dirtree.list(root, 2)
       assert.same({ "a.txt", "… 41 more" }, listing.lines)
       assert.equals(1, #listing.entries)
       assert.is_true(listing.more)
 
-      local content = text.directory({ path = root }, { max_lines = 1 })
+      local content = text.directory({ path = root }, { max_lines = 2 })
       assert.same({ "a.txt", "… 41 more" }, content.lines)
       assert.equals(1, #content.dir_entries)
       assert.is_true(content.tail_marker)
+    end)
+
+    it("in a float one row high shows the count alone, which is then on screen", function()
+      package.loaded["filetree.native"] = engine({ "a.txt", "… 41 more" }, {
+        { path = root .. "/a.txt", kind = "file" },
+        { kind = "more", more = 41 },
+      })
+      local listing = dirtree.list(root, 1)
+      assert.same({ "… 42 more" }, listing.lines)
+      assert.same({}, listing.entries)
+      assert.is_true(listing.more)
     end)
 
     it("says so for an empty directory", function()
@@ -382,7 +397,8 @@ describe("hover.preview.dirtree", function()
       local listing = dirtree.list(root, 3, { root .. "/Alpha", root .. "/Alpha/sub" })
       -- three rows: two entries and the count of the four left
       assert.equals(2, #listing.entries)
-      assert.same({ "▸ Alpha/", "  ▸ sub/", "… 4 more" }, listing.lines)
+      -- the cut takes Alpha's own "… 3 more" line, which stands for three: a floor
+      assert.same({ "▸ Alpha/", "  ▸ sub/", "… 4+ more" }, listing.lines)
       assert.is_true(listing.more)
     end)
 
@@ -400,6 +416,18 @@ describe("hover.preview.dirtree", function()
       assert.equals("… 3+ more", listing.lines[3])
       assert.is_true(listing.more)
     end)
+
+    it(
+      "keeps the count a floor when the cut takes the count line of a folder shown open",
+      function()
+        local seen = {}
+        package.loaded["filetree.native"] = tree_engine(seen, { dir_field = true, top_more = true })
+        -- Alpha/, sub/, f1.txt, "… 3 more" of Alpha, a.txt and the tree's "… 7 more": the cut takes the
+        -- line of Alpha's three, which counts as one here, so the 10 is at least 10
+        local listing = dirtree.list(root, 3, { root .. "/Alpha" })
+        assert.same({ "▸ Alpha/", "  ▸ sub/", "… 10+ more" }, listing.lines)
+      end
+    )
 
     it("adds the tree's own count of the directory when the cut takes its line", function()
       local seen = {}

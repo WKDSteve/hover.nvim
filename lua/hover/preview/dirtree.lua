@@ -147,19 +147,23 @@ function M.list(dir, limit, expanded)
     -- The float is at most `limit` rows high, and the count of what is left needs a row of its own: a
     -- listing longer than that shows `limit - 1` entries and the count as its last row (appended as row
     -- `limit + 1` it was never on screen). Folders shown open add lines, the tree's own count of the
-    -- directory adds one more.
-    local keep = math.max(1, limit - 1)
+    -- directory adds one more. A float one row high shows the count alone.
+    local keep = math.max(0, limit - 1)
     if #lines > limit and #entries > keep then
-      -- what the tree counted for the directory itself is added; where it gave no number the count
-      -- below is a floor, and says so
+      -- what the tree counted for the directory itself is added. The count is a floor, and says so,
+      -- where a number is unknown: the tree gave none for the directory, or a cut line is the count of
+      -- a folder shown open (one line here, standing for its entries).
       local left = #entries - keep + (counted or 0)
+      local floor = more and not counted
       local cut_lines, cut_entries = {}, {}
-      for i = 1, keep do
-        cut_lines[i], cut_entries[i] = lines[i], entries[i]
+      for i = 1, #entries do
+        if i <= keep then
+          cut_lines[i], cut_entries[i] = lines[i], entries[i]
+        elseif entries[i].more then
+          floor = true
+        end
       end
-      cut_lines[#cut_lines + 1] = ((more and not counted) and "… %d+ more" or "… %d more"):format(
-        left
-      )
+      cut_lines[#cut_lines + 1] = (floor and "… %d+ more" or "… %d more"):format(left)
       lines, entries, more = cut_lines, cut_entries, true
     end
     listing = { lines = lines, entries = entries, more = more, can_expand = can_expand }

@@ -322,8 +322,8 @@ function M.directory(target, opts)
     shown = {}
   else
     -- The summary takes the last of the float's `limit` rows: appended below `limit` entries it was
-    -- never on screen.
-    local room = (total > limit or capped) and math.max(1, limit - 1) or limit
+    -- never on screen. A float one row high shows the summary alone.
+    local room = (total > limit or capped) and math.max(0, limit - 1) or limit
     if total > room then
       shown = vim.list_slice(entries, 1, room)
     end
