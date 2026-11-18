@@ -118,13 +118,15 @@ function M.list(dir, limit, expanded)
       return
     end
     local top = vim.fs.normalize(dir)
-    local entries, more = {}, false
+    local entries, more, counted = {}, false, nil
     for i, row in ipairs(rows) do
       if row.kind == "more" or type(row.path) ~= "string" then
         local folder = more_of(row)
         if i == #rows and (folder == nil or folder == top) then
           -- what the listed directory itself has more of: the last line, and no entry
           more = true
+          local n = row.more
+          counted = type(n) == "number" and n >= 0 and n == math.floor(n) and n or nil
         elseif folder and folder ~= top then
           -- what a folder shown open has more of: a line to select, and it leads into that folder, where
           -- the rest is
@@ -142,16 +144,22 @@ function M.list(dir, limit, expanded)
         }
       end
     end
-    -- folders shown open add lines: the float still shows `limit` entries at most
-    if #entries > limit then
-      local left = #entries - limit
+    -- The float is at most `limit` rows high, and the count of what is left needs a row of its own: a
+    -- listing longer than that shows `limit - 1` entries and the count as its last row (appended as row
+    -- `limit + 1` it was never on screen). Folders shown open add lines, the tree's own count of the
+    -- directory adds one more.
+    local keep = math.max(1, limit - 1)
+    if #lines > limit and #entries > keep then
+      -- what the tree counted for the directory itself is added; where it gave no number the count
+      -- below is a floor, and says so
+      local left = #entries - keep + (counted or 0)
       local cut_lines, cut_entries = {}, {}
-      for i = 1, limit do
+      for i = 1, keep do
         cut_lines[i], cut_entries[i] = lines[i], entries[i]
       end
-      -- `more`: the directory itself has entries the tree did not list, and their number stood on the
-      -- line that is cut away here. So the count below is a floor then, and says so.
-      cut_lines[#cut_lines + 1] = (more and "… %d+ more" or "… %d more"):format(left)
+      cut_lines[#cut_lines + 1] = ((more and not counted) and "… %d+ more" or "… %d more"):format(
+        left
+      )
       lines, entries, more = cut_lines, cut_entries, true
     end
     listing = { lines = lines, entries = entries, more = more, can_expand = can_expand }

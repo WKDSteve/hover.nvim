@@ -119,6 +119,17 @@ describe("hover.preview.dirtree", function()
       assert.same({ "Alpha", "zeta", "a.txt", "b.txt" }, names(content.dir_entries))
     end)
 
+    it("keeps the scan's summary on screen: one entry less, the summary as the last row", function()
+      -- Alpha/, zeta/, a.txt, b.txt: four entries for three rows
+      local content = text.directory({ path = root }, { max_lines = 3 })
+      assert.same({ "Alpha/", "zeta/", "… (4 entries)" }, content.lines)
+      assert.same({ "Alpha", "zeta" }, names(content.dir_entries))
+      assert.is_true(content.tail_marker)
+      -- exactly as many entries as rows: no summary, nothing cut
+      local fits = text.directory({ path = root }, { max_lines = 4 })
+      assert.same({ "Alpha/", "zeta/", "a.txt", "b.txt" }, fits.lines)
+    end)
+
     it("treats a filetree.nvim without the embed layout as none", function()
       package.loaded["filetree.native"] = { open = function() end }
       assert.is_nil(dirtree.engine())
@@ -369,8 +380,9 @@ describe("hover.preview.dirtree", function()
       local seen = {}
       package.loaded["filetree.native"] = tree_engine(seen)
       local listing = dirtree.list(root, 3, { root .. "/Alpha", root .. "/Alpha/sub" })
-      assert.equals(3, #listing.entries)
-      assert.same({ "▸ Alpha/", "  ▸ sub/", "      g.txt", "… 3 more" }, listing.lines)
+      -- three rows: two entries and the count of the four left
+      assert.equals(2, #listing.entries)
+      assert.same({ "▸ Alpha/", "  ▸ sub/", "… 4 more" }, listing.lines)
       assert.is_true(listing.more)
     end)
 
@@ -381,10 +393,21 @@ describe("hover.preview.dirtree", function()
       local flat = dirtree.list(root, 3)
       assert.same({ "▸ Alpha/", "  a.txt", "  … 7 more" }, flat.lines)
       assert.is_true(flat.more)
-      -- a folder open: five entries for three lines, and seven more nobody listed
+      -- a folder open: five entries for three rows, and seven more nobody gave a number for
       local listing = dirtree.list(root, 3, { root .. "/Alpha" })
-      assert.equals(3, #listing.entries)
-      assert.equals("… 2+ more", listing.lines[4])
+      assert.equals(2, #listing.entries)
+      assert.equals(3, #listing.lines)
+      assert.equals("… 3+ more", listing.lines[3])
+      assert.is_true(listing.more)
+    end)
+
+    it("adds the tree's own count of the directory when the cut takes its line", function()
+      local seen = {}
+      package.loaded["filetree.native"] = tree_engine(seen, { dir_field = true, top_more = true })
+      -- flat: Alpha/, a.txt and the tree's "… 7 more" are three lines for two rows
+      local listing = dirtree.list(root, 2)
+      assert.same({ "▸ Alpha/", "… 8 more" }, listing.lines)
+      assert.equals(1, #listing.entries)
       assert.is_true(listing.more)
     end)
 
@@ -670,10 +693,12 @@ describe("hover.preview.dirtree", function()
         vim.fn.writefile({}, ("%s/file_%02d.txt"):format(root, i))
       end
       local content = text.directory({ path = root }, { max_lines = 5 })
-      assert.equals(5, #content.dir_entries)
-      assert.equals(6, #content.lines)
+      -- five rows: four entries and the count, which is on screen (as row six it never was)
+      assert.equals(4, #content.dir_entries)
+      assert.equals(5, #content.lines)
       assert.is_true(content.tail_marker)
-      assert.is_truthy(content.lines[6]:find("%d+"))
+      -- 34 entries (Alpha/, zeta/, a.txt, b.txt and 30 files), four of them shown
+      assert.equals("… 30 more", content.lines[5])
 
       package.loaded["filetree.native"] = nil
       vim.opt.runtimepath:remove(dir)

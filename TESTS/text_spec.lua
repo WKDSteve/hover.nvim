@@ -175,9 +175,10 @@ describe("hover.preview.text.directory", function()
 
       local content = text.directory({ type = "directory", path = root }, { max_lines = 3 })
 
-      assert.equals(3, #content.lines - 1) -- the summary line is not an entry
+      -- three rows: two entries and the summary, which is not an entry (as a fourth row it was off screen)
+      assert.equals(3, #content.lines)
       assert.equals("… (5 entries)", content.lines[#content.lines])
-      assert.equals(3, #content.dir_entries)
+      assert.equals(2, #content.dir_entries)
     end
   )
 

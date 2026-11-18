@@ -321,8 +321,11 @@ function M.directory(target, opts)
     out = { "(empty directory)" }
     shown = {}
   else
-    if total > limit then
-      shown = vim.list_slice(entries, 1, limit)
+    -- The summary takes the last of the float's `limit` rows: appended below `limit` entries it was
+    -- never on screen.
+    local room = (total > limit or capped) and math.max(1, limit - 1) or limit
+    if total > room then
+      shown = vim.list_slice(entries, 1, room)
     end
     out = dirbrowse.render(shown)
     if total > limit then
