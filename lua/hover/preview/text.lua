@@ -232,7 +232,16 @@ function M.file(target, opts)
     }
   end
 
+  -- The float is at most `max_lines` rows high, so on a page that fills it the marker takes
+  -- the last row: appended as row max_lines + 1 it was never on screen. The line it replaces
+  -- opens the next page, which is why one step advances by the lines shown, not by `limit`.
+  -- A range (`:1-4`) is shorter than the float and keeps all its lines, the marker below.
+  local step = limit
   if truncated then
+    if #lines > 1 and #lines >= (opts.max_lines or 20) then
+      lines[#lines] = nil
+      step = #lines
+    end
     lines[#lines + 1] = "…"
   end
 
@@ -260,7 +269,7 @@ function M.file(target, opts)
     -- Consumed by `hover`'s scroll bindings. `more` is what decides
     -- whether scrolling down is offered at all — a file that fits needs no
     -- keys bound and should leave them to whatever else uses them.
-    scroll = { offset = offset, step = limit, more = truncated },
+    scroll = { offset = offset, step = step, more = truncated },
     tail_marker = truncated or nil,
   }
 end

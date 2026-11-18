@@ -943,6 +943,9 @@ local function present(content)
   if _open then
     _open.image_path = content.image_path
     _open.tail_marker = content.tail_marker
+    -- How far one line-scroll step goes: a cut text page shows a line less than its height.
+    _open.scroll_step = content.scroll and content.scroll.offset ~= nil and content.scroll.step
+      or nil
     _open.copy_refused = (content.playback or content.play_window)
         and "a playing video has nothing to copy -- stop it first"
       or content.pending and "still rendering -- copy once it is on screen"
@@ -2023,7 +2026,9 @@ function M.scroll(delta)
     -- The page height the previewer was asked for (`box()`): the configured
     -- `max_lines` after resize and the cut beside the cursor line. Stepping
     -- by `c.max_lines` skipped the lines a shorter page did not show.
+    -- A cut text page says how many lines it showed (its `…` takes the last row).
     local step = preview_opts.max_lines or c.max_lines or 20
+    step = math.min(step, _open.scroll_step or step)
     local next_offset = math.max(0, (_open.offset or 0) + delta * step)
     if next_offset == _open.offset then
       return false

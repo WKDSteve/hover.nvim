@@ -24,7 +24,7 @@ mode: n
 19|~     │line 17 of the target│
 20|~     │line 18 of the target│
 21|~     │line 19 of the target│
-22|~     │line 20 of the target│
+22|~     │…                    │
 23|~     ╰─────────────────────╯
 24|:Hover show
 --- attrs

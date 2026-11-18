@@ -24,7 +24,7 @@ mode: v
 19|note l│line 17 of the target│
 20|note l│line 18 of the target│
 21|note l│line 19 of the target│
-22|note l│line 20 of the target│
+22|note l│…                    │
 23|note l╰─────────────────────╯
 24|-- VISUAL --                                                         10
 --- attrs

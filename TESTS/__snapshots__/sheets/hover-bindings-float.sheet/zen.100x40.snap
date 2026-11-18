@@ -40,7 +40,7 @@ mode: n
 35|~                                          │guide line 33│
 36|~                                          │guide line 34│
 37|~                                          │guide line 35│
-38|~                                          │guide line 36│
+38|~                                          │…            │
 39|~                                          ╰─────────────╯
 40|:Hover zen
 --- attrs

@@ -56,8 +56,8 @@ return {
     { screen = "text-hover" },
     { keys = "Y", note = "copy what the hover shows" },
     {
-      expect = [[vim.fn.getreg('"') == _G.target_lines(1, 20)]],
-      note = "the register holds exactly the lines on screen: 1 to 20, no more, no less",
+      expect = [[vim.fn.getreg('"') == _G.target_lines(1, 19)]],
+      note = "the register holds exactly the lines on screen: 1 to 19 (row 20 is the … of the cut page), no more, no less",
     },
     { expect = [[vim.fn.getregtype('"') == "V"]], note = "linewise" },
     {
@@ -72,8 +72,8 @@ return {
     { settle = 300 },
     { keys = "Y", note = "copy again" },
     {
-      expect = [[vim.fn.getreg('"') == _G.target_lines(21, 40)]],
-      note = "the register holds exactly the scrolled lines (a page further: 21 to 40)",
+      expect = [[vim.fn.getreg('"') == _G.target_lines(20, 38)]],
+      note = "the register holds exactly the scrolled lines (a page further: 20 to 38, the line the … took first)",
     },
     { lua = [[_G.after_scroll = vim.fn.getreg('"')]] },
     { lua = [[vim.fn.setreg('"', "")]] },
@@ -99,7 +99,7 @@ return {
     { keys = "p", note = "paste what :Hover copy put in the register" },
     {
       expect = [[table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n") .. "\n"
-        == "x\n" .. _G.target_lines(21, 40)]],
+        == "x\n" .. _G.target_lines(20, 38)]],
       note = "the copy pastes as whole lines below the cursor line, not into the middle of it",
     },
     { lua = [[vim.api.nvim_win_set_cursor(0, { 1, 0 })]] },

@@ -105,6 +105,28 @@ describe("hover.preview.text.file", function()
 
     assert.is_falsy(content.lines[1]:find("12345", 1, true))
   end)
+
+  it("ends a cut page with … in its last row, and a cut range below all its lines", function()
+    local path = root .. "/long.txt"
+    local all = {}
+    for i = 1, 30 do
+      all[i] = "line " .. i
+    end
+    vim.fn.writefile(all, path)
+    local target = { type = "file", path = path, size = 300 }
+
+    -- A page as high as the float: the marker takes its last row, the line it took opens
+    -- the next page.
+    local page = text.file(target, { max_lines = 10 })
+    assert.are.equal(10, #page.lines)
+    assert.are.equal("line 9", page.lines[9])
+    assert.are.equal("…", page.lines[10])
+    assert.are.same({ offset = 0, step = 9, more = true }, page.scroll)
+
+    -- A range (`:1-4`) is shorter than the float: all four lines and the marker below them.
+    local range = text.file(target, { max_lines = 10, line = 1, line_end = 4 })
+    assert.are.same({ "line 1", "line 2", "line 3", "line 4", "…" }, range.lines)
+  end)
 end)
 
 describe("hover.preview.text.directory", function()

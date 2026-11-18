@@ -291,6 +291,7 @@
 ---@field col? integer # Cursor column a position preview answered for, so `hover.next_position` can ask the same place again.
 ---@field position_nth? integer # Which answer for that place is on screen: 1-based, counting only contributions that answered.
 ---@field offset? integer # Lines skipped, for a text preview.
+---@field scroll_step? integer # Lines one scroll step advances: `scroll.step` of the text page on screen (a cut page shows one line less than its height).
 ---@field page? integer # 1-based page, for a PDF preview.
 ---@field resize? integer # Resize steps applied to this hover; the factor is `1.25^resize`. Set by `hover.resize`.
 ---@field zoom? integer # Magnification steps; 0 is the whole picture or page. Set by `hover.zoom`. A picture is cropped at this level, a PDF page re-rendered at a DPI raised by it.

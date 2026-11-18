@@ -197,4 +197,24 @@ describe("hover on a small screen: every line of a long file is reachable", func
     end
     assert.are.same({}, missing, "lines never shown")
   end)
+
+  it("shows the … of a cut page on screen, in the float's last row", function()
+    -- text.lua appended the marker as row max_lines + 1 of a float max_lines high. Room for
+    -- all max_lines rows here: on the 24-row screen above, the first page is still built at
+    -- max_lines into a shorter window (a follow-up), and only the scroll step is cut to it.
+    vim.o.lines = 40
+    vim.cmd("redraw")
+    assert.is_true(hover.show({ force = true }))
+    local win = assert(float.win(), "no float")
+    local rows = api.nvim_win_get_height(win)
+    local page = api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, -1, false)
+    assert.are.equal(rows, #page, "the page is as tall as its window")
+    assert.are.equal("…", page[rows], "the marker is the last visible row")
+    assert.are.equal(("guide line %02d"):format(rows - 1), page[rows - 1])
+    -- The line the marker took opens the next page.
+    assert.is_true(hover.scroll(1))
+    win = assert(float.win(), "no float after the scroll")
+    page = api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, -1, false)
+    assert.are.equal(("guide line %02d"):format(rows), page[1])
+  end)
 end)
