@@ -18,11 +18,13 @@ return {
   {
     id = "hover.quiet",
     title = "Little is on by default: a hover opens only where it has something to say",
+    perf = "skip:starts no process: whether a hover opens is decided in the editor (its specs test it)",
     docs = "docs/FEATURES/QUIET.md",
   },
   {
     id = "hover.bare-paths",
     title = "A path without link syntax around it previews the file it names",
+    perf = "skip:starts no process: a text file is read, not run (PDF, office and video have their own previews)",
     docs = "docs/FEATURES/BARE-PATHS.md",
   },
   {
@@ -35,6 +37,12 @@ return {
     id = "hover.focus",
     title = ":Hover focus enters a text hover, so the mouse selects and scrolls in it and q / <Esc> leave",
     surface = { "command:Hover focus" },
+    docs = "docs/commands.md",
+  },
+  {
+    id = "hover.git-object",
+    title = ":Hover show on a commit id in prose shows what git show --stat says about it",
+    surface = { "command:Hover show" },
     docs = "docs/commands.md",
   },
   {
@@ -60,11 +68,13 @@ return {
   {
     id = "hover.pins",
     title = "A link pinned to a file of your own shows that file",
+    perf = "skip:starts no process: the pinned file is read",
     docs = "docs/FEATURES/PINS.md",
   },
   {
     id = "hover.link-cache",
     title = "A fetched page of the links you name is kept across sessions",
+    perf = "skip:the fetch it keeps is the one of hover.http-preview and hover.auth; the cache reads and writes files",
     docs = "docs/FEATURES/LINKCACHE.md",
   },
   {
@@ -75,16 +85,19 @@ return {
   {
     id = "hover.zen",
     title = "Zen shows the hover on the whole editor, with the screen as its budget",
+    perf = "skip:starts no process: a bigger float (hover.bindings-float runs :Hover zen)",
     docs = "docs/FEATURES/ZEN.md",
   },
   {
     id = "hover.zoom",
     title = "A picture or a page in the hover zooms (not resize: the content, not the window)",
+    perf = "skip:the crops are ImageMagick through images.nvim, not hover; hover.bindings-zoom and hover.copy-zoom-crop measure them where images.nvim and magick are (no feature sheet: their requires-skip would be red on CI)",
     docs = "docs/FEATURES/ZOOM.md",
   },
   {
     id = "hover.video",
     title = "A video file under the cursor shows a still from it, and the paging keys step through it",
+    perf = "manual:needs media.nvim, ffmpeg and an image provider, and <CR> opens a player window (mpv, vlc, the system player); the hand run measures the monitor query and the window alignment too",
     docs = "docs/FEATURES/VIDEO.md",
   },
 }

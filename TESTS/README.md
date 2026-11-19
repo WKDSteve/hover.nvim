@@ -64,6 +64,10 @@ what is left for a person (`judge` and `manual`).
 | `hover-bindings-float` | `hover.nvim/abnahme-bindings-testblaetter` | `:Hover show`, `resize` (rows), `zen` (built against the editor's height, pinned), `pin` (stays through a move, released goes), `open` (handed to `vim.ui.open`, a recorder), `next` (two position answers, wraps) | `:Hover open` through open.nvim, `:Hover next` with the config's plugins |
 | `hover-bindings-effects` | `hover.nvim/abnahme-bindings-testblaetter` | what six switches do, by the trigger (`:Hover auto all`, CursorHold) and `:Hover why`: `links` (a markdown link opens its file / is no target), `links web` (an https link hovers / is no target), `links web fetch` (one request to the stub, the status line), `paths missing` (the broken-link float / named as off), `positions` (a stand-in answer / the class named as off), `paths code` (a path in Lua code named as off / opens) | a real page through `fetch` (`hover-http-preview-live`) |
 | `hover-bindings-zoom` | `hover.nvim/abnahme-bindings-testblaetter` | `:Hover zoom`/`zoom in`/`out`/`reset` and `:Hover nav` on a real picture (crops written, the messages where nothing is zoomed), `:Hover images` off (the size as text) and on (the blank canvas); like `hover-copy-zoom-crop` a reported skip without images.nvim and a magick that reads a picture in the child (Windows, CI), it runs in WSL | the sharp detail in a terminal that draws pictures |
+| `hover-git-object` | — | `:Hover show` on a commit id in a sandbox repository (real git, fixed dates): `git show --stat` fills the float (message, file, summary line, snapshot); a hex word that is no object says so | — |
+| `hover-auth-curl` | — | a link to a host named in `links.auth` through the real lib.nvim curl transport, `curl` a recording stand-in: `-K` (the credential on stdin), the token nowhere on the command line; a link to another host without `-K` | a real host behind a credential |
+| `hover-web-pdf-download` | — | a link whose page fetch (stub) answers `application/pdf`: one `curl -o` download (stand-in) with `--globoff` and the PDF Accept header; the stand-in writes nothing and the hover says the document did not download | a real PDF's first page (pdftoppm, an image provider) |
+| `hover-shot-browser` | — | `:Hover show` on a link with `links.shot` on and `links.shot.command` named: the browser (stand-in `chromium`) gets `--headless=new`, a `--screenshot` file in hover's cache and the link; it draws nothing and the hover says the page did not render | the lookup of an installed Chrome, a real picture |
 | `hover-focus-mouse` | `hover.nvim/hover-focus-maus-handpruefung-auswahl-rad-q-esc` | `:Hover focus` on a text hover, then through `nvim_input_mouse`: a drag selects words (Visual mode, snapshot) and `y` yanks exactly them; the wheel scrolls the float, not the window behind; `q` and `<Esc>` lead back to the origin window, the float stays up and the next cursor move closes it | a real mouse (a picture hover refusing to be entered is `focus_spec.lua`) |
 
 The network in a sheet is a stub (`_G.net_stub` in `TESTS/sheets/_helpers.lua`
@@ -72,6 +76,12 @@ guard stays strict, `curl` is not in `guard_allow`. The answers are data in
 `TESTS/sheets/fixtures/http/` (hosts under the reserved `example.test`). The
 exception is the live sheet `hover-http-preview-live`: it reaches
 `example.com` and nothing else (`live.hosts`), and never in the suite or on CI.
+A program hover starts itself (curl for a download or an authenticated fetch,
+the browser of a page shot) is a recording stand-in (`fakes`) where its effect
+would leave the editor; the sheet reads its command line. git runs for real.
+These sheets exist so that `testing perf` reaches every process start of
+hover (`TESTS/sheets/features.lua` says, per functionality, which sheet that is
+or why there is none).
 
 ## Coverage map
 

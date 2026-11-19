@@ -118,6 +118,7 @@ add({ wait = [[_G.float() == nil]] })
 
 return {
   id = "hover.bindings-float",
+  feature = "hover.resize",
   title = "hover.nvim: the show, resize, zen, pin, open and next commands of the bindings checklist",
   task = "hover.nvim/abnahme-bindings-testblaetter",
   engine = "rpc",
