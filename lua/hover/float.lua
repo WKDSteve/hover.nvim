@@ -737,10 +737,13 @@ function M.line_at(screenrow)
     return nil
   end
 
-  -- `pos[1]` is the 0-based top of the *text* area (see `contains`'s note on
-  -- why this float is `relative = "editor"`), so the text's first row is one
-  -- past it in 1-based screen coordinates.
-  local text_top = pos[1] + 1
+  -- `pos[1]` is the 0-based row of the float's *outer* corner: with a border
+  -- that is the ring's top row (measured: `row = 3` reports `{3, ...}` with
+  -- or without a border), so the text starts one row below it. In 1-based
+  -- screen coordinates that is `pos[1] + 1 + ring`.
+  local okc, cfg = pcall(api.nvim_win_get_config, win)
+  local ring = (okc and cfg.border and cfg.border ~= "none") and 1 or 0
+  local text_top = pos[1] + 1 + ring
   local line0 = screenrow - text_top
   if line0 < 0 then
     return nil
@@ -765,11 +768,9 @@ end
 --- images.nvim reads back to place a picture.
 ---
 --- **The border ring counts as inside**, and that is not generosity. The
---- float is anchored one row below the cursor, which puts its top ring on
---- the cursor's own row -- so under `trigger = { "mouse" }`, where the
---- pointer *is* the cursor, the pointer sits exactly on that ring. Excluding
---- it would mean the wheel never fired in the one workflow that puts a
---- pointer there to begin with.
+--- float is anchored one row below the cursor, so its top ring is the row
+--- under the cursor line -- a pointer that has just slid down off the target
+--- is on that ring, and excluding it would drop the wheel there.
 ---@param screenrow integer 1-based, as `getmousepos()` reports it
 ---@param screencol integer 1-based
 ---@return boolean
@@ -789,12 +790,13 @@ function M.contains(screenrow, screencol)
   local cfg = api.nvim_win_get_config(win)
   local ring = (cfg.border and cfg.border ~= "none") and 1 or 0
 
-  -- `pos` is the 0-based origin of the *text* area; the ring is drawn around
-  -- it. +1 converts to the 1-based screen coordinates `getmousepos()` uses.
-  local top = pos[1] + 1 - ring
-  local left = pos[2] + 1 - ring
-  local bottom = pos[1] + api.nvim_win_get_height(win) + ring
-  local right = pos[2] + api.nvim_win_get_width(win) + ring
+  -- `pos` is the 0-based corner of the float's *outer* frame (the ring's top
+  -- left cell when there is one), so the frame's first 1-based screen row is
+  -- `pos[1] + 1` and it spans the text height plus a ring on both sides.
+  local top = pos[1] + 1
+  local left = pos[2] + 1
+  local bottom = pos[1] + api.nvim_win_get_height(win) + 2 * ring
+  local right = pos[2] + api.nvim_win_get_width(win) + 2 * ring
 
   return screenrow >= top and screenrow <= bottom and screencol >= left and screencol <= right
 end

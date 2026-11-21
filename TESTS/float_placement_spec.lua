@@ -225,9 +225,7 @@ describe("hover on a small screen: every line of a long file is reachable", func
   end)
 
   it("shows the … of a cut page on screen, in the float's last row", function()
-    -- text.lua appended the marker as row max_lines + 1 of a float max_lines high. Room for
-    -- all max_lines rows here: on the 24-row screen above, the first page is still built at
-    -- max_lines into a shorter window (a follow-up), and only the scroll step is cut to it.
+    -- text.lua appended the marker as row max_lines + 1 of a float max_lines high.
     vim.o.lines = 40
     vim.cmd("redraw")
     assert.is_true(hover.show({ force = true }))
@@ -243,4 +241,55 @@ describe("hover on a small screen: every line of a long file is reachable", func
     page = api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, -1, false)
     assert.are.equal(("guide line %02d"):format(rows), page[1])
   end)
+  it("builds the first page for the rows beside the cursor line, marker on screen", function()
+    -- 80x24, cursor on row 3: the window is cut below max_lines (20). The first page used to be
+    -- built at 20 lines, so its last lines and the "…" were under the frame.
+    assert.is_true(hover.show({ force = true }))
+    local win = assert(float.win(), "no float")
+    local rows = api.nvim_win_get_height(win)
+    assert.is_true(rows < 20, "the window is cut on this screen")
+    local page = api.nvim_buf_get_lines(api.nvim_win_get_buf(win), 0, -1, false)
+    assert.are.equal(rows, #page, "the first page is as tall as its window")
+    assert.are.equal("…", page[rows])
+  end)
+
+  it("does not serve a page cut for a small screen to a hover with more room", function()
+    assert.is_true(hover.show({ force = true }))
+    local small = #api.nvim_buf_get_lines(api.nvim_win_get_buf(assert(float.win())), 0, -1, false)
+    hover.hide()
+    vim.o.lines = 40
+    vim.cmd("redraw")
+    assert.is_true(hover.show({ force = true }))
+    local big = #api.nvim_buf_get_lines(api.nvim_win_get_buf(assert(float.win())), 0, -1, false)
+    assert.is_true(big > small, "the roomy hover is built for its own room")
+  end)
+
+  for _, border in ipairs({ "single", "none" }) do
+    it(
+      ("maps a mouse row to the buffer line and bounds the frame, border %s"):format(border),
+      function()
+        config.setup({ border = border })
+        vim.o.lines = 40
+        vim.cmd("redraw")
+        assert.is_true(hover.show({ force = true }))
+        local win = assert(float.win(), "no float")
+        local ring = border == "none" and 0 or 1
+        local top, bottom = frame_rows()
+        local cfg = api.nvim_win_get_config(win)
+        local col = (type(cfg.col) == "table" and cfg.col[false] or cfg.col) + 1 + ring
+        -- Rows around the frame: the row above and below are outside.
+        assert.is_false(float.contains(top - 1, col))
+        assert.is_true(float.contains(top, col))
+        assert.is_true(float.contains(bottom, col))
+        assert.is_false(float.contains(bottom + 1, col))
+        -- The first text row is `ring` rows into the frame.
+        if ring == 1 then
+          assert.is_nil(float.line_at(top))
+        end
+        assert.are.equal(0, float.line_at(top + ring))
+        assert.are.equal(1, float.line_at(top + ring + 1))
+        assert.is_nil(float.line_at(bottom + 1))
+      end
+    )
+  end
 end)

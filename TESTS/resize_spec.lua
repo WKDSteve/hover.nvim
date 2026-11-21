@@ -452,13 +452,18 @@ describe("hover.resize", function()
     local rows = vim.api.nvim_win_get_height(w)
     local cols = vim.api.nvim_win_get_width(w)
 
-    -- `pos` is 0-based and names the text area; `getmousepos()` is 1-based.
+    -- `pos` is 0-based and names the outer corner of the frame (the ring's
+    -- top left cell); `getmousepos()` is 1-based.
     assert.is_true(float.contains(pos[1] + 2, pos[2] + 2), "the middle is not inside")
-    assert.is_true(float.contains(pos[1], pos[2] + 2), "the top border ring is not inside")
-    assert.is_true(float.contains(pos[1] + rows + 1, pos[2] + 2), "the bottom ring is not inside")
-    assert.is_false(float.contains(pos[1] - 1, pos[2] + 2), "one row above the ring is inside")
+    assert.is_true(float.contains(pos[1] + 1, pos[2] + 2), "the top border ring is not inside")
+    assert.is_true(float.contains(pos[1] + rows + 2, pos[2] + 2), "the bottom ring is not inside")
+    assert.is_false(float.contains(pos[1], pos[2] + 2), "one row above the ring is inside")
     assert.is_false(
-      float.contains(pos[1] + 2, pos[2] + cols + 2),
+      float.contains(pos[1] + rows + 3, pos[2] + 2),
+      "one row below the ring is inside"
+    )
+    assert.is_false(
+      float.contains(pos[1] + 2, pos[2] + cols + 3),
       "one column past the ring is inside"
     )
     -- Deliberately outside the signature: `getmousepos()` can answer with
