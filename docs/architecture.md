@@ -80,7 +80,9 @@ has. The cursor line itself is never covered (on 80x24 with the cursor on row 3 
 hover used to be pushed up over it). The cut is made before anything is built: `box()`
 asks `float.fit_height`, so a previewer builds a page (or a picture's canvas) exactly as
 tall as the window it lands in, and scrolling steps by that height -- a window cut below
-its page would hide the last lines of every page. `float.size_for` reports the same cut,
+its page would hide the last lines of every page. The first page goes through
+`box()` too (`M.show`), and `cache.key` carries the box size so a page cut for a small
+screen is not served to a hover with more room. `float.size_for` reports the same cut,
 so `hover.resize` counts it as the screen refusing a step. A canvas built for another
 size is never cut by the float (that would crop it); it moves above only when it fits
 whole.

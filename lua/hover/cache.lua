@@ -66,10 +66,21 @@ function M.key(target, opts)
   end
   local line = (opts and type(opts.line) == "number") and tostring(opts.line) or ""
   local line_end = (opts and type(opts.line_end) == "number") and tostring(opts.line_end) or ""
-  return table.concat(
-    { target.type, target.raw, target.path or "", target.anchor or "", mtime, line, line_end },
-    "|"
-  )
+  -- The box the content was built for: a page cut to the rows beside the
+  -- cursor line must not be served to a hover with more room (or the reverse).
+  local width = (opts and type(opts.max_width) == "number") and tostring(opts.max_width) or ""
+  local height = (opts and type(opts.max_lines) == "number") and tostring(opts.max_lines) or ""
+  return table.concat({
+    target.type,
+    target.raw,
+    target.path or "",
+    target.anchor or "",
+    mtime,
+    line,
+    line_end,
+    width,
+    height,
+  }, "|")
 end
 
 --- The cached content for `key`, or nil.

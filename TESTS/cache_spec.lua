@@ -42,12 +42,24 @@ describe("hover.cache.key (PERF-46)", function()
     )
   end)
 
-  it("ignores opts fields that are not line/line_end", function()
-    -- `opts` is the whole `Hover.PreviewOpts` table -- only the two fields
-    -- that change *which* window of the file is shown belong in the key.
+  it("ignores opts fields that neither pick the window nor size the box", function()
+    -- `opts` is the whole `Hover.PreviewOpts` table -- the fields that change
+    -- *which* window of the file is shown, and the box it is built for, belong
+    -- in the key; the rest does not.
     assert.equals(
-      cache.key(target, { line = 42, max_lines = 20 }),
-      cache.key(target, { line = 42, max_lines = 999 })
+      cache.key(target, { line = 42, max_lines = 20, url_timeout_ms = 1 }),
+      cache.key(target, { line = 42, max_lines = 20, url_timeout_ms = 999 })
+    )
+  end)
+
+  it("keys on the box the content was built for", function()
+    assert.are_not.equal(
+      cache.key(target, { max_lines = 18, max_width = 80 }),
+      cache.key(target, { max_lines = 20, max_width = 80 })
+    )
+    assert.are_not.equal(
+      cache.key(target, { max_lines = 20, max_width = 60 }),
+      cache.key(target, { max_lines = 20, max_width = 80 })
     )
   end)
 

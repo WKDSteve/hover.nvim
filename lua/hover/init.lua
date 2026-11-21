@@ -1368,7 +1368,12 @@ function M.show(opts)
   -- Deliberately not widened by `force`. Volume gates open for an explicit
   -- request; the fetch does not, because a keypress asking "what is this"
   -- is not consent to tell the link's host about it.
+  -- The page is built for the box this hover will land in, not for the
+  -- configured `max_lines`: next to the cursor `box()` is the rows beside the
+  -- cursor line, and a longer first page lost its last lines (and the cut
+  -- marker) under the frame. `cache.key` carries the size for the same reason.
   local preview_opts = config.preview_opts()
+  preview_opts.max_width, preview_opts.max_lines = box()
   -- `init.lua:42` out of a log or a stack trace: show line 42, not the
   -- file's first twenty lines, which are almost never the ones being asked
   -- about. Sources that name no line leave this nil and nothing changes.
