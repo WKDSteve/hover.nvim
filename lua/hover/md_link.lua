@@ -238,6 +238,32 @@ function M.links(line)
   return out
 end
 
+--- A `:line` or `:line-line` suffix on a path target, split off the path:
+--- `[x](lua/a.lua:50)` names line 50 of `lua/a.lua`, as the same text outside
+--- link syntax does (bare path). A URL (`://`, a port) and a target without a
+--- path shape (`host:80`) are left whole.
+---@param target string
+---@return string path
+---@return integer|nil line
+---@return integer|nil line_end
+local function split_line(target)
+  if target:find("://", 1, true) then
+    return target
+  end
+  local path, first, last = target:match("^(.+):(%d+)%-(%d+)$")
+  if not path then
+    path, first = target:match("^(.+):(%d+)$")
+  end
+  if not path or not path:find("[%./\\]") then
+    return target
+  end
+  local line, line_end = tonumber(first), tonumber(last)
+  if line_end and line_end <= line then
+    line_end = nil
+  end
+  return path, line, line_end
+end
+
 --- The link target under the cursor in a markdown buffer, in the shape
 --- `hover` expects from a source.
 ---@param bufnr? integer
@@ -271,8 +297,11 @@ function M.under_cursor(bufnr)
   if not target or target == "" then
     return nil
   end
+  local path, line_no, line_end = split_line(target)
   return {
-    target = target,
+    target = path,
+    line = line_no,
+    line_end = line_end,
     lnum = row,
     col = best.s - 1,
     col_end = best.e - 1,
