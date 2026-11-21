@@ -54,6 +54,7 @@
 ---@field zoom_keys? Hover.ZoomKeys
 ---@field zen_keys? Hover.ZenKeys
 ---@field copy_keys? Hover.CopyKeys # Keys that copy what the float shows. See `hover.copy`.
+---@field ocr_keys? Hover.OcrKeys # Keys that read the text out of the picture on screen (images.nvim OCR). See `hover.ocr`.
 ---@field dismiss_keys? string|string[] # Keys that wave the hover on screen away. Default `{ "q", "<Esc>" }`; a configured list replaces the default, and an empty one binds nothing.
 ---@field open_keys? string|string[] # Keys that open what the float is showing, through open.nvim or `vim.ui.open`. Default `{ "gf" }`; an empty list binds nothing.
 ---@field keymaps? Hover.Keymaps
@@ -262,6 +263,9 @@
 
 ---@class Hover.CopyKeys
 ---@field copy? string|string[] # Default `{ "Y" }`.
+
+---@class Hover.OcrKeys
+---@field ocr? string|string[] # Default `{ "gO" }`.
 
 ---@class Hover.Keymaps
 ---@field show? string|string[]|false # Show the hover for whatever is under the cursor, ignoring every volume switch. Default false: no key is claimed unless asked for.

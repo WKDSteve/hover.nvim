@@ -928,6 +928,19 @@ return {
     copy = { "Y" },
   },
 
+  --- Read the text out of the picture on screen, borrowed for **every** hover:
+  --- images.nvim's OCR (tesseract) on the picture the float draws -- an image,
+  --- the page of a PDF, the zoomed crop -- with the text in a scratch split.
+  --- See `hover.ocr` and `:Hover ocr`.
+  ---
+  --- **`gO`, a two-key chord nothing else here owns.** A hover with no picture
+  --- answers with one line instead, so the key never does something the
+  --- reader did not mean. Without images.nvim or tesseract the answer says so.
+  ocr_keys = {
+    ---@type string|string[]
+    ocr = { "gO" },
+  },
+
   --- Move the magnified view, borrowed while a hover is zoomed in -- and,
   --- since 2026-09-24, the mini filetree's selection, borrowed while a
   --- directory hover shows one.

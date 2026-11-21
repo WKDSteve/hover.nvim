@@ -1947,6 +1947,43 @@ function M.copy()
   })
 end
 
+--- Read the text out of the picture the float draws right now -- an image,
+--- the rendered page of a PDF, the zoomed crop -- with images.nvim's OCR
+--- (tesseract). The text opens in a scratch split of images.nvim's. See
+--- `hover.copy` for what "the picture on screen" means; this takes the same
+--- file (`_open.image_path`), so OCR and copy always agree.
+---
+--- Nothing is sent anywhere and nothing is installed: without images.nvim, or
+--- without tesseract, the answer says so.
+---@return boolean started
+---@return string message
+function M.ocr()
+  if not (_open and float.win()) then
+    keys.release()
+    return false, "no hover to read"
+  end
+  if _open.copy_refused then
+    return false, (_open.copy_refused:gsub("copy", "read"))
+  end
+  local path = _open.image_path
+  if not path or path == "" then
+    return false, "this hover shows no picture to read"
+  end
+  local ok_ocr, ocr = pcall(require, "images.ocr")
+  if not ok_ocr or type(ocr.available) ~= "function" or not ocr.available() then
+    return false, "OCR needs images.nvim and tesseract (see :checkhealth images)"
+  end
+  local ok_images, images = pcall(require, "images")
+  if not ok_images or type(images.ocr) ~= "function" then
+    return false, "OCR needs a newer images.nvim"
+  end
+  local started = images.ocr(path)
+  if started ~= true then
+    return false, "OCR could not be started"
+  end
+  return true, "reading " .. vim.fn.fnamemodify(path, ":t") .. " ..."
+end
+
 ---@internal
 --- `config.preview_opts()` brought up to where this hover actually is.
 ---

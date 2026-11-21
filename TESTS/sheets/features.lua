@@ -16,6 +16,13 @@ return {
     docs = "docs/FEATURES/COPY.md",
   },
   {
+    id = "hover.ocr",
+    title = "gO or :Hover ocr reads the text out of the picture the hover shows, through images.nvim's OCR",
+    surface = { "command:Hover ocr", "binding:gO", "config:ocr_keys.ocr" },
+    perf = "skip:the OCR is tesseract through images.nvim, not hover; images.nvim's sheets measure it where tesseract is",
+    docs = "docs/commands.md",
+  },
+  {
     id = "hover.quiet",
     title = "Little is on by default: a hover opens only where it has something to say",
     perf = "skip:starts no process: whether a hover opens is decided in the editor (its specs test it)",

@@ -196,6 +196,17 @@ function M.borrow(content, handlers)
     end, "hover: copy what this hover shows")
   end
 
+  -- OCR of the picture on screen, for every hover: a hover with no picture
+  -- answers with one line.
+  local oc = type(cfg.ocr_keys) == "table" and cfg.ocr_keys or {}
+  for _, lhs in ipairs(M.keylist(oc.ocr)) do
+    take(seen, lhs, function()
+      local ok, message = hover().ocr()
+      local notify = require("hover.notify");
+      (ok and notify.info or notify.warn)(message)
+    end, "hover: read the text of the picture this hover shows")
+  end
+
   -- Full screen, for *any* hover, and before the scroll keys so a key in both
   -- lists keeps the older meaning.
   --

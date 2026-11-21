@@ -105,6 +105,7 @@ is about that module specifically, as opposed to the module merely being
 | `config/DEFAULTS.lua` | — | data only, see below |
 | `config/init.lua` | `config_spec.lua` | |
 | `copy.lua` | `copy_spec.lua` | the clipboard stubbed (lib.nvim's `copy_to_clipboard` may start a process the guards refuse); the text path through a real float, the picture path through `take` |
+| `init.lua` (`ocr`) | `ocr_spec.lua` | `:Hover ocr` / `gO` on a real float: the answers that never reach images.nvim (no hover, no picture) and the key borrow; the OCR itself is images.nvim's |
 | `float.lua` | `registry_spec.lua`, `resize_spec.lua`, `zen_spec.lua`, `zoom_spec.lua`, `video_spec.lua` | the most heavily exercised module in the suite; every sizing/positioning path is driven through a real float |
 | `formats.lua` | `video_spec.lua` | data table + three lookups; no dedicated file needed |
 | `health.lua` | `health_spec.lua` | added by the 2026-09-18 audit — had zero coverage before it; see below |

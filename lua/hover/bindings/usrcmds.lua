@@ -385,6 +385,19 @@ function M.routes()
       end,
     },
     {
+      path = { "ocr" },
+      desc = "Read the text out of the picture the hover shows (images.nvim OCR, tesseract)",
+      run = function()
+        local h = hover()
+        if type(h.ocr) ~= "function" then
+          return
+        end
+        local ok, message = h.ocr()
+        local notify = require("hover.notify");
+        (ok and notify.info or notify.warn)(message)
+      end,
+    },
+    {
       path = { "dashboard" },
       desc = "Open the board: every switch, its state, and the command that acts on it",
       run = open_dashboard,

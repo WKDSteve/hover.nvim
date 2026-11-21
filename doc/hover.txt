@@ -191,6 +191,9 @@ toggles. >
                                          picture on screen as a file, its
                                          path into the registers; copies
                                          are kept seven days
+  :Hover ocr                             read the text out of the picture
+                                         the float shows (images.nvim OCR,
+                                         tesseract) into a scratch split
   :Hover dashboard                       the mode, every switch and what
                                          opens by itself, as a board:
                                          <CR> toggles the row, ? lists
@@ -282,6 +285,9 @@ never hold a mapping of its own.
   Y                           copy what the float shows: its lines, or the
                               picture on screen as a file path. Bound for
                               EVERY hover. See `:Hover copy`
+  gO                          read the text out of the picture on screen
+                              (images.nvim OCR). Bound for EVERY hover.
+                              See `:Hover ocr`
   F                           full screen, and back. Bound for every hover
                               that has a target
   <M-PageDown>, <C-Down>      next screenful of lines, or next PDF page
@@ -776,6 +782,7 @@ worth asserting.
     dismiss_keys = { "q", "<Esc>" },
     open_keys = { "gf" },
     copy_keys = { copy = { "Y" } },
+    ocr_keys = { ocr = { "gO" } },
     keymaps = { show = false },
   })
 <
