@@ -2,7 +2,7 @@
 ---@brief Which monitor the terminal is on right now, for whichever playback
 --- tier is about to open a window.
 ---@description
---- **The question this answers, once, synchronously, before a player opens.**
+--- **The question this answers, once, before a player opens.**
 --- `preview.window` wants an mpv `--screen=N` that matches wherever the
 --- reader actually is, not screen 0 by default; `preview.align_win` wants a
 --- rectangle to centre the system player's window inside, on the right
@@ -17,10 +17,12 @@
 --- Neovim, which has no window handle of its own to report a screen position
 --- from (`getwinpos()` answers -1,-1 outside a GUI front-end).
 ---
---- **Synchronous, unlike `align_win`'s poll.** That module waits several
---- seconds for a *new* window to appear; this one asks about a window that
---- already exists, so one quick query answers it — a short `vim.system(...)
---- :wait()` rather than a background poll.
+--- **Asynchronous, though it is one short query.** It asks about a window
+--- that already exists, so a single helper run answers it -- but on Windows
+--- that run is a PowerShell start-up, measured 0.5-0.8 s every time
+--- (2026-11-19), which a `:wait()` turned into a frozen editor on every
+--- `<CR>` on a video. `M.detect_async` answers through a callback instead;
+--- the player opens once the answer is in.
 ---
 --- **The screen index is Windows-only, and says so.** Matching mpv's own
 --- `--screen=N` numbering against a monitor found by other means could only
@@ -136,12 +138,14 @@ local function detect_platform()
   return nil
 end
 
---- Where the terminal is right now: which screen (Windows only; `nil`
---- elsewhere) and its rectangle. `nil` when it cannot be answered at all --
---- a caller then falls back to whatever it did before this module existed.
----@param timeout_ms integer|nil default 1000
----@return { screen: integer|nil, x: integer, y: integer, w: integer, h: integer }|nil
-function M.detect(timeout_ms)
+---@alias Hover.Monitor.Result { screen: integer|nil, x: integer, y: integer, w: integer, h: integer }
+
+---@internal
+--- The helper script for this platform, written to the cache directory, and
+--- the argv that runs it. `nil` when there is no platform to ask or the
+--- script cannot be written.
+---@return string[]|nil
+local function prepare()
   local platform = detect_platform()
   if not platform then
     return nil
@@ -177,14 +181,18 @@ function M.detect(timeout_ms)
   fd:close()
 
   argv[#argv + 1] = path
+  return argv
+end
 
-  local ok, result = pcall(function()
-    return vim.system(argv, { text = true }):wait(timeout_ms or 1000)
-  end)
-  if not ok or not result or result.code ~= 0 or type(result.stdout) ~= "string" then
+---@internal
+--- Turn the helper's finished run into a result, or `nil` for anything that
+--- is not one well-formed line from a successful run.
+---@param result vim.SystemCompleted|nil
+---@return Hover.Monitor.Result|nil
+local function parse(result)
+  if not result or result.code ~= 0 or type(result.stdout) ~= "string" then
     return nil
   end
-
   local screen, x, y, w, h = result.stdout:match("(%-?%d+)%s+(%-?%d+)%s+(%-?%d+)%s+(%d+)%s+(%d+)")
   if not x then
     return nil
@@ -197,6 +205,62 @@ function M.detect(timeout_ms)
     w = tonumber(w),
     h = tonumber(h),
   }
+end
+
+--- Where the terminal is right now: which screen (Windows only; `nil`
+--- elsewhere) and its rectangle. `nil` when it cannot be answered at all --
+--- a caller then falls back to whatever it did before this module existed.
+---
+--- Blocks the editor until the helper answers (measured 0.5-0.8 s on
+--- Windows, PowerShell's own start-up). Nothing in hover.nvim calls it any
+--- more; the playback paths use `M.detect_async`. Kept for callers outside
+--- this plugin.
+---@param timeout_ms integer|nil default 1000
+---@return Hover.Monitor.Result|nil
+function M.detect(timeout_ms)
+  local argv = prepare()
+  if not argv then
+    return nil
+  end
+  local ok, result = pcall(function()
+    return vim.system(argv, { text = true }):wait(timeout_ms or 1000)
+  end)
+  if not ok then
+    return nil
+  end
+  return parse(result)
+end
+
+--- Same question as `M.detect`, without blocking: the helper runs in the
+--- background and `on_done` gets the answer (or `nil`) on the main loop,
+--- exactly once, never synchronously from inside this call. A helper that
+--- does not answer within `timeout_ms` is killed and answers `nil`.
+---@param on_done fun(result: Hover.Monitor.Result|nil)
+---@param timeout_ms integer|nil default 1000
+---@return nil
+function M.detect_async(on_done, timeout_ms)
+  local done = false
+  local function finish(result)
+    if done then
+      return
+    end
+    done = true
+    vim.schedule(function()
+      on_done(result)
+    end)
+  end
+
+  local ok_argv, argv = pcall(prepare)
+  if not ok_argv or not argv then
+    finish(nil)
+    return
+  end
+  local ok = pcall(vim.system, argv, { text = true, timeout = timeout_ms or 1000 }, function(result)
+    finish(parse(result))
+  end)
+  if not ok then
+    finish(nil)
+  end
 end
 
 return M

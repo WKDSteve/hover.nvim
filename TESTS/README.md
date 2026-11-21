@@ -113,12 +113,12 @@ is about that module specifically, as opposed to the module merely being
 | `linkcache.lua` | `linkcache_spec.lua` | driven through `preview.url.fetch` with `lib.nvim.net.curl` stubbed; "a new session" is the in-memory stores dropped with the directory left standing |
 | `notify.lua` | — | a one-line re-export of `lib.nvim.notify`; nothing of its own to test |
 | `persist.lua` | `persist_spec.lua` | |
-| `preview/align_win.lua` | — | excluded, see below |
+| `preview/align_win.lua` | `align_win_spec.lua` | only that it asks `preview.monitor` without waiting and starts the script after the answer; the OS scripts stay excluded, see below |
 | `preview/binary.lua` | `binary_spec.lua` | added by the 2026-09-18 audit |
 | `preview/external.lua` | `external_spec.lua` | |
 | `preview/git.lua` | `git_spec.lua` | added by the 2026-09-18 audit |
 | `preview/media.lua` | `resize_spec.lua`, `zoom_spec.lua`, `window_spec.lua`, `office_spec.lua` (stubbed) | |
-| `preview/monitor.lua` | `monitor_spec.lua` | added by the 2026-09-18 audit; the OS scripts themselves are excluded, see below |
+| `preview/monitor.lua` | `monitor_spec.lua` | added by the 2026-09-18 audit; `M.detect_async` (no `wait()`, answer on the main loop) since 2026-11-21; the OS scripts themselves are excluded, see below |
 | `preview/office.lua` | `office_spec.lua` | added by the 2026-09-18 audit — the module exported `M.reset()` with a doc comment saying it exists for tests, and had none |
 | `preview/playback.lua` | `playback_spec.lua` | |
 | `preview/shot.lua` | `shot_spec.lua` | |
@@ -157,7 +157,7 @@ is about that module specifically, as opposed to the module merely being
 - **`preview/monitor.lua`'s OS scripts** — `script_windows`/`script_macos`/
   `script_linux` generate the PowerShell/AppleScript/bash bodies that query a
   real window manager; `TESTS/monitor_spec.lua` covers everything else in
-  this module (`M.detect`'s stdout-parsing branches, via a stubbed
+  this module (`M.detect`'s and `M.detect_async`'s stdout-parsing branches, via a stubbed
   `vim.system`) but not the script bodies themselves — the CI workflow
   documents this whole family as "evidenced only by hand," and that stance
   is unchanged by this audit.

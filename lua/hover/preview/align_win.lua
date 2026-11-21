@@ -391,12 +391,31 @@ function M.try_centre_new_window()
   -- `preview.window` asks `preview.monitor` for, so mpv and the system
   -- player centre in the same place rather than one of them defaulting to
   -- whichever screen this script happens to run on.
+  -- Asked in the background, like `preview.window` does: on Windows the
+  -- answer is a PowerShell start-up (0.5-0.8 s) that used to freeze the
+  -- editor right after the hand-off. The alignment script starts once the
+  -- answer is in -- the same moment it started before, only without the
+  -- editor waiting for it.
   local ok_mon, monitor = pcall(require, "hover.preview.monitor")
-  local detected
-  if ok_mon and type(monitor) == "table" and type(monitor.detect) == "function" then
-    local ok_detect, result = pcall(monitor.detect)
-    detected = ok_detect and result or nil
+  if not (ok_mon and type(monitor) == "table" and type(monitor.detect_async) == "function") then
+    pcall(M._launch, platform, nil)
+    return
   end
+  local ok_ask = pcall(monitor.detect_async, function(detected)
+    pcall(M._launch, platform, detected)
+  end)
+  if not ok_ask then
+    pcall(M._launch, platform, nil)
+  end
+end
+
+---@internal
+--- Write and start the alignment script for `platform`, centring inside
+--- `detected` when there is one. Never blocks.
+---@param platform "windows"|"macos"|"linux"
+---@param detected { x: integer, y: integer, w: integer, h: integer }|nil
+---@return nil
+function M._launch(platform, detected)
   local target = detected and { x = detected.x, y = detected.y, w = detected.w, h = detected.h }
     or nil
 
