@@ -161,4 +161,6 @@ docs/map/
 .deps/
 
 # Agent worktrees and session state.
-.claude/
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
