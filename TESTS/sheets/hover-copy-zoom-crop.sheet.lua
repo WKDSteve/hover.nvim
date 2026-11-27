@@ -41,7 +41,7 @@ return {
   steps = {
     {
       lua = [[dofile(vim.fn.getcwd() .. "/TESTS/sheets/_helpers.lua")
-      vim.o.laststatus = 0; vim.o.ruler = false
+      vim.o.laststatus = 0; vim.o.ruler = false; vim.o.cmdheight = 4
       package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(text, on_done)
         _G.clipped = _G.clipped or {}
         _G.clipped[#_G.clipped + 1] = text
