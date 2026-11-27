@@ -172,8 +172,10 @@ end
 
 --- Put `text` into the unnamed register and onto the clipboard.
 ---
---- The unnamed register always takes it; the clipboard is lib.nvim's, which
---- checks that the write actually happened rather than trusting `setreg`.
+--- The unnamed register is set before this returns. The clipboard is lib.nvim's,
+--- called with a callback so the editor never waits for a clipboard tool (on
+--- Windows without a provider that is a PowerShell start, 300-700 ms): `on_done`
+--- gets whether the clipboard took it, on a later tick.
 ---
 --- **The clipboard is written last, and a linewise text ends in a newline
 --- there.** A clipboard provider keeps no register type: with
@@ -181,15 +183,27 @@ end
 --- a linewise copy pasted the lines into the middle of the current one.
 ---@param text string
 ---@param linewise boolean
----@return boolean clipboard Whether the clipboard took it too.
-function M.put(text, linewise)
+---@param on_done? fun(clipboard: boolean) Whether the clipboard took it too.
+---@return nil
+function M.put(text, linewise, on_done)
   vim.fn.setreg('"', text, linewise and "l" or "v")
+  local function finish(took)
+    if on_done then
+      on_done(took == true)
+    end
+  end
   local ok, copy = pcall(require, "lib.nvim.cross.copy_to_clipboard")
   if not ok or type(copy) ~= "function" then
-    return false
+    return vim.schedule(function()
+      finish(false)
+    end)
   end
-  local ok_copy, took = pcall(copy, linewise and (text .. "\n") or text)
-  return ok_copy and took == true
+  local ok_copy = pcall(copy, linewise and (text .. "\n") or text, finish)
+  if not ok_copy then
+    vim.schedule(function()
+      finish(false)
+    end)
+  end
 end
 
 --- Take what a float shows, and say in one line what was taken.
@@ -200,35 +214,45 @@ end
 --- `refused` is the hover's own reason it has nothing to take -- a video
 --- playing (the buffer holds block characters, the picture is in extmarks),
 --- a placeholder still rendering -- and is said instead of copying.
+---
+--- **The answer comes through `report`, not a return value**: the register is
+--- set at once, but whether the clipboard took it is known on a later tick.
+--- `report` is called exactly once, at once for a refusal.
 ---@param view { image_path?: string, lines?: string[], hint?: string, refused?: string, tail_marker?: boolean }
----@return boolean ok
----@return string message
-function M.take(view)
+---@param report fun(ok: boolean, message: string)
+---@return nil
+function M.take(view, report)
   if type(view.refused) == "string" then
-    return false, view.refused
+    return report(false, view.refused)
   end
   if type(view.image_path) == "string" and view.image_path ~= "" then
     local path, err = M.picture(view.image_path, view.hint)
     if not path then
-      return false, err or "could not copy the picture"
+      return report(false, err or "could not copy the picture")
     end
-    local clip = M.put(path, false)
-    return true,
-      ("copied the picture on screen to %s (path in %s)"):format(
-        path,
-        clip and "the register and the clipboard" or "the unnamed register"
+    return M.put(path, false, function(clip)
+      report(
+        true,
+        ("copied the picture on screen to %s (path in %s)"):format(
+          path,
+          clip and "the register and the clipboard" or "the unnamed register"
+        )
       )
+    end)
   end
   local text, count = M.text(view.lines or {}, view.tail_marker)
   if count == 0 then
-    return false, "nothing to copy in this hover"
+    return report(false, "nothing to copy in this hover")
   end
-  local clip = M.put(text, true)
-  return true,
-    ("copied %d line(s) to %s"):format(
-      count,
-      clip and "the register and the clipboard" or "the unnamed register"
+  M.put(text, true, function(clip)
+    report(
+      true,
+      ("copied %d line(s) to %s"):format(
+        count,
+        clip and "the register and the clipboard" or "the unnamed register"
+      )
     )
+  end)
 end
 
 --- Forget the session's sweep. For the specs.

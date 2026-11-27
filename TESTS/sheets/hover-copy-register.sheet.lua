@@ -19,9 +19,10 @@ return {
       note = "no intro, no status line (it would name the temporary path)",
     },
     {
-      lua = [[package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(text)
+      lua = [[package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(text, on_done)
         _G.clipped = _G.clipped or {}
         _G.clipped[#_G.clipped + 1] = text
+        if on_done then vim.schedule(function() on_done(true) end) end
         return true
       end
       _G.target_lines = function(from, to)

@@ -87,6 +87,13 @@ The clipboard itself is lib.nvim's `copy_to_clipboard`, which checks that the
 write took rather than trusting `setreg`. When it did not, the message says
 "the unnamed register" instead of "the register and the clipboard".
 
+The clipboard is written **without blocking the editor**: without a provider
+that is a PowerShell start of several hundred milliseconds on Windows. The
+unnamed register is set at once; the message comes when the clipboard has
+answered, a moment later. In Lua, `require("hover").copy(report)` and
+`require("hover.copy").take(view, report)` answer through `report(ok, message)`
+and return nothing.
+
 ## Why `Y`
 
 `Y` already means yank. It is one finished operation with no prefix (`y$` in

@@ -1931,25 +1931,29 @@ end
 --- **The float's buffer, not the content it was built from.** What the reader
 --- sees is what is copied: a scrolled text preview gives the lines on screen,
 --- not the file's first twenty.
----@return boolean copied
----@return string message
-function M.copy()
+---
+--- **The answer comes through `report`**: the register is set at once, but
+--- the clipboard is written without blocking the editor, so whether it took
+--- is known later. `report` is called exactly once.
+---@param report fun(ok: boolean, message: string)
+---@return nil
+function M.copy(report)
   if not (_open and float.win()) then
     -- The float went without telling: a `Y` still borrowed would answer this
     -- forever instead of being `y$` again. The same net `zoomable` keeps.
     keys.release()
-    return false, "no hover to copy"
+    return report(false, "no hover to copy")
   end
   local buf = float.buf()
   local lines = buf and api.nvim_buf_get_lines(buf, 0, -1, false) or {}
   local target = _open.target
-  return require("hover.copy").take({
+  require("hover.copy").take({
     image_path = _open.image_path,
     refused = _open.copy_refused,
     tail_marker = _open.tail_marker,
     lines = lines,
     hint = target and (target.url or target.path or target.raw) or nil,
-  })
+  }, report)
 end
 
 --- Read the text out of the picture the float draws right now -- an image,

@@ -11,6 +11,41 @@
 
 local copy = require("hover.copy")
 
+--- Run an asynchronous `fn(report)` and wait for its one answer.
+---@param fn fun(report: fun(ok: boolean, message: string))
+---@return boolean ok
+---@return string message
+local function answer(fn)
+  local got
+  fn(function(ok, message)
+    assert.is_nil(got, "reported twice")
+    got = { ok, message }
+  end)
+  assert.is_true(
+    vim.wait(2000, function()
+      return got ~= nil
+    end, 5),
+    "no answer"
+  )
+  return got[1], got[2]
+end
+
+--- A stand-in for lib.nvim's `copy_to_clipboard` that answers as the real one does:
+--- never before it returned, always through `on_done`. Without the callback it
+--- throws, as a blocking clipboard would freeze the editor.
+---@param clipped string[]
+---@param result boolean
+---@return function
+local function async_clip(clipped, result)
+  return function(text, on_done)
+    assert(on_done, "the clipboard was called in its blocking form")
+    clipped[#clipped + 1] = text
+    vim.schedule(function()
+      on_done(result)
+    end)
+  end
+end
+
 describe("hover.copy", function()
   local saved_clip, saved_dir, dir
   ---@type string[]
@@ -19,10 +54,7 @@ describe("hover.copy", function()
   before_each(function()
     clipped = {}
     saved_clip = package.loaded["lib.nvim.cross.copy_to_clipboard"]
-    package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(text)
-      clipped[#clipped + 1] = text
-      return true
-    end
+    package.loaded["lib.nvim.cross.copy_to_clipboard"] = async_clip(clipped, true)
     dir = vim.fn.tempname() .. "-copies"
     saved_dir = copy.dir
     copy.dir = function()
@@ -46,12 +78,36 @@ describe("hover.copy", function()
   end)
 
   it("puts the text into the unnamed register and onto the clipboard", function()
-    assert.is_true(copy.put("one\ntwo", true))
-    assert.same("one\ntwo\n", vim.fn.getreg('"'))
+    local took
+    copy.put("one\ntwo", true, function(clip)
+      took = clip
+    end)
+    assert.same("one\ntwo\n", vim.fn.getreg('"'), "the register is set before put returns")
+    assert.is_nil(took, "the clipboard answered before put returned")
+    vim.wait(2000, function()
+      return took ~= nil
+    end, 5)
+    assert.is_true(took)
     assert.same("V", vim.fn.getregtype('"'))
     -- With a newline on the clipboard: a provider keeps no register type, so
     -- under `clipboard=unnamedplus` that newline is what makes `p` linewise.
     assert.same({ "one\ntwo\n" }, clipped)
+  end)
+
+  it("does not wait for the clipboard: the register is set, the answer comes later", function()
+    local pending
+    package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(_, on_done)
+      pending = on_done
+    end
+    local message
+    copy.take({ lines = { "a", "b" } }, function(_, m)
+      message = m
+    end)
+    assert.same("a\nb\n", vim.fn.getreg('"'))
+    assert.is_nil(message, "the message came before the clipboard answered")
+    pending(false)
+    assert.is_truthy(message:find("unnamed register", 1, true), message)
+    assert.is_falsy(message:find("clipboard", 1, true), message)
   end)
 
   it("drops the marker a truncated preview ends on", function()
@@ -70,8 +126,12 @@ describe("hover.copy", function()
   end)
 
   it("refuses with the hover's own reason", function()
-    local ok, message =
-      copy.take({ lines = { "████" }, refused = "a playing video has nothing to copy" })
+    local ok, message = answer(function(report)
+      copy.take(
+        { lines = { "████" }, refused = "a playing video has nothing to copy" },
+        report
+      )
+    end)
     assert.is_false(ok)
     assert.same("a playing video has nothing to copy", message)
     assert.same({}, clipped)
@@ -148,7 +208,9 @@ describe("hover.copy", function()
   it("takes the picture over the blank lines a drawn hover is framed with", function()
     local source = vim.fn.tempname() .. ".png"
     vim.fn.writefile({ "png" }, source, "b")
-    local ok, message = copy.take({ image_path = source, lines = { "", "" }, hint = "/x/shot.png" })
+    local ok, message = answer(function(report)
+      copy.take({ image_path = source, lines = { "", "" }, hint = "/x/shot.png" }, report)
+    end)
     assert.is_true(ok, message)
     local path = vim.fn.getreg('"')
     assert.is_truthy(path:find(dir, 1, true) == 1, path)
@@ -158,7 +220,9 @@ describe("hover.copy", function()
   end)
 
   it("declines a hover with nothing in it", function()
-    local ok, message = copy.take({ lines = { "", " " } })
+    local ok, message = answer(function(report)
+      copy.take({ lines = { "", " " } }, report)
+    end)
     assert.is_false(ok)
     assert.is_truthy(message:find("nothing to copy", 1, true))
   end)
@@ -182,9 +246,7 @@ describe("hover.copy on a real float", function()
     registry.reset()
     keys.release()
     saved_clip = package.loaded["lib.nvim.cross.copy_to_clipboard"]
-    package.loaded["lib.nvim.cross.copy_to_clipboard"] = function()
-      return true
-    end
+    package.loaded["lib.nvim.cross.copy_to_clipboard"] = async_clip({}, true)
     root = vim.fn.tempname()
     vim.fn.mkdir(root, "p")
     vim.fn.writefile({ "first line", "second line", "third line" }, root .. "/three.txt")
@@ -214,7 +276,7 @@ describe("hover.copy on a real float", function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "see ./three.txt here" })
     vim.api.nvim_win_set_cursor(win, { 1, 5 })
     assert.is_true(hover.show({ force = true }), "no hover opened")
-    local ok, message = hover.copy()
+    local ok, message = answer(hover.copy)
     assert.is_true(ok, message)
     local got = vim.fn.getreg('"')
     assert.is_truthy(got:find("first line\nsecond line\nthird line", 1, true), got)
@@ -233,7 +295,7 @@ describe("hover.copy on a real float", function()
   end)
 
   it("says so when no hover is open", function()
-    local ok, message = hover.copy()
+    local ok, message = answer(hover.copy)
     assert.is_false(ok)
     assert.same("no hover to copy", message)
   end)

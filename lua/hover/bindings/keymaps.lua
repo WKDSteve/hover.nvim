@@ -190,9 +190,10 @@ function M.borrow(content, handlers)
   local cp = type(cfg.copy_keys) == "table" and cfg.copy_keys or {}
   for _, lhs in ipairs(M.keylist(cp.copy)) do
     take(seen, lhs, function()
-      local ok, message = hover().copy()
-      local notify = require("hover.notify");
-      (ok and notify.info or notify.warn)(message)
+      hover().copy(function(ok, message)
+        local notify = require("hover.notify");
+        (ok and notify.info or notify.warn)(message)
+      end)
     end, "hover: copy what this hover shows")
   end
 

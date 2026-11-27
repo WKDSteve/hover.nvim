@@ -379,9 +379,10 @@ function M.routes()
         if type(h.copy) ~= "function" then
           return
         end
-        local ok, message = h.copy()
-        local notify = require("hover.notify");
-        (ok and notify.info or notify.warn)(message)
+        h.copy(function(ok, message)
+          local notify = require("hover.notify");
+          (ok and notify.info or notify.warn)(message)
+        end)
       end,
     },
     {
