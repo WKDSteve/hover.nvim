@@ -187,8 +187,11 @@ end
 ---@return nil
 function M.put(text, linewise, on_done)
   vim.fn.setreg('"', text, linewise and "l" or "v")
+  -- Once: a clipboard that took the callback and then threw must not report twice.
+  local done = false
   local function finish(took)
-    if on_done then
+    if on_done and not done then
+      done = true
       on_done(took == true)
     end
   end

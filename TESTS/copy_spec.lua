@@ -110,6 +110,23 @@ describe("hover.copy", function()
     assert.is_falsy(message:find("clipboard", 1, true), message)
   end)
 
+  it("reports once when the clipboard takes the callback and then throws", function()
+    package.loaded["lib.nvim.cross.copy_to_clipboard"] = function(_, on_done)
+      vim.schedule(function()
+        on_done(true)
+      end)
+      error("the tool failed after it was started")
+    end
+    local seen = {}
+    copy.take({ lines = { "a" } }, function(ok, message)
+      seen[#seen + 1] = { ok, message }
+    end)
+    vim.wait(200, function()
+      return #seen > 1
+    end, 5)
+    assert.same(1, #seen)
+  end)
+
   it("drops the marker a truncated preview ends on", function()
     assert.same({ "a", 1 }, { copy.text({ "a", "…" }, true) })
     assert.same({ "a", 1 }, { copy.text({ "a", "… (12 entries)", "" }, true) })
